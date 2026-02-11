@@ -1,0 +1,353 @@
+/* ============================================
+   Business Page Styles
+   ============================================ */
+
+/* Business Hero Section */
+.business-hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    padding-top: 140px;
+    padding-bottom: 80px;
+    background: linear-gradient(180deg, #E8E0FF 0%, #EDE8FF 30%, #F7F8FC 70%);
+    overflow: hidden;
+}
+
+.business-hero .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.business-hero-content {
+    max-width: 800px;
+    margin-bottom: 60px;
+}
+
+.business-hero-title {
+    font-family: 'RF Dewi Expanded', var(--font-family);
+    font-size: 56px;
+    font-weight: 700;
+    color: var(--dark-text);
+    line-height: 1.2;
+    margin-bottom: 24px;
+}
+
+.business-hero-description {
+    font-family: 'Inter', var(--font-family);
+    font-size: 20px;
+    font-weight: 400;
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 40px;
+}
+
+.btn-business-hero {
+    padding: 20px 48px;
+    font-size: 18px;
+    border-radius: 30px;
+}
+
+.business-hero-image {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.business-dash-img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Business Hero */
+@media (max-width: 1200px) {
+    .business-hero-title {
+        font-size: 44px;
+    }
+
+    .business-hero-description {
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 768px) {
+    .business-hero {
+        padding-top: 120px;
+        padding-bottom: 60px;
+    }
+
+    .business-hero-content {
+        margin-bottom: 40px;
+    }
+
+    .business-hero-title {
+        font-size: 32px;
+    }
+
+    .business-hero-description {
+        font-size: 16px;
+    }
+
+    .btn-business-hero {
+        padding: 16px 36px;
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .business-hero {
+        padding-top: 100px;
+        padding-bottom: 40px;
+    }
+
+    .business-hero-title {
+        font-size: 26px;
+    }
+
+    .business-hero-description {
+        font-size: 15px;
+    }
+
+    .btn-business-hero {
+        padding: 14px 32px;
+        font-size: 15px;
+    }
+}
+
+/* ============================================
+   Why Partner With Us Section
+   ============================================ */
+.biz-why-partner {
+    padding: 100px 0;
+    background-color: #F7F8FC;
+}
+
+.biz-why-partner-header {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.biz-partner-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+}
+
+.biz-partner-card {
+    background: white;
+    border-radius: 24px;
+    padding: 48px 40px;
+    text-align: center;
+    border: 1px solid #E8E8E8;
+}
+
+.biz-partner-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: rgba(77, 33, 255, 0.1);
+    color: var(--primary-purple);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+}
+
+.biz-partner-card-title {
+    font-family: 'Inter', var(--font-family);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--dark-text);
+    margin-bottom: 16px;
+}
+
+.biz-partner-card-desc {
+    font-family: 'Inter', var(--font-family);
+    font-size: 15px;
+    font-weight: 400;
+    color: #666;
+    line-height: 1.7;
+}
+
+/* Responsive Why Partner */
+@media (max-width: 768px) {
+    .biz-why-partner {
+        padding: 60px 0;
+    }
+
+    .biz-why-partner-header {
+        margin-bottom: 40px;
+    }
+
+    .biz-partner-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .biz-partner-card {
+        padding: 32px 24px;
+    }
+
+    .biz-partner-card-title {
+        font-size: 20px;
+    }
+}
+
+/* ============================================
+   Contact Us Section
+   ============================================ */
+.biz-contact {
+    padding: 100px 0;
+    background-color: #F7F8FC;
+}
+
+.biz-contact-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+}
+
+.biz-contact-left {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.biz-contact-desc {
+    font-family: 'Inter', var(--font-family);
+    font-size: 16px;
+    color: var(--dark-text);
+    line-height: 1.7;
+}
+
+.biz-contact-right {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.biz-contact-form {
+    background: white;
+    border-radius: 24px;
+    padding: 40px;
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    border: 1px solid #E8E8E8;
+}
+
+.biz-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.biz-form-label {
+    font-family: 'Inter', var(--font-family);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--dark-text);
+}
+
+.biz-form-input {
+    font-family: 'Inter', var(--font-family);
+    font-size: 15px;
+    padding: 14px 16px;
+    border: 1px solid #E0E0E0;
+    border-radius: 12px;
+    outline: none;
+    transition: border-color 0.2s ease;
+    color: var(--dark-text);
+    background: white;
+}
+
+.biz-form-input:focus {
+    border-color: var(--primary-purple);
+}
+
+.biz-form-select-wrapper {
+    position: relative;
+}
+
+.biz-form-select {
+    font-family: 'Inter', var(--font-family);
+    font-size: 15px;
+    padding: 14px 40px 14px 16px;
+    border: 1px solid #E0E0E0;
+    border-radius: 12px;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    background: white url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%234D21FF' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 16px center;
+    width: 100%;
+    cursor: pointer;
+    color: var(--dark-text);
+    transition: border-color 0.2s ease;
+}
+
+.biz-form-select:focus {
+    border-color: var(--primary-purple);
+}
+
+.biz-form-phone {
+    display: flex;
+    gap: 8px;
+}
+
+.biz-phone-code {
+    flex-shrink: 0;
+    width: 120px;
+}
+
+.biz-phone-code .biz-form-select {
+    width: 100%;
+}
+
+.biz-phone-input {
+    flex: 1;
+}
+
+.biz-form-submit {
+    width: 100%;
+    padding: 16px;
+    font-size: 16px;
+    text-align: center;
+    margin-top: 8px;
+}
+
+/* Responsive Contact */
+@media (max-width: 1200px) {
+    .biz-contact-content {
+        grid-template-columns: 1fr;
+        gap: 60px;
+    }
+
+    .biz-contact-right {
+        justify-content: center;
+    }
+
+    .biz-contact-form {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .biz-contact {
+        padding: 60px 0;
+    }
+
+    .biz-contact-content {
+        gap: 40px;
+    }
+
+    .biz-contact-form {
+        padding: 24px;
+        gap: 20px;
+    }
+}
