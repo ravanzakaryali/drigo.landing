@@ -1735,7 +1735,7 @@ body {
 }
 
 .privacy-content {
-    max-width: 800px;
+    max-width: 1000px;
     margin: 0 auto;
 }
 
@@ -1744,6 +1744,7 @@ body {
     font-weight: 700;
     color: var(--dark-text);
     margin-bottom: 8px;
+    text-align: center;
 }
 
 .privacy-updated {
@@ -1760,7 +1761,15 @@ body {
     font-size: 24px;
     font-weight: 600;
     color: var(--dark-text);
-    margin-bottom: 16px;
+    margin-bottom: 20px;
+}
+
+.privacy-section h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--dark-text);
+    margin-top: 28px;
+    margin-bottom: 12px;
 }
 
 .privacy-section p {
@@ -1778,6 +1787,47 @@ body {
     line-height: 1.6;
 }
 
+.privacy-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0 24px;
+    font-size: 15px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #e0e0e0;
+}
+.privacy-table thead th {
+    background-color: #1a1a2e;
+    color: #fff;
+    font-weight: 600;
+    text-align: left;
+    padding: 14px 18px;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.privacy-table tbody td {
+    padding: 12px 18px;
+    color: #444;
+    border-bottom: 1px solid #eee;
+    line-height: 1.6;
+}
+.privacy-table tbody tr:last-child td {
+    border-bottom: none;
+}
+.privacy-table tbody tr:nth-child(even) {
+    background-color: #f8f9fc;
+}
+.privacy-table tbody tr:hover {
+    background-color: #f0f1f5;
+}
+
+.privacy-divider {
+    border: none;
+    border-top: 1px solid #e0e0e0;
+    margin: 32px 0;
+}
+
 @media (max-width: 768px) {
     .privacy-page {
         padding: 100px 0 60px;
@@ -1793,5 +1843,16 @@ body {
     
     .privacy-section p {
         font-size: 15px;
+    }
+
+    .privacy-table {
+        font-size: 13px;
+    }
+    .privacy-table thead th {
+        padding: 10px 12px;
+        font-size: 12px;
+    }
+    .privacy-table tbody td {
+        padding: 10px 12px;
     }
 }

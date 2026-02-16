@@ -9,8 +9,14 @@ if (window.location.hash) {
     window.scrollTo(0, 0);
 }
 
+// ============================================
+// API Configuration
+// ============================================
+var API_BASE_URL = 'https://api.drigo.com/api';
+
 document.addEventListener('DOMContentLoaded', function() {
     initNavInteractions();
+    fetchLandingData();
 
     var glassSlider = document.querySelector('.glass-slider');
     var prevIndex = sessionStorage.getItem('navSliderFromIndex');
@@ -306,4 +312,105 @@ function throttle(func, limit) {
             setTimeout(function() { inThrottle = false; }, limit);
         }
     };
+}
+
+// ============================================
+// Landing Page API Data
+// ============================================
+function fetchLandingData() {
+    fetch(API_BASE_URL + '/landing', {
+        headers: { 'Accept': 'application/json' }
+    })
+    .then(function(response) {
+        if (!response.ok) throw new Error('API request failed');
+        return response.json();
+    })
+    .then(function(data) {
+        renderStatistics(data.statistics);
+        renderCars(data.cars);
+    })
+    .catch(function(error) {
+        console.error('Failed to load landing data:', error);
+    });
+}
+
+// ============================================
+// Render Statistics
+// ============================================
+function renderStatistics(stats) {
+    if (!stats) return;
+
+    var carModels = document.getElementById('stat-car-models');
+    var availableCars = document.getElementById('stat-available-cars');
+    var tariffPackages = document.getElementById('stat-tariff-packages');
+    var parkingZones = document.getElementById('stat-parking-zones');
+
+    if (carModels) carModels.textContent = stats.carModels;
+    if (availableCars) availableCars.textContent = stats.availableCars + '+';
+    if (tariffPackages) tariffPackages.textContent = stats.tariffPackages;
+    if (parkingZones) parkingZones.textContent = stats.freeParkingZones + '+';
+}
+
+// ============================================
+// Render Cars
+// ============================================
+function renderCars(cars) {
+    var grid = document.getElementById('cars-grid');
+    if (!grid || !cars || cars.length === 0) return;
+
+    grid.innerHTML = '';
+
+    cars.forEach(function(car) {
+        var card = document.createElement('div');
+        card.className = 'car-card';
+
+        var fullName = car.brandName + ' ' + car.modelName;
+        var priceText = '';
+        if (car.price && car.currency) {
+            var formattedPrice = Number(car.price).toLocaleString('en-US');
+            var timeLabel = car.timeUnit ? car.timeUnit.toLowerCase() : 'monthly';
+            priceText = car.currency + ' ' + formattedPrice + ' / ' + timeLabel;
+        }
+
+        var imageUrl = car.imageUrl || 'assets/images/carMercedes.svg';
+
+        card.innerHTML =
+            '<h3 class="car-name">' + escapeHtml(fullName) + '</h3>' +
+            '<div class="car-tags">' +
+                '<span class="car-tag">' + car.manufactureYear + '</span>' +
+                '<span class="car-tag">' + escapeHtml(car.bodyTypeName) + '</span>' +
+                '<span class="car-tag">' + escapeHtml(car.fuelTypeName) + '</span>' +
+            '</div>' +
+            '<div class="car-image">' +
+                '<img src="' + escapeHtml(imageUrl) + '" alt="' + escapeHtml(fullName) + '" class="car-img">' +
+            '</div>' +
+            '<div class="car-details">' +
+                '<div class="car-detail-box">' +
+                    '<img src="assets/images/SpeedIcon.svg" alt="Speed" class="car-detail-icon">' +
+                    '<span class="car-detail-label">distance</span>' +
+                    '<span class="car-detail-value">' + Number(car.distance).toLocaleString('en-US') + ' km</span>' +
+                '</div>' +
+                '<div class="car-detail-box">' +
+                    '<img src="assets/images/UsersIcon.svg" alt="Users" class="car-detail-icon">' +
+                    '<span class="car-detail-label">capacity</span>' +
+                    '<span class="car-detail-value">' + car.seats + ' seats</span>' +
+                '</div>' +
+            '</div>' +
+            '<div class="car-price">' +
+                '<span class="car-price-label">starting from</span>' +
+                '<span class="car-price-value">' + (priceText || '--') + '</span>' +
+            '</div>';
+
+        grid.appendChild(card);
+    });
+}
+
+// ============================================
+// HTML Escape Utility
+// ============================================
+function escapeHtml(text) {
+    if (!text) return '';
+    var div = document.createElement('div');
+    div.appendChild(document.createTextNode(text));
+    return div.innerHTML;
 }
