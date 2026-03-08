@@ -388,7 +388,7 @@ function renderCars(cars) {
                 '<div class="car-detail-box">' +
                     '<img src="assets/images/SpeedIcon.svg" alt="Speed" class="car-detail-icon">' +
                     '<span class="car-detail-label">distance</span>' +
-                    '<span class="car-detail-value">' + Number(car.distance).toLocaleString('en-US') + ' km</span>' +
+                    '<span class="car-detail-value">' + Math.round(Number(car.distance) / 1000).toLocaleString('en-US') + ' km</span>' +
                 '</div>' +
                 '<div class="car-detail-box">' +
                     '<img src="assets/images/UsersIcon.svg" alt="Users" class="car-detail-icon">' +
