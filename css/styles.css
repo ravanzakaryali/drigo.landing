@@ -345,6 +345,18 @@ body {
     font-size: 16px;
 }
 
+.hero-download-buttons {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.hero-download-buttons .app-download-btn {
+    background: rgba(79, 127, 255, 0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
 /* Responsive Hero */
 @media (max-width: 1200px) {
     .hero-title {
