@@ -372,7 +372,9 @@ function renderCars(cars) {
             priceText = car.currency + ' ' + formattedPrice + ' / ' + timeLabel;
         }
 
-        var imageUrl = car.imageUrl || 'assets/images/carMercedes.svg';
+        var imageUrl = car.mediaId
+            ? API_BASE_URL + '/image/' + car.mediaId + '?w=500&q=80&f=webp'
+            : (car.imageUrl || 'assets/images/carMercedes.svg');
 
         card.innerHTML =
             '<h3 class="car-name">' + escapeHtml(fullName) + '</h3>' +
@@ -382,7 +384,7 @@ function renderCars(cars) {
                 '<span class="car-tag">' + escapeHtml(car.fuelTypeName) + '</span>' +
             '</div>' +
             '<div class="car-image">' +
-                '<img src="' + escapeHtml(imageUrl) + '" alt="' + escapeHtml(fullName) + '" class="car-img">' +
+                '<img src="' + escapeHtml(imageUrl) + '" alt="' + escapeHtml(fullName) + '" class="car-img" loading="lazy">' +
             '</div>' +
             '<div class="car-details">' +
                 '<div class="car-detail-box">' +
