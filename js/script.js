@@ -416,3 +416,68 @@ function escapeHtml(text) {
     div.appendChild(document.createTextNode(text));
     return div.innerHTML;
 }
+
+// ============================================
+// Meta Pixel + CAPI — App Download Tracking
+// ============================================
+(function initAppDownloadTracking() {
+    function generateEventId() {
+        if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+            return crypto.randomUUID();
+        }
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = Math.random() * 16 | 0;
+            return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+        });
+    }
+
+    function getFbp() {
+        var match = document.cookie.match(/_fbp=([^;]+)/);
+        return match ? match[1] : null;
+    }
+
+    function getFbc() {
+        var match = document.cookie.match(/_fbc=([^;]+)/);
+        if (match) return match[1];
+        var urlMatch = window.location.search.match(/fbclid=([^&]+)/);
+        return urlMatch ? 'fb.1.' + Date.now() + '.' + urlMatch[1] : null;
+    }
+
+    function sendCapiEvent(eventName, eventId) {
+        try {
+            fetch(API_BASE_URL + '/landing/track', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    eventName: eventName,
+                    eventId: eventId,
+                    sourceUrl: window.location.href,
+                    fbp: getFbp(),
+                    fbc: getFbc()
+                }),
+                keepalive: true
+            }).catch(function() {});
+        } catch (e) {}
+    }
+
+    function trackAppDownloadClick(store) {
+        var eventId = generateEventId();
+        var props = { content_name: store, currency: 'USD', value: 0 };
+
+        // Browser-side (Pixel)
+        if (typeof fbq === 'function') {
+            fbq('track', 'Lead', props, { eventID: eventId });
+        }
+
+        // Server-side (CAPI)
+        sendCapiEvent('Lead', eventId);
+    }
+
+    document.addEventListener('click', function(e) {
+        var btn = e.target.closest('.app-download-btn');
+        if (!btn) return;
+        var href = btn.getAttribute('href') || '';
+        var store = href.indexOf('apple') !== -1 ? 'App Store' : 'Google Play';
+        trackAppDownloadClick(store);
+    });
+})();
