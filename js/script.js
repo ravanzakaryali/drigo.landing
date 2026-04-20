@@ -138,7 +138,7 @@ function initNavInteractions() {
             updateGlassSlider();
 
             // Smooth scroll to section if hash exists
-            if (href && href !== '#') {
+            if (href && href.startsWith('#') && href !== '#') {
                 var targetSection = document.querySelector(href);
                 if (targetSection) {
                     var headerHeight = document.querySelector('.header').offsetHeight;
