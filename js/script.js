@@ -198,7 +198,7 @@ function updateActiveLink() {
             navLinks.forEach(function(link) {
                 link.classList.remove('active');
                 var href = link.getAttribute('href');
-                if (href === '#' + sectionId || href === 'index.html#' + sectionId) {
+                if (href === '#' + sectionId || href === '/#' + sectionId) {
                     link.classList.add('active');
                     updateGlassSlider();
                 }
