@@ -111,7 +111,7 @@ function initNavInteractions() {
             var href = this.getAttribute('href');
 
             // If link goes to another page (cross-page navigation), save current active tab index
-            if (href && (href.endsWith('.html') || href.includes('.html#'))) {
+            if (href && !href.startsWith('#')) {
                 // Find the index of the currently active link
                 var activeLink = document.querySelector('.nav-link.active');
                 if (activeLink) {
