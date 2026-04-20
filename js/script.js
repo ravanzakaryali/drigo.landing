@@ -481,3 +481,61 @@ function escapeHtml(text) {
         trackAppDownloadClick(store);
     });
 })();
+
+// ============================================
+// Business Inquiry Form
+// ============================================
+(function() {
+    var form = document.getElementById('biz-contact-form');
+    if (!form) return;
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        var message = document.getElementById('biz-form-message');
+        var submitBtn = form.querySelector('.biz-form-submit');
+
+        var companyName = document.getElementById('biz-company-name').value.trim();
+        var companyType = document.getElementById('biz-company-type').value;
+        var personName = document.getElementById('biz-person-name').value.trim();
+        var email = document.getElementById('biz-email').value.trim();
+        var phoneCode = document.getElementById('biz-phone-code').value;
+        var phoneNumber = document.getElementById('biz-phone-number').value.trim();
+
+        if (!companyName || !personName || !email || !phoneNumber) {
+            message.textContent = 'Please fill in all fields.';
+            message.className = 'biz-form-message biz-form-error';
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending...';
+
+        fetch('https://api.drigo.com/api/landing/business-inquiry', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                companyName: companyName,
+                companyType: companyType,
+                personName: personName,
+                email: email,
+                phoneCode: phoneCode,
+                phoneNumber: phoneNumber
+            })
+        })
+        .then(function(response) {
+            if (!response.ok) throw new Error('Request failed');
+            message.textContent = 'Thank you! We will contact you soon.';
+            message.className = 'biz-form-message biz-form-success';
+            form.reset();
+        })
+        .catch(function() {
+            message.textContent = 'Something went wrong. Please try again.';
+            message.className = 'biz-form-message biz-form-error';
+        })
+        .finally(function() {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Start earning';
+        });
+    });
+})();

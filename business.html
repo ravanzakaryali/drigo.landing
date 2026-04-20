@@ -217,15 +217,15 @@
                     <p class="biz-contact-desc">We handle bookings, payments, and trip management, while you stay in full control through a transparent partner dashboard.</p>
                 </div>
                 <div class="biz-contact-right">
-                    <form class="biz-contact-form">
+                    <form class="biz-contact-form" id="biz-contact-form">
                         <div class="biz-form-group">
                             <label class="biz-form-label">Company / Owner name</label>
-                            <input type="text" class="biz-form-input" placeholder="">
+                            <input type="text" class="biz-form-input" id="biz-company-name" placeholder="" required>
                         </div>
                         <div class="biz-form-group">
                             <label class="biz-form-label">Company type</label>
                             <div class="biz-form-select-wrapper">
-                                <select class="biz-form-select">
+                                <select class="biz-form-select" id="biz-company-type">
                                     <option value="company">Company</option>
                                     <option value="individual">Individual</option>
                                 </select>
@@ -233,26 +233,36 @@
                         </div>
                         <div class="biz-form-group">
                             <label class="biz-form-label">Person name</label>
-                            <input type="text" class="biz-form-input" placeholder="">
+                            <input type="text" class="biz-form-input" id="biz-person-name" placeholder="" required>
                         </div>
                         <div class="biz-form-group">
                             <label class="biz-form-label">Email</label>
-                            <input type="email" class="biz-form-input" placeholder="">
+                            <input type="email" class="biz-form-input" id="biz-email" placeholder="" required>
                         </div>
                         <div class="biz-form-group">
                             <label class="biz-form-label">Phone number</label>
                             <div class="biz-form-phone">
                                 <div class="biz-form-select-wrapper biz-phone-code">
-                                    <select class="biz-form-select">
-                                        <option value="+971-4">+971-4</option>
-                                        <option value="+994">+994</option>
-                                        <option value="+1">+1</option>
+                                    <select class="biz-form-select" id="biz-phone-code">
+                                        <option value="+971" selected>+971 UAE</option>
+                                        <option value="+966">+966 KSA</option>
+                                        <option value="+974">+974 QAT</option>
+                                        <option value="+973">+973 BHR</option>
+                                        <option value="+968">+968 OMN</option>
+                                        <option value="+965">+965 KWT</option>
+                                        <option value="+44">+44 UK</option>
+                                        <option value="+1">+1 US/CA</option>
+                                        <option value="+91">+91 IND</option>
+                                        <option value="+92">+92 PAK</option>
+                                        <option value="+63">+63 PHL</option>
+                                        <option value="+994">+994 AZE</option>
                                     </select>
                                 </div>
-                                <input type="tel" class="biz-form-input biz-phone-input" placeholder="">
+                                <input type="tel" class="biz-form-input biz-phone-input" id="biz-phone-number" placeholder="" required>
                             </div>
                         </div>
                         <button type="submit" class="btn-primary biz-form-submit">Start earning</button>
+                        <div id="biz-form-message" class="biz-form-message"></div>
                     </form>
                 </div>
             </div>
