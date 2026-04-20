@@ -489,6 +489,23 @@ function escapeHtml(text) {
     var form = document.getElementById('biz-contact-form');
     if (!form) return;
 
+    var phoneCodeSelect = document.getElementById('biz-phone-code');
+    if (phoneCodeSelect) {
+        fetch('https://api.drigo.com/api/countries')
+            .then(function(res) { return res.json(); })
+            .then(function(countries) {
+                phoneCodeSelect.innerHTML = '';
+                countries.forEach(function(c) {
+                    var opt = document.createElement('option');
+                    opt.value = c.phoneCode;
+                    opt.textContent = c.flag + ' ' + c.phoneCode + ' ' + c.name;
+                    if (c.phoneCode === '+971') opt.selected = true;
+                    phoneCodeSelect.appendChild(opt);
+                });
+            })
+            .catch(function() {});
+    }
+
     form.addEventListener('submit', function(e) {
         e.preventDefault();
 
