@@ -1780,7 +1780,7 @@ body {
 
 .privacy-toc {
     position: sticky;
-    top: 100px;
+    top: 120px;
     width: 240px;
     flex-shrink: 0;
     background: transparent;
