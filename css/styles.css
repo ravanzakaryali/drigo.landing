@@ -1781,31 +1781,30 @@ body {
 .privacy-toc {
     position: sticky;
     top: 100px;
-    width: 260px;
+    width: 240px;
     flex-shrink: 0;
-    background: var(--white);
-    border: 1px solid #e5e5e5;
-    border-radius: 12px;
-    padding: 24px;
+    background: transparent;
+    border-left: 3px solid var(--primary-purple);
+    border-radius: 0;
+    padding: 0 0 0 20px;
     max-height: calc(100vh - 120px);
     overflow-y: auto;
     order: 2;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
 }
 
 .privacy-toc h2 {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
     color: var(--dark-text);
-    margin-bottom: 16px;
+    margin-bottom: 14px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.8px;
 }
 
 .privacy-toc ol {
     list-style: none;
     padding-left: 0;
-    margin-bottom: 16px;
+    margin-bottom: 14px;
 }
 
 .privacy-toc ol li {
@@ -1816,18 +1815,16 @@ body {
 
 .privacy-toc ol li a,
 .privacy-toc p a {
-    color: #555;
+    color: #666;
     text-decoration: none;
     transition: var(--transition-fast);
     display: block;
-    padding: 6px 12px;
-    border-radius: 6px;
+    padding: 5px 0;
 }
 
 .privacy-toc ol li a:hover,
 .privacy-toc p a:hover {
     color: var(--primary-purple);
-    background: var(--primary-purple-light);
     text-decoration: none;
 }
 
@@ -1835,8 +1832,9 @@ body {
     margin: 0;
     font-size: 13px;
     font-weight: 600;
-    border-top: 1px solid #e5e5e5;
-    padding-top: 12px;
+    border-top: 1px solid #ddd;
+    padding-top: 10px;
+    margin-top: 4px;
 }
 
 .privacy-toc p a {
