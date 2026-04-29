@@ -1768,7 +1768,7 @@ body {
 
 .privacy-layout {
     display: flex;
-    gap: 48px;
+    gap: 60px;
     align-items: flex-start;
 }
 
@@ -1780,7 +1780,8 @@ body {
 
 .privacy-toc {
     position: sticky;
-    top: 120px;
+    top: 140px;
+    margin-top: 60px;
     width: 240px;
     flex-shrink: 0;
     background: transparent;
