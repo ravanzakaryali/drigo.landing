@@ -1766,6 +1766,51 @@ body {
     margin-bottom: 48px;
 }
 
+.privacy-toc {
+    background: var(--primary-purple-light);
+    border-left: 4px solid var(--primary-purple);
+    border-radius: 8px;
+    padding: 24px 32px;
+    margin-bottom: 48px;
+}
+
+.privacy-toc h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--dark-text);
+    margin-bottom: 16px;
+}
+
+.privacy-toc ol {
+    list-style: decimal;
+    padding-left: 20px;
+    margin-bottom: 12px;
+}
+
+.privacy-toc ol li {
+    margin-bottom: 8px;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.privacy-toc ol li a,
+.privacy-toc p a {
+    color: var(--primary-purple);
+    text-decoration: none;
+    transition: var(--transition-fast);
+}
+
+.privacy-toc ol li a:hover,
+.privacy-toc p a:hover {
+    text-decoration: underline;
+}
+
+.privacy-toc p {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+}
+
 .privacy-section {
     margin-bottom: 40px;
 }
