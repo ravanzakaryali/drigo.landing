@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -E '\\\\.\\(html|css|js|json|png|jpg|jpeg|gif|svg|woff|woff2|ttf\\)$')",
+      "Bash(python3 -c ' *)"
+    ]
+  }
+}
