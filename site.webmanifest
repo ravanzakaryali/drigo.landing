@@ -13,7 +13,7 @@
   "categories": ["travel", "transportation", "automotive"],
   "icons": [
     {
-      "src": "/assets/svgs/logo.svg",
+      "src": "/assets/svgs/favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
