@@ -74,16 +74,31 @@ body {
     left: 0;
     right: 0;
     z-index: 1000;
-    background: rgba(255, 255, 255, 0.92);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    background: transparent;
     transition: transform 0.3s ease;
     will-change: transform;
 }
 
+/* iOS-style edge-fading blur: strong at top, fades to clear at bottom */
+.header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: -32px;
+    backdrop-filter: blur(10px) saturate(140%);
+    -webkit-backdrop-filter: blur(10px) saturate(140%);
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 100%);
+    mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 55%, rgba(0,0,0,0) 100%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.header > .container { position: relative; z-index: 1; }
+
 .header--hidden {
-    transform: translateY(-100%);
+    transform: translateY(calc(-100% - 32px));
 }
 
 .nav {
@@ -273,6 +288,89 @@ body {
     position: relative;
     z-index: 1;
     max-width: 800px;
+}
+
+/* Hero map markers — drigo-mobile style price pills on hero image */
+.hero-markers {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+}
+.hero-marker {
+    position: absolute;
+    transform: translate(-50%, -100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    pointer-events: none;
+    opacity: 0;
+    animation: heroMarkerIn 0.5s ease forwards;
+}
+@keyframes heroMarkerIn {
+    from { opacity: 0; transform: translate(-50%, calc(-100% + 6px)); }
+    to   { opacity: 1; transform: translate(-50%, -100%); }
+}
+.hero-marker-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 7px 11px 8px;
+    box-shadow: 0 8px 22px -8px rgba(31, 21, 80, 0.28), 0 1px 2px rgba(0, 0, 0, 0.05);
+    line-height: 1.15;
+    text-align: center;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    white-space: nowrap;
+}
+.hero-marker-brand {
+    font-size: 10px;
+    font-weight: 500;
+    color: #7a7a85;
+    letter-spacing: 0.1px;
+    margin-bottom: 3px;
+}
+.hero-marker-price {
+    font-size: 13px;
+    color: #0a0a0a;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 3px;
+}
+.hero-marker-price .now { font-weight: 700; }
+.hero-marker-price .cur { font-weight: 600; font-size: 11px; color: #1a1a1a; }
+.hero-marker-price .per { font-weight: 500; font-size: 10px; color: #9a9aa3; }
+.hero-marker-price .orig {
+    font-size: 11px;
+    color: #b0b0bb;
+    text-decoration: line-through;
+    text-decoration-thickness: 1px;
+    font-weight: 500;
+    margin-right: 2px;
+}
+.hero-marker-arrow {
+    width: 0; height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid #ffffff;
+    filter: drop-shadow(0 2px 1px rgba(31, 21, 80, 0.08));
+    margin-top: -1px;
+}
+.hero-marker-car {
+    width: 36px;
+    height: auto;
+    margin-top: 2px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.18));
+}
+/* Perspective tiers — far markers smaller (no blur) */
+.hero-marker.tier-far    { transform: translate(-50%, -100%) scale(0.72); }
+.hero-marker.tier-mid    { transform: translate(-50%, -100%) scale(0.86); }
+.hero-marker.tier-far    .hero-marker-brand,
+.hero-marker.tier-far    .hero-marker-price .per { opacity: 0.9; }
+
+/* Hide markers on small screens — they'd overlap the hero text */
+@media (max-width: 900px) {
+    .hero-markers { display: none; }
 }
 
 /* Download App Button */
@@ -1535,7 +1633,10 @@ body {
 }
 
 .app-download-btn {
-    background: rgba(79, 127, 255, 0.1);
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.55);
     border-radius: 24px;
     padding: 14px 18px;
     text-decoration: none;
@@ -1545,8 +1646,8 @@ body {
 }
 
 .app-download-btn:hover {
-    background: linear-gradient(135deg, rgba(77, 33, 255, 0.15) 0%, rgba(77, 33, 255, 0.1) 100%);
-    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.6);
+    border-color: rgba(255, 255, 255, 0.75);
 }
 
 .app-download-content {

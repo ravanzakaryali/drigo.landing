@@ -12,7 +12,10 @@ if (window.location.hash) {
 // ============================================
 // API Configuration
 // ============================================
-var API_BASE_URL = 'https://api.drigo.com/api';
+var API_BASE_URL =
+    (location.hostname === '127.0.0.1' || location.hostname === 'localhost')
+        ? 'http://127.0.0.1:8089/api'
+        : 'https://api.drigo.com/api';
 
 document.addEventListener('DOMContentLoaded', function() {
     initNavInteractions();
@@ -363,6 +366,7 @@ function fetchLandingData() {
     .then(function(data) {
         renderStatistics(data.statistics);
         renderCars(data.cars);
+        renderHeroMarkers(data.cars);
     })
     .catch(function(error) {
         console.error('Failed to load landing data:', error);
@@ -439,6 +443,78 @@ function renderCars(cars) {
             '</div>';
 
         grid.appendChild(card);
+    });
+}
+
+// ============================================
+// Hero Map Markers — drigo-mobile style price pills on the hero image
+// ============================================
+// Designer-placed coords are percentages of .hero box (left%, top%).
+// Tiers control perspective scaling/blur. Designed against current
+// hero-dubai.jpg framing (bearing -94, pitch 58, looking WSW from
+// Business Bay) — adjust if hero image is re-rendered.
+var HERO_MARKER_SLOTS = [
+    { left: 56, top: 62, tier: 'mid' },
+    { left: 68, top: 50, tier: 'near' },
+    { left: 84, top: 38, tier: 'far' },
+    { left: 78, top: 78, tier: 'mid' },
+    { left: 62, top: 30, tier: 'far' },
+    { left: 92, top: 58, tier: 'far' },
+    { left: 72, top: 72, tier: 'near' },
+    { left: 88, top: 80, tier: 'mid' }
+];
+
+function renderHeroMarkers(cars) {
+    var host = document.getElementById('hero-markers');
+    if (!host || !cars || !cars.length) return;
+    // Dedup by car id (avoid showing the exact same car twice),
+    // then fill as many slots as we have unique cars for.
+    var seen = {};
+    var picks = [];
+    cars.forEach(function (c) {
+        if (!seen[c.id]) { seen[c.id] = 1; picks.push(c); }
+    });
+    picks = picks.slice(0, HERO_MARKER_SLOTS.length);
+
+    host.innerHTML = '';
+    picks.forEach(function (car, i) {
+        var slot = HERO_MARKER_SLOTS[i];
+        var node = document.createElement('div');
+        node.className = 'hero-marker tier-' + slot.tier;
+        node.style.left = slot.left + '%';
+        node.style.top = slot.top + '%';
+        node.style.animationDelay = (0.1 + i * 0.12) + 's';
+
+        var carImg = car.mediaId
+            ? API_BASE_URL + '/image/' + car.mediaId + '?w=160&q=80&f=webp'
+            : (car.imageUrl || '');
+
+        var hasDiscount = car.originalPrice != null && car.discountedPrice != null
+            && Number(car.discountedPrice) < Number(car.originalPrice);
+        var displayPrice = hasDiscount ? Number(car.discountedPrice) : Number(car.price);
+        var priceText = isNaN(displayPrice) ? '' : displayPrice.toLocaleString('en-US');
+        var cur = escapeHtml(car.currency || 'AED');
+        var per = escapeHtml(car.timeUnit ? '/ ' + car.timeUnit : '');
+
+        var origInline = '';
+        if (hasDiscount) {
+            origInline = '<span class="orig">' + Number(car.originalPrice).toLocaleString('en-US') + '</span> ';
+            node.classList.add('has-discount');
+        }
+
+        node.innerHTML =
+            '<div class="hero-marker-card">' +
+                '<div class="hero-marker-brand">' + escapeHtml(car.brandName + ' ' + car.modelName) + '</div>' +
+                '<div class="hero-marker-price">' +
+                    origInline +
+                    '<span class="now">' + priceText + '</span>' +
+                    ' <span class="cur">' + cur + '</span> ' +
+                    '<span class="per">' + per + '</span>' +
+                '</div>' +
+            '</div>' +
+            '<div class="hero-marker-arrow"></div>' +
+            (carImg ? '<img class="hero-marker-car" src="' + escapeHtml(carImg) + '" alt="" loading="lazy">' : '');
+        host.appendChild(node);
     });
 }
 
