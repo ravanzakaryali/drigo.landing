@@ -57,6 +57,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initFilters();
     initMobileMenu();
     initCopyrightYear();
+    initHeaderAutoHide();
 
     // Handle hash navigation after DOM is ready
     if (window.location.hash) {
@@ -291,6 +292,40 @@ function initMobileMenu() {
 // ============================================
 // Copyright Year
 // ============================================
+// ============================================
+// Header auto-hide on scroll down, show on scroll up
+// ============================================
+function initHeaderAutoHide() {
+    var header = document.querySelector('.header');
+    if (!header) return;
+    var lastY = window.scrollY;
+    var ticking = false;
+    var threshold = 80; // px from top — never hide above this
+
+    function update() {
+        var y = window.scrollY;
+        var delta = y - lastY;
+        if (y <= threshold) {
+            header.classList.remove('header--hidden');
+        } else if (delta > 4) {
+            // scrolling down
+            header.classList.add('header--hidden');
+        } else if (delta < -4) {
+            // scrolling up
+            header.classList.remove('header--hidden');
+        }
+        lastY = y;
+        ticking = false;
+    }
+
+    window.addEventListener('scroll', function() {
+        if (!ticking) {
+            window.requestAnimationFrame(update);
+            ticking = true;
+        }
+    }, { passive: true });
+}
+
 function initCopyrightYear() {
     var el = document.querySelector('.footer-copyright');
     if (el) {
