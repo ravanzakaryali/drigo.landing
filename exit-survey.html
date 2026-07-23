@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en-AE">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exit Survey | DRIGO</title>
+    <meta name="description" content="Tell DRIGO why you left — a one-minute survey that helps us improve.">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#0a0a0a">
+
+    <link rel="icon" type="image/x-icon" href="/favicon.ico?v=4">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicons/favicon-32x32.png?v=4">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicons/favicon-16x16.png?v=4">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/favicons/apple-touch-icon.png?v=4">
+    <link rel="mask-icon" href="/assets/svgs/favicon.svg" color="#4D21FF">
+    <link rel="manifest" href="/site.webmanifest?v=4">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css?v=9">
+    <link rel="stylesheet" href="css/business.css">
+
+    <style>
+        body { background: #F7F8FC; }
+        .es-wrap { min-height: 100vh; display: flex; align-items: flex-start; justify-content: center; padding: 48px 16px 80px; }
+        .es-card {
+            background: #fff; border: 1px solid #E8E8E8; border-radius: 24px;
+            padding: 40px; width: 100%; max-width: 560px;
+            display: flex; flex-direction: column; gap: 28px;
+        }
+        .es-logo { height: 34px; width: auto; align-self: flex-start; }
+        html[dir="rtl"] .es-logo { align-self: flex-end; }
+        .es-head h1 { font-size: 26px; font-weight: 700; color: var(--dark-text); margin-bottom: 8px; line-height: 1.3; }
+        .es-head p { font-size: 15px; color: #666; line-height: 1.6; }
+        .es-form { display: flex; flex-direction: column; gap: 28px; }
+        .es-group { display: flex; flex-direction: column; gap: 12px; }
+        .es-q { font-family: 'Inter', var(--font-family); font-size: 16px; font-weight: 600; color: var(--dark-text); }
+        .es-q .es-req { color: #ef4444; }
+        textarea.biz-form-input { resize: vertical; min-height: 84px; width: 100%; font-family: 'Inter', var(--font-family); }
+
+        .es-options { display: flex; flex-direction: column; gap: 10px; }
+        .es-opt {
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px 16px; border: 1px solid #E0E0E0; border-radius: 12px;
+            cursor: pointer; transition: border-color .15s ease, background .15s ease;
+            font-size: 15px; color: var(--dark-text);
+        }
+        .es-opt:hover { border-color: #c9c2ff; }
+        .es-opt input { accent-color: var(--primary-purple); width: 18px; height: 18px; flex-shrink: 0; }
+        .es-opt.es-selected { border-color: var(--primary-purple); background: var(--primary-purple-light); }
+
+        .es-scale { display: flex; gap: 10px; }
+        .es-scale-btn {
+            flex: 1; padding: 14px 0; border: 1px solid #E0E0E0; border-radius: 12px;
+            background: #fff; font-size: 17px; font-weight: 600; color: var(--dark-text);
+            cursor: pointer; transition: all .15s ease;
+        }
+        .es-scale-btn:hover { border-color: #c9c2ff; }
+        .es-scale-btn.es-selected { border-color: var(--primary-purple); background: var(--primary-purple); color: #fff; }
+        .es-scale-labels { display: flex; justify-content: space-between; font-size: 12px; color: #999; }
+
+        .es-check { display: flex; align-items: center; gap: 10px; font-size: 15px; color: var(--dark-text); cursor: pointer; }
+        .es-check input { accent-color: var(--primary-purple); width: 18px; height: 18px; }
+
+        .es-submit { width: 100%; padding: 16px; font-size: 16px; text-align: center; }
+        .es-thanks { text-align: center; padding: 24px 0; }
+        .es-thanks h2 { font-size: 22px; font-weight: 700; color: var(--dark-text); margin-bottom: 10px; }
+        .es-thanks p { font-size: 15px; color: #666; line-height: 1.6; }
+
+        @media (max-width: 600px) {
+            .es-card { padding: 24px; gap: 22px; }
+            .es-head h1 { font-size: 22px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="es-wrap">
+        <div class="es-card">
+            <img class="es-logo" src="/assets/svgs/logo.svg" alt="DRIGO">
+
+            <div class="es-head">
+                <h1 data-i18n="title"></h1>
+                <p data-i18n="subtitle"></p>
+            </div>
+
+            <form class="es-form" id="es-form" novalidate>
+                <div class="es-group">
+                    <label class="es-q"><span data-i18n="q_reason"></span> <span class="es-req">*</span></label>
+                    <div class="es-options" id="es-reason"></div>
+                </div>
+
+                <div class="es-group">
+                    <label class="es-q"><span data-i18n="q_sat"></span> <span class="es-req">*</span></label>
+                    <div class="es-scale" id="es-scale"></div>
+                    <div class="es-scale-labels">
+                        <span data-i18n="sat_low"></span>
+                        <span data-i18n="sat_high"></span>
+                    </div>
+                </div>
+
+                <div class="es-group">
+                    <label class="es-q" data-i18n="q_liked"></label>
+                    <textarea class="biz-form-input" id="es-liked" rows="2"></textarea>
+                </div>
+
+                <div class="es-group">
+                    <label class="es-q" data-i18n="q_improve"></label>
+                    <textarea class="biz-form-input" id="es-improve" rows="2"></textarea>
+                </div>
+
+                <div class="es-group">
+                    <label class="es-q"><span data-i18n="q_return"></span> <span class="es-req">*</span></label>
+                    <div class="es-options" id="es-return"></div>
+                </div>
+
+                <div class="es-group">
+                    <label class="es-q" data-i18n="q_trigger"></label>
+                    <textarea class="biz-form-input" id="es-trigger" rows="2"></textarea>
+                </div>
+
+                <div class="es-group">
+                    <label class="es-check">
+                        <input type="checkbox" id="es-consent">
+                        <span data-i18n="q_consent"></span>
+                    </label>
+                    <input class="biz-form-input" id="es-contact" type="text" style="display:none">
+                </div>
+
+                <button type="submit" class="btn-primary es-submit" data-i18n="submit"></button>
+                <div id="es-msg" class="biz-form-message"></div>
+            </form>
+
+            <div class="es-thanks" id="es-thanks" style="display:none">
+                <h2 data-i18n="thanks_title"></h2>
+                <p data-i18n="thanks_body"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (function () {
+        var API_URL = 'https://api.drigo.com/api/landing/exit-survey';
+
+        var params = new URLSearchParams(window.location.search);
+        var lang = (params.get('lang') || 'en').toLowerCase();
+        if (lang !== 'ar') lang = 'en';
+
+        var REASONS = [
+            { code: 'price',       en: 'Prices were too high',                    ar: 'الأسعار كانت مرتفعة' },
+            { code: 'alternative', en: 'I found a better alternative',            ar: 'وجدت بديلاً أفضل' },
+            { code: 'technical',   en: 'The app had technical problems',          ar: 'واجهت مشاكل تقنية في التطبيق' },
+            { code: 'availability',en: 'Cars were not available when I needed them', ar: 'السيارات لم تكن متوفرة عند الحاجة' },
+            { code: 'condition',   en: 'Car condition or cleanliness',            ar: 'حالة السيارة أو النظافة' },
+            { code: 'support',     en: 'Customer support experience',             ar: 'تجربة خدمة العملاء' },
+            { code: 'charges',     en: 'Unexpected charges, fines or deposits',   ar: 'رسوم أو مخالفات أو تأمين غير متوقع' },
+            { code: 'no_need',     en: 'I no longer need a car',                  ar: 'لم أعد بحاجة إلى سيارة' },
+            { code: 'other',       en: 'Other',                                   ar: 'أخرى' }
+        ];
+
+        var RETURN = [
+            { code: 'yes',   en: 'Yes',   ar: 'نعم' },
+            { code: 'maybe', en: 'Maybe', ar: 'ربما' },
+            { code: 'no',    en: 'No',    ar: 'لا' }
+        ];
+
+        var T = {
+            en: {
+                title: 'We’re sorry to see you go',
+                subtitle: 'Your Drigo account has been closed. Before you leave, please help us improve — it takes less than a minute.',
+                q_reason: 'What is the main reason you deleted your account?',
+                q_sat: 'Overall, how satisfied were you with Drigo?',
+                sat_low: 'Very dissatisfied', sat_high: 'Very satisfied',
+                q_liked: 'What did you like most about Drigo?',
+                q_improve: 'What could we have done better?',
+                q_return: 'Would you consider using Drigo again in the future?',
+                q_trigger: 'What would make you come back?',
+                q_consent: 'You may contact me about improvements or a special offer to return',
+                contact_ph: 'Your phone or email',
+                submit: 'Submit',
+                thanks_title: 'Thank you for your feedback',
+                thanks_body: 'The door is always open if you’d like to come back. — The Drigo Team',
+                err_required: 'Please answer the required questions (marked *).',
+                err_generic: 'Something went wrong. Please try again.',
+                sending: 'Sending…'
+            },
+            ar: {
+                title: 'نأسف لمغادرتك',
+                subtitle: 'تم إغلاق حساب Drigo الخاص بك. قبل أن تغادر، ساعدنا على التحسّن — لن يستغرق الأمر سوى دقيقة.',
+                q_reason: 'ما السبب الرئيسي لحذف حسابك؟',
+                q_sat: 'بشكل عام، ما مدى رضاك عن Drigo؟',
+                sat_low: 'غير راضٍ إطلاقًا', sat_high: 'راضٍ جدًا',
+                q_liked: 'ما أكثر ما أعجبك في Drigo؟',
+                q_improve: 'ما الذي كان بإمكاننا تحسينه؟',
+                q_return: 'هل قد تفكر في استخدام Drigo مرة أخرى مستقبلاً؟',
+                q_trigger: 'ما الذي قد يجعلك تعود؟',
+                q_consent: 'يمكنكم التواصل معي بشأن التحسينات أو عرض خاص للعودة',
+                contact_ph: 'رقم هاتفك أو بريدك الإلكتروني',
+                submit: 'إرسال',
+                thanks_title: 'شكرًا لملاحظاتك',
+                thanks_body: 'الباب مفتوح دائمًا إن أردت العودة. — فريق Drigo',
+                err_required: 'يرجى الإجابة عن الأسئلة المطلوبة (المعلّمة ب*).',
+                err_generic: 'حدث خطأ ما. يرجى المحاولة مرة أخرى.',
+                sending: 'جارٍ الإرسال…'
+            }
+        };
+
+        var t = T[lang];
+
+        // Apply language + direction
+        var htmlEl = document.documentElement;
+        if (lang === 'ar') { htmlEl.setAttribute('lang', 'ar'); htmlEl.setAttribute('dir', 'rtl'); }
+        else { htmlEl.setAttribute('lang', 'en-AE'); htmlEl.setAttribute('dir', 'ltr'); }
+
+        // Fill all data-i18n text nodes
+        var nodes = document.querySelectorAll('[data-i18n]');
+        for (var i = 0; i < nodes.length; i++) {
+            var key = nodes[i].getAttribute('data-i18n');
+            if (t[key] != null) nodes[i].textContent = t[key];
+        }
+        document.getElementById('es-contact').setAttribute('placeholder', t.contact_ph);
+        document.title = (lang === 'ar' ? 'استبيان' : 'Exit Survey') + ' | DRIGO';
+
+        // Selection state
+        var selected = { reason: null, satisfaction: null, wouldReturn: null };
+
+        // Build reason options
+        var reasonBox = document.getElementById('es-reason');
+        REASONS.forEach(function (r) {
+            var lbl = document.createElement('label');
+            lbl.className = 'es-opt';
+            lbl.innerHTML = '<input type="radio" name="reason" value="' + r.code + '"><span>' + r[lang] + '</span>';
+            reasonBox.appendChild(lbl);
+            lbl.querySelector('input').addEventListener('change', function () {
+                selected.reason = r.code;
+                markSelected(reasonBox, lbl);
+            });
+        });
+
+        // Build would-return options
+        var returnBox = document.getElementById('es-return');
+        RETURN.forEach(function (r) {
+            var lbl = document.createElement('label');
+            lbl.className = 'es-opt';
+            lbl.innerHTML = '<input type="radio" name="return" value="' + r.code + '"><span>' + r[lang] + '</span>';
+            returnBox.appendChild(lbl);
+            lbl.querySelector('input').addEventListener('change', function () {
+                selected.wouldReturn = r.code;
+                markSelected(returnBox, lbl);
+            });
+        });
+
+        // Build satisfaction scale
+        var scaleBox = document.getElementById('es-scale');
+        for (var n = 1; n <= 5; n++) {
+            (function (val) {
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'es-scale-btn';
+                btn.textContent = String(val);
+                btn.addEventListener('click', function () {
+                    selected.satisfaction = val;
+                    var all = scaleBox.querySelectorAll('.es-scale-btn');
+                    for (var k = 0; k < all.length; k++) all[k].classList.remove('es-selected');
+                    btn.classList.add('es-selected');
+                });
+                scaleBox.appendChild(btn);
+            })(n);
+        }
+
+        function markSelected(box, chosen) {
+            var opts = box.querySelectorAll('.es-opt');
+            for (var k = 0; k < opts.length; k++) opts[k].classList.remove('es-selected');
+            chosen.classList.add('es-selected');
+        }
+
+        // Contact field toggle
+        var consent = document.getElementById('es-consent');
+        var contact = document.getElementById('es-contact');
+        consent.addEventListener('change', function () {
+            contact.style.display = consent.checked ? 'block' : 'none';
+            if (!consent.checked) contact.value = '';
+        });
+
+        // Submit
+        var form = document.getElementById('es-form');
+        var msg = document.getElementById('es-msg');
+        var submitBtn = form.querySelector('.es-submit');
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            msg.className = 'biz-form-message';
+            msg.style.display = 'none';
+
+            if (!selected.reason || !selected.satisfaction || !selected.wouldReturn) {
+                msg.textContent = t.err_required;
+                msg.className = 'biz-form-message biz-form-error';
+                return;
+            }
+
+            var payload = {
+                reasonCode: selected.reason,
+                satisfaction: selected.satisfaction,
+                likedMost: document.getElementById('es-liked').value.trim() || null,
+                improvement: document.getElementById('es-improve').value.trim() || null,
+                wouldReturnCode: selected.wouldReturn,
+                returnTrigger: document.getElementById('es-trigger').value.trim() || null,
+                contactConsent: consent.checked,
+                contactInfo: consent.checked ? (contact.value.trim() || null) : null,
+                language: lang
+            };
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = t.sending;
+
+            fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(function (r) {
+                if (!r.ok) throw new Error('Request failed');
+                form.style.display = 'none';
+                document.getElementById('es-thanks').style.display = 'block';
+            })
+            .catch(function () {
+                msg.textContent = t.err_generic;
+                msg.className = 'biz-form-message biz-form-error';
+                submitBtn.disabled = false;
+                submitBtn.textContent = t.submit;
+            });
+        });
+    })();
+    </script>
+</body>
+</html>
