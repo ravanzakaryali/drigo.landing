@@ -107,6 +107,16 @@
                 <p data-i18n="invalid_body"></p>
             </div>
 
+            <!-- Already submitted -->
+            <div class="es-state" id="es-done" style="display:none">
+                <img class="es-logo" src="/assets/svgs/logo.svg" alt="DRIGO" style="align-self:center">
+                <svg class="es-invalid-icon" style="color:#22c55e" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
+                </svg>
+                <h2 data-i18n="done_title"></h2>
+                <p data-i18n="done_body"></p>
+            </div>
+
             <!-- Survey (only shown once the token is verified) -->
             <div id="es-main" style="display:none">
                 <img class="es-logo" src="/assets/svgs/logo.svg" alt="DRIGO">
@@ -204,6 +214,8 @@
                 checking: 'Checking your link…',
                 invalid_title: 'This link is not valid',
                 invalid_body: 'This survey link is invalid or has expired. If you received it by email, please open the most recent link we sent you.',
+                done_title: 'Your feedback has already been received',
+                done_body: 'Thank you — we’ve already recorded your response, so there’s nothing more to do. The door is always open if you’d like to come back. — The Drigo Team',
                 title: 'We’re sorry to see you go',
                 greet_sep: ', ',
                 subtitle: 'Your Drigo account has been closed. Before you leave, please help us improve — it takes less than a minute.',
@@ -227,6 +239,8 @@
                 checking: 'جارٍ التحقق من الرابط…',
                 invalid_title: 'هذا الرابط غير صالح',
                 invalid_body: 'رابط الاستبيان هذا غير صالح أو منتهي الصلاحية. إذا وصلك عبر البريد الإلكتروني، فيرجى فتح أحدث رابط أرسلناه إليك.',
+                done_title: 'تم استلام ملاحظاتك بالفعل',
+                done_body: 'شكرًا لك — لقد سجّلنا ردك بالفعل، ولا حاجة لأي إجراء آخر. الباب مفتوح دائمًا إن أردت العودة. — فريق Drigo',
                 title: 'نأسف لمغادرتك',
                 greet_sep: '، ',
                 subtitle: 'تم إغلاق حساب Drigo الخاص بك. قبل أن تغادر، ساعدنا على التحسّن — لن يستغرق الأمر سوى دقيقة.',
@@ -267,17 +281,28 @@
 
         var loadingEl = document.getElementById('es-loading');
         var invalidEl = document.getElementById('es-invalid');
+        var doneEl = document.getElementById('es-done');
         var mainEl = document.getElementById('es-main');
 
-        function showInvalid() {
+        function hideAll() {
             loadingEl.style.display = 'none';
+            invalidEl.style.display = 'none';
+            doneEl.style.display = 'none';
             mainEl.style.display = 'none';
+        }
+
+        function showInvalid() {
+            hideAll();
             invalidEl.style.display = 'flex';
         }
 
+        function showDone() {
+            hideAll();
+            doneEl.style.display = 'flex';
+        }
+
         function showForm(firstName) {
-            loadingEl.style.display = 'none';
-            invalidEl.style.display = 'none';
+            hideAll();
             mainEl.style.display = 'block';
 
             var titleEl = document.getElementById('es-title');
@@ -295,8 +320,9 @@
         fetch(API_BASE + '/verify?t=' + encodeURIComponent(token))
             .then(function (r) { return r.ok ? r.json() : { valid: false }; })
             .then(function (res) {
-                if (res && res.valid) showForm(res.firstName);
-                else showInvalid();
+                if (!res || !res.valid) { showInvalid(); return; }
+                if (res.alreadySubmitted) { showDone(); return; }
+                showForm(res.firstName);
             })
             .catch(function () { showInvalid(); });
 
