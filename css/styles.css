@@ -1140,6 +1140,15 @@ body {
     color: var(--dark-text);
 }
 
+.car-price-orig {
+    font-size: 14px;
+    font-weight: 500;
+    color: #b0b0bb;
+    text-decoration: line-through;
+    text-decoration-thickness: 1px;
+    margin-right: 2px;
+}
+
 /* Responsive Available Cars */
 @media (max-width: 1200px) {
     .cars-grid {

@@ -404,11 +404,19 @@ function renderCars(cars) {
         card.className = 'car-card';
 
         var fullName = car.brandName + ' ' + car.modelName;
+
+        // Mirror the hero markers: show the discounted price when the backend
+        // sends one, with the original struck through beside it.
+        var cardDiscount = car.originalPrice != null && car.discountedPrice != null
+            && Number(car.discountedPrice) < Number(car.originalPrice);
+        var cardPrice = cardDiscount ? Number(car.discountedPrice) : Number(car.price);
+
         var priceText = '';
-        if (car.price && car.currency) {
-            var formattedPrice = Number(car.price).toLocaleString('en-US');
+        var origText = '';
+        if (!isNaN(cardPrice) && cardPrice > 0 && car.currency) {
             var timeLabel = car.timeUnit ? car.timeUnit.toLowerCase() : 'monthly';
-            priceText = car.currency + ' ' + formattedPrice + ' / ' + timeLabel;
+            priceText = car.currency + ' ' + formatPrice(cardPrice) + ' / ' + timeLabel;
+            if (cardDiscount) origText = formatPrice(Number(car.originalPrice));
         }
 
         var imageUrl = car.mediaId
@@ -439,7 +447,10 @@ function renderCars(cars) {
             '</div>' +
             '<div class="car-price">' +
                 '<span class="car-price-label">starting from</span>' +
-                '<span class="car-price-value">' + (priceText || '--') + '</span>' +
+                '<span class="car-price-value">' +
+                    (origText ? '<span class="car-price-orig">' + origText + '</span> ' : '') +
+                    (priceText || '--') +
+                '</span>' +
             '</div>';
 
         grid.appendChild(card);
@@ -492,13 +503,13 @@ function renderHeroMarkers(cars) {
         var hasDiscount = car.originalPrice != null && car.discountedPrice != null
             && Number(car.discountedPrice) < Number(car.originalPrice);
         var displayPrice = hasDiscount ? Number(car.discountedPrice) : Number(car.price);
-        var priceText = isNaN(displayPrice) ? '' : displayPrice.toLocaleString('en-US');
+        var priceText = formatPrice(displayPrice);
         var cur = escapeHtml(car.currency || 'AED');
         var per = escapeHtml(car.timeUnit ? '/ ' + car.timeUnit : '');
 
         var origInline = '';
         if (hasDiscount) {
-            origInline = '<span class="orig">' + Number(car.originalPrice).toLocaleString('en-US') + '</span> ';
+            origInline = '<span class="orig">' + formatPrice(car.originalPrice) + '</span> ';
             node.classList.add('has-discount');
         }
 
@@ -515,6 +526,22 @@ function renderHeroMarkers(cars) {
             '<div class="hero-marker-arrow"></div>' +
             (carImg ? '<img class="hero-marker-car" src="' + escapeHtml(carImg) + '" alt="" loading="lazy">' : '');
         host.appendChild(node);
+    });
+}
+
+// ============================================
+// Price Formatting Utility
+// ============================================
+// Backend sends decimals (186.25, 159.20). Show whole prices without a
+// trailing ".00", and keep exactly two decimals otherwise so 159.20 does
+// not render as "159.2".
+function formatPrice(value) {
+    var num = Number(value);
+    if (isNaN(num)) return '';
+    var decimals = Number.isInteger(num) ? 0 : 2;
+    return num.toLocaleString('en-US', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
     });
 }
 

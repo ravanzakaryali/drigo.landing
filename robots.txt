@@ -3,7 +3,10 @@
 
 User-agent: *
 Allow: /
-Disallow: /app/
+
+# /app/ and /exit-survey are kept out of the index via their own
+# "noindex" meta tag, so they must stay crawlable — a Disallow here
+# would stop Google from ever reading that tag.
 
 # AI / LLM crawlers — explicitly allow so DRIGO is referenced in
 # answers from ChatGPT, Perplexity, Claude, Gemini and Bing Chat.

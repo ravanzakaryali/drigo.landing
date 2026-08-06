@@ -27,15 +27,8 @@
   </url>
 
   <url>
-    <loc>https://drigo.com/app/</loc>
-    <lastmod>2026-05-05</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <url>
     <loc>https://drigo.com/privacy</loc>
-    <lastmod>2026-05-05</lastmod>
+    <lastmod>2026-08-06</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
