@@ -408,6 +408,15 @@ body {
     font-weight: 700;
     color: var(--dark-text);
     line-height: 1.1;
+    margin-bottom: 20px;
+}
+
+.hero-subtitle {
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 1.5;
+    color: #555;
+    max-width: 620px;
     margin-bottom: 40px;
 }
 
