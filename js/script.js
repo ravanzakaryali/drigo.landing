@@ -496,9 +496,11 @@ function renderHeroMarkers(cars) {
         node.style.top = slot.top + '%';
         node.style.animationDelay = (0.1 + i * 0.12) + 's';
 
-        var carImg = car.mediaId
-            ? API_BASE_URL + '/image/' + car.mediaId + '?w=160&q=80&f=webp'
-            : (car.imageUrl || '');
+        // Transparent cutout only. The scenic SideCard (car.mediaId) shrinks to a
+        // dark rectangle at marker size, so a car without a cutout shows the pill alone.
+        var carImg = car.carImageMediaId
+            ? API_BASE_URL + '/image/' + car.carImageMediaId + '?w=250&q=80&f=webp'
+            : '';
 
         var hasDiscount = car.originalPrice != null && car.discountedPrice != null
             && Number(car.discountedPrice) < Number(car.originalPrice);
