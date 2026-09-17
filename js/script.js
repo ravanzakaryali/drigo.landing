@@ -365,7 +365,7 @@ function fetchLandingData() {
     })
     .then(function(data) {
         renderStatistics(data.statistics);
-        renderCars(data.cars);
+        renderCars(data.models);
         renderHeroMarkers(data.cars);
     })
     .catch(function(error) {
@@ -391,67 +391,106 @@ function renderStatistics(stats) {
 }
 
 // ============================================
-// Render Cars
+// Render Cars — one card per model
 // ============================================
-function renderCars(cars) {
+function carSceneSrcset(mediaId) {
+    return API_BASE_URL + '/image/' + mediaId + '?w=640&q=80&f=webp 640w, ' +
+        API_BASE_URL + '/image/' + mediaId + '?w=1080&q=80&f=webp 1080w';
+}
+
+function renderCars(models) {
     var grid = document.getElementById('cars-grid');
-    if (!grid || !cars || cars.length === 0) return;
+    if (!grid || !models || models.length === 0) return;
 
     grid.innerHTML = '';
 
-    cars.forEach(function(car) {
+    models.forEach(function(model) {
         var card = document.createElement('div');
         card.className = 'car-card';
 
-        var fullName = car.brandName + ' ' + car.modelName;
+        var fullName = model.brandName + ' ' + model.modelName;
+        var timeLabel = model.timeUnit ? model.timeUnit.toLowerCase() : 'day';
 
         // Mirror the hero markers: show the discounted price when the backend
         // sends one, with the original struck through beside it.
-        var cardDiscount = car.originalPrice != null && car.discountedPrice != null
-            && Number(car.discountedPrice) < Number(car.originalPrice);
-        var cardPrice = cardDiscount ? Number(car.discountedPrice) : Number(car.price);
+        var cardDiscount = model.originalPrice != null && model.discountedPrice != null
+            && Number(model.discountedPrice) < Number(model.originalPrice);
+        var cardPrice = cardDiscount ? Number(model.discountedPrice) : Number(model.price);
 
         var priceText = '';
         var origText = '';
-        if (!isNaN(cardPrice) && cardPrice > 0 && car.currency) {
-            var timeLabel = car.timeUnit ? car.timeUnit.toLowerCase() : 'monthly';
-            priceText = car.currency + ' ' + formatPrice(cardPrice) + ' / ' + timeLabel;
-            if (cardDiscount) origText = formatPrice(Number(car.originalPrice));
+        if (!isNaN(cardPrice) && cardPrice > 0 && model.currency) {
+            priceText = model.currency + ' ' + formatPrice(cardPrice) + ' / ' + timeLabel;
+            if (cardDiscount) origText = formatPrice(Number(model.originalPrice));
         }
 
-        var imageUrl = car.mediaId
-            ? API_BASE_URL + '/image/' + car.mediaId + '?w=500&q=80&f=webp'
-            : (car.imageUrl || 'assets/images/carMercedes.svg');
+        // Km included in the cheapest package, not the car's odometer.
+        var includedText = model.includedDistance != null
+            ? Math.round(Number(model.includedDistance)).toLocaleString('en-US') + ' km / ' + timeLabel
+            : '--';
 
         card.innerHTML =
-            '<h3 class="car-name">' + escapeHtml(fullName) + '</h3>' +
-            '<div class="car-tags">' +
-                '<span class="car-tag">' + car.manufactureYear + '</span>' +
-                '<span class="car-tag">' + escapeHtml(car.bodyTypeName) + '</span>' +
-                '<span class="car-tag">' + escapeHtml(car.fuelTypeName) + '</span>' +
-            '</div>' +
             '<div class="car-image">' +
-                '<img src="' + escapeHtml(imageUrl) + '" alt="' + escapeHtml(fullName) + '" class="car-img" loading="lazy">' +
+                '<img alt="' + escapeHtml(fullName) + '" class="car-img" loading="lazy">' +
             '</div>' +
-            '<div class="car-details">' +
-                '<div class="car-detail-box">' +
-                    '<img src="assets/images/SpeedIcon.svg" alt="Speed" class="car-detail-icon">' +
-                    '<span class="car-detail-label">distance</span>' +
-                    '<span class="car-detail-value">' + Math.round(Number(car.distance) / 1000).toLocaleString('en-US') + ' km</span>' +
+            '<div class="car-body">' +
+                '<div class="car-head">' +
+                    '<h3 class="car-name">' + escapeHtml(fullName) + '</h3>' +
+                    '<div class="car-colors"></div>' +
                 '</div>' +
-                '<div class="car-detail-box">' +
-                    '<img src="assets/images/UsersIcon.svg" alt="Users" class="car-detail-icon">' +
-                    '<span class="car-detail-label">capacity</span>' +
-                    '<span class="car-detail-value">' + car.seats + ' seats</span>' +
+                '<div class="car-tags">' +
+                    '<span class="car-tag">' + model.manufactureYear + '</span>' +
+                    '<span class="car-tag">' + escapeHtml(model.bodyTypeName) + '</span>' +
+                    '<span class="car-tag">' + escapeHtml(model.fuelTypeName) + '</span>' +
                 '</div>' +
-            '</div>' +
-            '<div class="car-price">' +
-                '<span class="car-price-label">starting from</span>' +
-                '<span class="car-price-value">' +
-                    (origText ? '<span class="car-price-orig">' + origText + '</span> ' : '') +
-                    (priceText || '--') +
-                '</span>' +
+                '<div class="car-details">' +
+                    '<div class="car-detail-box">' +
+                        '<img src="assets/images/SpeedIcon.svg" alt="Km" class="car-detail-icon">' +
+                        '<span class="car-detail-label">included</span>' +
+                        '<span class="car-detail-value">' + includedText + '</span>' +
+                    '</div>' +
+                    '<div class="car-detail-box">' +
+                        '<img src="assets/images/UsersIcon.svg" alt="Users" class="car-detail-icon">' +
+                        '<span class="car-detail-label">capacity</span>' +
+                        '<span class="car-detail-value">' + model.seats + ' seats</span>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="car-price">' +
+                    '<span class="car-price-label">starting from</span>' +
+                    '<span class="car-price-value">' +
+                        (origText ? '<span class="car-price-orig">' + origText + '</span> ' : '') +
+                        (priceText || '--') +
+                    '</span>' +
+                '</div>' +
             '</div>';
+
+        var img = card.querySelector('.car-img');
+        img.sizes = '(max-width: 768px) 280px, (max-width: 1200px) 50vw, 600px';
+        if (model.mediaId) {
+            img.srcset = carSceneSrcset(model.mediaId);
+            img.src = API_BASE_URL + '/image/' + model.mediaId + '?w=1080&q=80&f=webp';
+        } else {
+            img.src = 'assets/images/carMercedes.svg';
+        }
+
+        // Colour dots: the first is the colour on the photo; tapping another swaps the scene.
+        var dots = card.querySelector('.car-colors');
+        (model.colors || []).forEach(function(color, i) {
+            var dot = document.createElement('button');
+            dot.type = 'button';
+            dot.className = 'car-color' + (i === 0 ? ' is-active' : '');
+            dot.title = color.name;
+            dot.setAttribute('aria-label', color.name);
+            if (/^#[0-9a-f]{3,8}$/i.test(color.hexCode || '')) dot.style.backgroundColor = color.hexCode;
+            dot.addEventListener('click', function() {
+                if (!color.mediaId) return;
+                dots.querySelectorAll('.car-color').forEach(function(d) { d.classList.remove('is-active'); });
+                dot.classList.add('is-active');
+                img.srcset = carSceneSrcset(color.mediaId);
+                img.src = API_BASE_URL + '/image/' + color.mediaId + '?w=1080&q=80&f=webp';
+            });
+            dots.appendChild(dot);
+        });
 
         grid.appendChild(card);
     });
