@@ -951,6 +951,11 @@ body {
     width: fit-content;
 }
 
+a.btn-primary {
+    display: inline-block;
+    text-decoration: none;
+}
+
 .btn-primary:hover {
     background: #3d1ae6;
     transform: translateY(-2px);

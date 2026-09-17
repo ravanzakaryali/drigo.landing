@@ -653,10 +653,12 @@ function escapeHtml(text) {
     }
 
     document.addEventListener('click', function(e) {
-        var btn = e.target.closest('.app-download-btn');
+        var btn = e.target.closest('.app-download-btn, .btn-cta');
         if (!btn) return;
         var href = btn.getAttribute('href') || '';
-        var store = href.indexOf('apple') !== -1 ? 'App Store' : 'Google Play';
+        // "Get started" goes to /app, which picks the store for the visitor's device.
+        var store = btn.classList.contains('btn-cta') ? 'Get started'
+            : href.indexOf('apple') !== -1 ? 'App Store' : 'Google Play';
         trackAppDownloadClick(store);
     });
 })();
@@ -667,6 +669,13 @@ function escapeHtml(text) {
 (function() {
     var form = document.getElementById('biz-contact-form');
     if (!form) return;
+
+    var heroCta = document.querySelector('.btn-business-hero');
+    if (heroCta) {
+        heroCta.addEventListener('click', function() {
+            scrollToHash('#contact');
+        });
+    }
 
     var phoneCodeSelect = document.getElementById('biz-phone-code');
     if (phoneCodeSelect) {
