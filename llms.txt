@@ -11,7 +11,7 @@
 - **Website**: https://drigo.com/
 - **iOS app**: https://apps.apple.com/az/app/drigo-car-sharing-rental/id6757393927
 - **Android app**: https://play.google.com/store/apps/details?id=com.drigo.mobile
-- **Instagram**: https://www.instagram.com/getdrigo/
+- **Instagram**: https://www.instagram.com/drigocarsharing/
 - **LinkedIn**: https://www.linkedin.com/company/getdrigo
 - **Support**: support@drigo.com
 
