@@ -1,0 +1,78 @@
+/* Legal pages (privacy.html, privacy-ar.html, exit-survey.html) on the site design.
+   Loaded after site.css. Only the page chrome and typography change here — never the T&C text. */
+
+body.legal-body { background: var(--paper); color: var(--ink); }
+
+/* ==== Header: the homepage's floating pill, at rest ================================== */
+.legal-header { position: relative; z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 16px; width: min(var(--wrap), 100% - 24px); margin: 12px auto 0; padding: 10px 10px 10px 26px; border-radius: 999px; background: #fff; box-shadow: 0 10px 40px #1a103d14, inset 0 0 0 1px var(--line); }
+.legal-header .logo { display: block; width: 104px; }
+.legal-header .logo img { display: block; width: 100%; height: auto; filter: none; }
+.legal-back { display: inline-flex; align-items: center; gap: 14px; min-height: 48px; padding: 0 8px 0 22px; border-radius: 999px; background: var(--ink); color: #fff; font: 600 14px/1 var(--body); text-decoration: none; transition: background .3s var(--ease); }
+.legal-back:hover { background: var(--violet); }
+.legal-back svg { box-sizing: content-box; width: 16px; height: 16px; padding: 8px; border-radius: 50%; background: #ffffff1f; transform: rotate(180deg); }
+html[dir=rtl] .legal-back svg { transform: none; }
+
+/* ==== Terms content ================================================================== */
+.privacy-page { padding: 72px 0 96px; background: none; min-height: 0; }
+.privacy-page > .container { width: min(var(--wrap), 100% - 2 * var(--gutter)); margin-inline: auto; }
+.privacy-content { max-width: none; margin: 0; }
+.privacy-title { max-width: 28ch; margin: 0 0 28px; font: 600 clamp(28px, 3.4vw, 50px)/1.12 var(--display); letter-spacing: -.04em; text-align: start; color: var(--ink); }
+.privacy-updated { margin: 0 0 40px; font-size: 14px; color: var(--muted); }
+.privacy-page .lang-switch { margin: 0 0 40px; border-color: var(--violet); color: var(--violet); }
+.privacy-page .lang-switch:hover { background: var(--violet); color: #fff; }
+
+.privacy-layout { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 64px; align-items: start; }
+.privacy-main { max-width: 860px; min-width: 0; padding: 48px 52px; border-radius: var(--radius); background: #fff; box-shadow: inset 0 0 0 1px var(--line); }
+
+.privacy-toc { position: sticky; top: 24px; order: 2; width: auto; max-height: calc(100vh - 48px); margin: 0; padding: 24px; overflow-y: auto; border: 0; border-radius: 22px; background: #fff; box-shadow: inset 0 0 0 1px var(--line); }
+.privacy-toc h2 { margin: 0 0 14px; font: 700 12px var(--body); letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
+.privacy-toc ol { margin: 0 0 14px; padding: 0; list-style: none; counter-reset: toc; }
+.privacy-toc ol li { margin: 0; font-size: 13.5px; line-height: 1.4; counter-increment: toc; }
+.privacy-toc ol li a { display: flex; gap: 10px; padding: 6px 0; color: var(--ink); text-decoration: none; }
+.privacy-toc ol li a::before { content: counter(toc, decimal-leading-zero); flex: none; width: 22px; font: 600 11px/1.6 var(--display); color: var(--violet); }
+.privacy-toc ol li a:hover { color: var(--violet); }
+.privacy-toc p { margin: 4px 0 0; padding-top: 12px; border-top: 1px solid var(--line); font-size: 13.5px; font-weight: 600; }
+.privacy-toc p a { display: block; color: var(--violet); text-decoration: none; }
+
+.privacy-section { margin: 0 0 44px; scroll-margin-top: 24px; }
+.privacy-section:last-child { margin-bottom: 0; }
+.privacy-page .privacy-section h2 { margin: 0 0 18px; font: 600 clamp(19px, 1.6vw, 23px)/1.3 var(--display); letter-spacing: -.02em; color: var(--ink); }
+.privacy-page .privacy-section h3 { margin: 28px 0 12px; font: 700 17px/1.4 var(--body); color: var(--ink); }
+.privacy-page .privacy-section p, .privacy-page .privacy-section li { font-size: 16px; line-height: 1.8; color: #3d3a4a; overflow-wrap: anywhere; }
+.privacy-page .privacy-section p { margin: 0 0 16px; }
+.privacy-page .privacy-section a { color: var(--violet); text-decoration: underline; text-underline-offset: 3px; }
+.privacy-content .privacy-list { margin: 1em 0; padding-inline-start: 1.5em; }
+.privacy-content .privacy-list li { margin-bottom: .5em; line-height: 1.6; }
+
+.privacy-page .privacy-table { display: table; width: 100%; margin: 16px 0 24px; border-collapse: separate; border-spacing: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 16px; font-size: 15px; }
+.privacy-page .privacy-table th, .privacy-page .privacy-table td { min-width: 0; border: 0; }
+.privacy-page .privacy-table thead th { padding: 14px 18px; background: var(--ink); color: #fff; font: 700 12px var(--body); letter-spacing: .06em; text-transform: uppercase; text-align: start; }
+.privacy-page .privacy-table tbody td { padding: 12px 18px; border-bottom: 1px solid var(--line); color: #3d3a4a; line-height: 1.6; text-align: start; }
+.privacy-page .privacy-table tbody tr:last-child td { border-bottom: 0; }
+.privacy-page .privacy-table tbody tr:nth-child(even) { background: var(--paper); }
+.privacy-divider { margin: 32px 0; border: 0; border-top: 1px solid var(--line); }
+
+/* ==== Footer: the homepage footer without the motion control ========================= */
+.legal-body .foot { margin-top: 0; }
+
+/* ==== Arabic ========================================================================= */
+html[dir=rtl] body.legal-body,
+html[dir=rtl] .privacy-page :is(.privacy-title, h2, h3, p, li, td, th),
+html[dir=rtl] .foot :is(.foot-line, h3, a, span) { font-family: 'Noto Sans Arabic', var(--body); letter-spacing: 0; }
+html[dir=rtl] .privacy-toc ol li a::before { font-family: var(--body); }
+
+@media (max-width: 1024px) {
+  .privacy-layout { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .privacy-toc { position: static; order: 0; max-height: none; }
+  .privacy-main { max-width: none; }
+}
+@media (max-width: 760px) {
+  .legal-header { padding: 8px 8px 8px 20px; }
+  .legal-header .logo { width: 88px; }
+  .legal-back { min-height: 42px; padding-inline-start: 16px; font-size: 13px; }
+  .privacy-page { padding: 44px 0 64px; }
+  .privacy-main { padding: 26px 20px; border-radius: 20px; }
+  .privacy-page .privacy-section p, .privacy-page .privacy-section li { font-size: 15px; }
+  .privacy-page .privacy-table { display: block; overflow-x: auto; font-size: 13px; }
+  .privacy-page .privacy-table thead th, .privacy-page .privacy-table tbody td { padding: 10px 12px; }
+}

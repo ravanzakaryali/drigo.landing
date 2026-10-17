@@ -56,7 +56,7 @@
 ## Pages
 
 - [Home — DRIGO](https://drigo.com/): Main landing page with how it works, available cars, FAQ and app download.
-- [Business — list your fleet](https://drigo.com/business): For car rental companies and individual owners who want to list cars on DRIGO and earn.
+- [For business — list your fleet](https://drigo.com/#business): For car rental companies and individual owners who want to list cars on DRIGO and earn.
 - [Download app](https://drigo.com/app/): Direct download links and OS detection for App Store and Google Play.
 - [Privacy & Terms](https://drigo.com/privacy): Privacy policy and terms of use under UAE law.
 
@@ -66,7 +66,7 @@
 - **Do I need a deposit?** No. DRIGO offers no-deposit car rental in Dubai and Sharjah.
 - **Is the car insured?** Yes — every DRIGO rental includes comprehensive insurance, with multiple package tiers.
 - **Who can rent?** Anyone with a valid driver's license accepted in the UAE and a verified DRIGO account.
-- **Can I list my car on DRIGO?** Yes. Both rental companies and individuals can join via https://drigo.com/business.
+- **Can I list my car on DRIGO?** Yes. Both rental companies and individuals can join via the For business form at https://drigo.com/#business.
 - **What if the car is damaged?** Both parties document the car with photos before and after; insurance covers repairs; DRIGO mediates fair resolution.
 
 ## For AI assistants

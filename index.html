@@ -15,7 +15,7 @@
     <meta name="geo.placename" content="Dubai, Sharjah, United Arab Emirates">
     <meta name="geo.position" content="25.2048;55.2708">
     <meta name="ICBM" content="25.2048, 55.2708">
-    <meta name="theme-color" content="#0a0a0a">
+    <meta name="theme-color" content="#090a10">
     <meta name="application-name" content="DRIGO">
     <meta name="apple-mobile-web-app-title" content="DRIGO">
     <meta name="format-detection" content="telephone=no">
@@ -61,13 +61,12 @@
     <meta name="twitter:image" content="https://drigo.com/assets/images/og-image.png">
     <meta name="twitter:image:alt" content="DRIGO car rental app in Dubai and Sharjah">
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600&display=swap" rel="stylesheet">
+    <!-- Fonts (self-hosted) -->
+    <link rel="preload" href="assets/fonts/Unbounded.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="assets/fonts/Figtree.woff2" as="font" type="font/woff2" crossorigin>
 
     <!-- CSS -->
-    <link rel="stylesheet" href="css/styles.css?v=14">
+    <link rel="stylesheet" href="css/site.css?v=1">
 
     <!-- JSON-LD: Organization -->
     <script type="application/ld+json">
@@ -201,8 +200,8 @@
       },
       "aggregateRating": {
         "@type": "AggregateRating",
-        "ratingValue": "4.8",
-        "ratingCount": "120",
+        "ratingValue": "4.1",
+        "ratingCount": "50",
         "bestRating": "5",
         "worstRating": "1"
       },
@@ -218,58 +217,66 @@
       "mainEntity": [
         {
           "@type": "Question",
-          "name": "How does car sharing work with DRIGO in Dubai and Sharjah?",
+          "name": "How does the app work?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Car sharing with DRIGO lets you rent a car directly through the app in just a few steps across Dubai and Sharjah. Choose a nearby car in Dubai or Sharjah, book it for the time you need, unlock it with your phone, and start driving. When you're done, simply park the car in a designated zone in Dubai or Sharjah and end the trip in the app."
+            "text": "Open Drigo, pick a car on the map, choose an hourly, daily or monthly rental, and unlock it with your phone when you reach it."
           }
         },
         {
           "@type": "Question",
-          "name": "Can I rent a car in Dubai or Sharjah without a deposit?",
+          "name": "Where can I find a car?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes. DRIGO offers no-deposit car rental in both Dubai and Sharjah. You don't need to lock in money upfront — you only pay for the time you actually use the car. Insurance and fuel are included on eligible trips across Dubai and Sharjah."
+            "text": "Open the Drigo app for actual availability and parking zones in Dubai and Sharjah. The city on this website is an illustration."
           }
         },
         {
           "@type": "Question",
-          "name": "Where can I rent a car near me in Dubai or Sharjah?",
+          "name": "Is a security deposit required?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Open the DRIGO app and you'll see all available cars near you across Dubai and Sharjah. Cars are distributed in convenient parking zones throughout the UAE so you can rent a car nearby on demand — hourly, daily or monthly."
+            "text": "Drigo offers rentals without a security deposit. Review your rental price, fees, and payment details in the app before booking."
           }
         },
         {
           "@type": "Question",
-          "name": "Is the car insured during a DRIGO rental?",
+          "name": "What’s included in my rental?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes, every car rented through DRIGO is covered by comprehensive insurance during the rental period. We offer multiple insurance packages so you can choose the level of coverage that fits your trip."
+            "text": "Fuel is included on eligible trips, with free parking in designated zones. Review the insurance options, coverage conditions, and full rental details in the app."
           }
         },
         {
           "@type": "Question",
-          "name": "Can I list my own car on DRIGO and earn money?",
+          "name": "What do I need to get started?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes. Car owners and rental businesses can list their cars on DRIGO and earn money by renting them to verified drivers in Dubai and Sharjah. We handle insurance, payments and platform operations."
+            "text": "Create an account and complete verification. You’ll need a valid driving licence and must meet the rental eligibility requirements."
           }
         },
         {
           "@type": "Question",
-          "name": "Who can rent a car on the DRIGO app?",
+          "name": "Is the car insured during my rental?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Anyone with a valid driver's license and a verified DRIGO account can rent cars in the UAE. Verification keeps the platform safe for both car owners and renters."
+            "text": "Every rental comes with insurance cover. The app shows the cover options for your trip and what each one includes before you book. The full conditions are in Section 8 of the Terms."
           }
         },
         {
           "@type": "Question",
-          "name": "What happens if the rental car gets damaged?",
+          "name": "What happens if the car gets damaged?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "DRIGO has a clear damage process. Both parties document the car's condition before and after the trip with photos. Comprehensive insurance covers repairs and DRIGO ensures fair resolution for everyone involved."
+            "text": "Report it in the app straight away and follow the steps shown. What you pay depends on your cover and the circumstances, as set out in Section 9 of the Terms."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I list my own car on Drigo?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. Rental companies and individual car owners can tell us about their fleet through the For business form, and the Drigo team will get in touch."
           }
         }
       ]
@@ -299,396 +306,270 @@
     <noscript><img height="1" width="1" style="display:none"
     src="https://www.facebook.com/tr?id=2113963589452011&ev=PageView&noscript=1"/></noscript>
 </head>
-<body>
-    <!-- Header -->
-    <header class="header">
-        <div class="container">
-            <nav class="nav">
-                <div class="logo">
-                    <img src="assets/svgs/logo.svg" alt="DRIGO — Car rental & car sharing app in Dubai and Sharjah, UAE" class="logo-img">
-                </div>
-                <div class="nav-container">
-                    <ul class="nav-menu">
-                        <li><a href="#about" class="nav-link active">About us</a></li>
-                        <li><a href="#how-it-works" class="nav-link">Why us</a></li>
-                        <li><a href="#available-cars" class="nav-link">Available cars</a></li>
-                        <li><a href="#faq" class="nav-link">FAQ</a></li>
-                        <li><a href="/business" class="nav-link">Business</a></li>
-                    </ul>
-                </div>
-                <button class="mobile-menu-toggle" aria-label="Menu">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </button>
-            </nav>
-        </div>
-    </header>
+<body><svg style="display:none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+<symbol id="arrow-right" viewBox="0 0 24 24"><path d="M4 12h16m-7-7 7 7-7 7"/></symbol>
+<symbol id="chevron-right" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
+<symbol id="chevron-left" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></symbol>
+<symbol id="pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z" fill="currentColor" stroke="none"/><circle cx="12" cy="10" r="3" fill="white" stroke="none"/></symbol>
+<symbol id="coffee" viewBox="0 0 24 24"><path d="M4 9h12v6a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5Zm12 1h2a3 3 0 0 1 0 6h-2M3 23h15M8 6c-2-2 2-2 0-4m5 4c-2-2 2-2 0-4"/></symbol>
+<symbol id="briefcase" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V4h8v3M3 12c5 3 13 3 18 0M10 12h4v4h-4z"/></symbol>
+<symbol id="palm" viewBox="0 0 24 24"><path d="M12 22V8m0 0C9 3 4 3 2 7c4-1 7 0 10 1Zm0 0c3-5 8-5 10-1-4-1-7 0-10 1Zm0 0C7 6 3 10 4 14c2-3 5-5 8-6Zm0 0c5-2 9 2 8 6-2-3-5-5-8-6Zm0 0c-3-4-2-7 0-7 3 0 4 3 0 7"/></symbol>
+<symbol id="wallet" viewBox="0 0 24 24"><path d="M20 6H5a2 2 0 0 1 0-4h14v4M3 4v16a2 2 0 0 0 2 2h15V6m0 6h-6v5h6M16 14.5h.1"/></symbol>
+<symbol id="unlock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="12" rx="1"/><path d="M8 10V6a5 5 0 0 1 10 0"/></symbol>
+<symbol id="calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="17" rx="2"/><path d="M7 2v6m10-6v6M3 11h18"/></symbol>
+<symbol id="phone" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M10 18h4"/></symbol>
+<symbol id="plus" viewBox="0 0 24 24"><path d="M12 4v16M4 12h16"/></symbol>
+<symbol id="check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+<symbol id="apple" viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M16.4 12.6c0-2.4 2-3.5 2-3.6-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.9-.9-3.1-.8-1.6 0-3 .9-3.8 2.3-1.6 2.8-.4 7 1.2 9.3.8 1.1 1.7 2.4 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3.1.7c1.3 0 2.1-1.1 2.8-2.3.9-1.3 1.3-2.6 1.3-2.6s-2.5-1-2.5-3.7ZM14.1 5.6c.6-.8 1.1-1.9 1-3-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 2.7-1.3Z"/></symbol>
+<symbol id="play" viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M6 3.8v16.4c0 .8.9 1.3 1.6.9l13-8.2c.6-.4.6-1.3 0-1.7l-13-8.2C6.9 2.5 6 3 6 3.8Z"/></symbol>
+<symbol id="fuel" viewBox="0 0 24 24"><path d="M4 21V5a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v16M3 21h13M4 10h11m0-3 3 3v7a1.5 1.5 0 0 0 3 0V9l-3-3"/></symbol>
+<symbol id="parking" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M9 17V7h4a3 3 0 0 1 0 6H9"/></symbol>
+<symbol id="shield" viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3Z"/><path d="m8.5 12 2.5 2.5 4.5-5"/></symbol>
+<symbol id="route" viewBox="0 0 24 24"><circle cx="6" cy="19" r="2.5"/><circle cx="18" cy="5" r="2.5"/><path d="M8.5 19H17a3.5 3.5 0 0 0 0-7H7a3.5 3.5 0 0 1 0-7h8.5"/></symbol>
+<symbol id="arrow-up-right" viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></symbol>
+</svg>
 
-    <!-- Hero Section -->
-    <section id="about" class="hero">
-        <div class="hero-markers" id="hero-markers" aria-hidden="true"></div>
-        <div class="container">
-            <div class="hero-content">
-                <p class="hero-tagline">LESS OWNING, MORE MOVING</p>
-                <h1 class="hero-title">Built on trust,<br><span class="text-bolder">Driven by people</span></h1>
-                <p class="hero-subtitle">Rent a car in Dubai &amp; Sharjah — no deposit, full insurance, fuel and parking included.</p>
-                <div class="hero-download-buttons">
-                    <a href="https://apps.apple.com/az/app/drigo-car-sharing-rental/id6757393927" class="app-download-btn" target="_blank" rel="noopener noreferrer">
-                        <div class="app-download-content">
-                            <svg width="28" height="28" viewBox="0 0 20 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="app-icon">
-                                <path d="M16.52 12.58c-.03-2.87 2.34-4.24 2.45-4.31-1.33-1.95-3.41-2.22-4.15-2.25-1.77-.18-3.45 1.04-4.34 1.04-.9 0-2.28-1.01-3.75-.99-1.93.03-3.71 1.12-4.71 2.85-2.01 3.49-.51 8.66 1.44 11.49.96 1.39 2.1 2.95 3.6 2.89 1.45-.06 1.99-.93 3.74-.93 1.74 0 2.24.93 3.76.9 1.56-.03 2.54-1.41 3.49-2.81 1.1-1.61 1.55-3.17 1.58-3.25-.03-.01-3.03-1.16-3.06-4.63h-.05zM13.64 4.15c.8-.97 1.34-2.31 1.19-3.65-1.15.05-2.55.77-3.37 1.73-.74.85-1.38 2.22-1.21 3.53 1.29.1 2.6-.65 3.39-1.61z" fill="currentColor"/>
-                            </svg>
-                            <div class="app-download-text">
-                                <span class="app-download-label">DOWNLOAD ON THE</span>
-                                <span class="app-download-name">App Store</span>
-                            </div>
-                        </div>
-                    </a>
-                    <a href="https://play.google.com/store/apps/details?id=com.drigo.mobile" class="app-download-btn" target="_blank" rel="noopener noreferrer">
-                        <div class="app-download-content">
-                            <img src="assets/images/Android.svg" alt="Google Play" class="app-icon" width="28" height="28">
-                            <div class="app-download-text">
-                                <span class="app-download-label">GET IT ON</span>
-                                <span class="app-download-name">Google Play</span>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </section>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="header"><a href="/" class="logo" aria-label="Drigo home"><img src="assets/svgs/logo.svg" width="124" height="51" alt="drigo"></a><nav class="nav" aria-label="Main navigation"><a href="#trip" data-roll>How it works</a><a href="#plans" data-roll>Cars</a><a href="#benefits" data-roll>Why Drigo</a><a href="#questions" data-roll>FAQ</a><a href="#business" data-roll>For business</a></nav><div class="header-right"><a class="nav-download" href="#get-the-app" data-magnetic><span data-roll>Get Drigo</span> <svg aria-hidden="true"><use href="#arrow-right"/></svg></a><button class="menu-button" aria-label="Open navigation" aria-expanded="false" aria-controls="mobile-menu"><span></span><span></span></button></div></header>
+<nav id="mobile-menu" class="mobile-menu" aria-label="Mobile navigation" hidden><a href="#trip">How it works</a><a href="#plans">Cars</a><a href="#benefits">Why Drigo</a><a href="#questions">FAQ</a><a href="#business">For business</a></nav>
+<main id="main">
+<section class="hero map-hero" id="explore" aria-labelledby="hero-title">
+  <div class="city-stage">
+    <div id="city-canvas" tabindex="0" role="group" aria-label="Interactive 3D map of Dubai with five districts. Drag horizontally or use left and right arrow keys to rotate. Use plus and minus to zoom. Press Home to reset." aria-describedby="map-hint"></div>
+    <div class="map-pins" aria-label="Dubai-inspired districts to explore">
+      <button class="map-pin" data-destination="0" aria-label="Explore Downtown" aria-pressed="false" aria-controls="map-place"><span class="map-pin-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5" fill="currentColor" stroke="none"/></svg></span><span class="map-pin-label">Downtown</span></button>
+      <button class="map-pin" data-destination="1" aria-label="Explore Marina" aria-pressed="false" aria-controls="map-place"><span class="map-pin-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5" fill="currentColor" stroke="none"/></svg></span><span class="map-pin-label">Marina</span></button>
+      <button class="map-pin" data-destination="2" aria-label="Explore Old Dubai" aria-pressed="false" aria-controls="map-place"><span class="map-pin-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5" fill="currentColor" stroke="none"/></svg></span><span class="map-pin-label">Old Dubai</span></button>
+      <button class="map-pin" data-destination="3" aria-label="Explore Jumeirah" aria-pressed="false" aria-controls="map-place"><span class="map-pin-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5" fill="currentColor" stroke="none"/></svg></span><span class="map-pin-label">Jumeirah</span></button>
+      <button class="map-pin" data-destination="4" aria-label="Explore Palm coast" aria-pressed="false" aria-controls="map-place"><span class="map-pin-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5" fill="currentColor" stroke="none"/></svg></span><span class="map-pin-label">Palm coast</span></button>
+    </div>
+    <div class="scene-fallback" hidden><p>A whole city of possibilities.<br> Your next drive starts in the app.</p></div>
+  </div>
+  <div class="map-shade" aria-hidden="true"></div>
+  <div class="hero-heading">
+    <p class="hero-kicker"><i></i>Car sharing · Dubai &amp; Sharjah</p>
+    <h1 id="hero-title"><span class="sr-only">Your city. Your next move.</span><span class="hl hl-1" aria-hidden="true">Your city.</span><span class="hl hl-2" aria-hidden="true">Your next move.</span></h1>
+    <div class="hero-sub">
+      <p>Find, book and unlock a car in Dubai &amp; Sharjah. Hourly, daily or monthly, with no security deposit and fuel included on eligible trips.</p>
+      <div class="hero-actions"><a class="btn btn-violet" href="#get-the-app" data-magnetic><span data-roll>Get the app</span><svg aria-hidden="true"><use href="#arrow-right"/></svg></a><a class="hero-explore" href="#benefits"><span class="hero-explore-ring" aria-hidden="true"><svg><use href="#arrow-right"/></svg></span><span data-roll>Discover Drigo</span></a></div>
+    </div>
+  </div>
+  <div class="map-help" id="map-hint"><svg class="drag-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h18M7 8l-4 4 4 4m10-8 4 4-4 4"/></svg><span>Drag to explore · Tap a district</span></div>
+  <div class="district-nav" role="group" aria-label="Explore Dubai neighbourhoods">
+    <span class="district-label" aria-hidden="true">Explore</span>
+    <button data-district="0" aria-pressed="false" aria-controls="map-place"><span class="dn" aria-hidden="true">01</span>Downtown</button>
+    <button data-district="1" aria-pressed="false" aria-controls="map-place"><span class="dn" aria-hidden="true">02</span>Marina</button>
+    <button data-district="2" aria-pressed="false" aria-controls="map-place"><span class="dn" aria-hidden="true">03</span>Old Dubai</button>
+    <button data-district="3" aria-pressed="false" aria-controls="map-place"><span class="dn" aria-hidden="true">04</span>Jumeirah</button>
+    <button data-district="4" aria-pressed="false" aria-controls="map-place"><span class="dn" aria-hidden="true">05</span>The Palm</button>
+  </div>
+  <aside id="map-place" class="map-place" aria-labelledby="place-title" hidden>
+    <span class="place-clip" aria-hidden="true"><span class="place-num" id="place-num">01</span></span>
+    <button class="place-close" aria-label="Close place details"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+    <p class="place-kicker"><i></i><span id="place-count">01 / 05</span><span id="place-name">Downtown</span></p>
+    <h2 id="place-title"></h2><p id="place-description"></p>
+    <ul class="place-tags" id="place-tags" aria-label="Around here"></ul>
+    <div class="place-foot"><a class="place-go" href="#get-the-app">Find your drive <svg aria-hidden="true"><use href="#arrow-right"/></svg></a><div class="place-step"><button type="button" data-place-step="-1" aria-label="Previous district"><svg aria-hidden="true"><use href="#chevron-left"/></svg></button><button type="button" data-place-step="1" aria-label="Next district"><svg aria-hidden="true"><use href="#chevron-right"/></svg></button></div></div>
+  </aside>
+  <div class="map-footer"><p class="map-note">Dubai in 3D, on real streets. Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors.</p></div>
+  <p id="map-status" class="sr-only" role="status"></p>
+</section>
 
-    <!-- Statistics Section -->
-    <section class="statistics">
-        <div class="container">
-            <div class="stats-container" id="stats-container">
-                <div class="stat-card">
-                    <div class="stat-number" id="stat-car-models">4</div>
-                    <div class="stat-text">
-                        <div class="stat-line">CAR</div>
-                        <div class="stat-line">MODELS</div>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="stat-available-cars">30+</div>
-                    <div class="stat-text">
-                        <div class="stat-line">AVAILABLE</div>
-                        <div class="stat-line">CARS</div>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="stat-tariff-packages">14</div>
-                    <div class="stat-text">
-                        <div class="stat-line">TARIFF</div>
-                        <div class="stat-line">PACKAGES</div>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="stat-parking-zones">9+</div>
-                    <div class="stat-text">
-                        <div class="stat-line">FREE PARKING</div>
-                        <div class="stat-line">ZONES</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+<!-- ============ 04 · Benefits: a bento of live cards with a cursor spotlight ============ -->
+<section class="benefits" id="benefits" aria-labelledby="benefits-title">
+  <div class="wrap">
+    <div class="sec-head sec-head-row">
+      <div><p class="kicker"><i></i>Why Drigo</p><h2 id="benefits-title" class="split-words">The small print, <em>made small.</em></h2></div>
+      <p>What&rsquo;s included is shown before you book. Review the rental price, fees, cover and payment details in the app.</p>
+    </div>
+    <ul class="bento">
+      <li class="tile tile-fuel" data-spot>
+        <div class="gauge" aria-hidden="true"><svg viewBox="0 0 120 70"><path class="gauge-arc" d="M12 62a48 48 0 0 1 96 0"/><path class="gauge-fill" d="M12 62a48 48 0 0 1 96 0" pathLength="1"/><line class="gauge-needle" x1="60" y1="62" x2="60" y2="22"/><circle cx="60" cy="62" r="5"/><text x="6" y="78">E</text><text x="108" y="78">F</text></svg></div>
+        <div class="tile-copy"><h3>Fuel on eligible trips</h3><p>Refuel at partner stations on us when your trip qualifies.</p></div>
+      </li>
+      <li class="tile tile-deposit" data-spot>
+        <div class="odometer" aria-hidden="true"><span class="odo"><span>9</span><span>6</span><span>3</span><span>0</span></span></div>
+        <div class="tile-copy"><h3>No security deposit</h3><p>Book without a hold on your card.</p></div>
+      </li>
+      <li class="tile tile-phone" data-spot>
+        <div class="tile-copy"><h3>Everything, in one app</h3><p>Choose a package, see what&rsquo;s included, start the ride.</p></div>
+        <span class="tp-bg" aria-hidden="true"><i class="tp-dots"></i><i class="tp-ring"></i><i class="tp-glow"></i></span><div class="tile-phone-wrap"><span class="tp-chip tp-chip-1" aria-hidden="true"><i><svg><use href="#parking"/></svg></i>Parking zones<b>FREE</b></span><span class="tp-chip tp-chip-2" aria-hidden="true"><i class="tp-blue"><svg><use href="#fuel"/></svg></i>Fuel included<b>FREE</b></span><div class="phone phone-sm"><img src="assets/images/site/app-booking-sm.webp" alt="The Drigo booking screen with rental packages" width="390" height="844" loading="lazy" decoding="async"></div></div>
+      </li>
+      <li class="tile tile-park" data-spot>
+        <div class="zone" aria-hidden="true"><i></i><i></i><span><svg><use href="#parking"/></svg></span></div>
+        <div class="tile-copy"><h3>Free parking in zones</h3><p>Start and end in a designated zone. No meters, no hunting.</p></div>
+      </li>
+      <li class="tile tile-unlock" data-spot>
+        <div class="lock" aria-hidden="true"><svg viewBox="0 0 48 48"><path class="shackle" d="M15 22v-6a9 9 0 0 1 18 0"/><rect x="10" y="22" width="28" height="20" rx="5"/><circle cx="24" cy="32" r="2.6"/></svg></div>
+        <div class="tile-copy"><h3>Your phone is the key</h3><p>Unlock as you reach the car. Blink the lights to spot it.</p></div>
+      </li>
+      <li class="tile tile-cities" data-spot>
+        <div class="cities" aria-hidden="true"><svg viewBox="0 0 220 80"><path class="cities-road" d="M24 56 C 70 10, 150 70, 196 24"/><circle class="cities-a" cx="24" cy="56" r="7"/><circle class="cities-b" cx="196" cy="24" r="7"/><circle class="car-dot" r="5"><animateMotion dur="3.4s" repeatCount="indefinite" path="M24 56 C 70 10, 150 70, 196 24"/></circle><text x="10" y="78">Dubai</text><text x="168" y="12">Sharjah</text></svg></div>
+        <div class="tile-copy"><h3>Dubai &amp; Sharjah</h3><p>One account, two cities, parking zones across both.</p></div>
+      </li>
+    </ul>
+  </div>
+</section>
 
-    <!-- How It Works Section -->
-    <section id="how-it-works" class="how-it-works">
-        <div class="container">
-            <div class="how-it-works-header">
-                <p class="section-tagline">HOW IT WORKS</p>
-                <h2 class="section-title">Because rent a car<br>Should be this easy</h2>
-            </div>
-            <div class="steps-container">
-                <div class="steps-left">
-                    <div class="step-card">
-                        <div class="step-header">
-                            <span class="step-number">/01</span>
-                            <h3 class="step-title">Find a car nearby</h3>
-                        </div>
-                        <p class="step-description">Browse nearby cars in the app and choose the one that fits your trip.</p>
-                        <div class="step-image">
-                            <img src="assets/images/01ImageMap.svg" alt="Find a rental car near you on the DRIGO map in Dubai and Sharjah" class="step-img" loading="lazy">
-                        </div>
-                    </div>
-                    <div class="step-card">
-                        <div class="step-header">
-                            <span class="step-number">/02</span>
-                            <h3 class="step-title">Choose your car</h3>
-                        </div>
-                        <p class="step-description">Select your time, confirm the booking, and get ready to drive in seconds.</p>
-                        <div class="step-image step-image-dual">
-                            <img src="assets/images/02leftImage.svg" alt="Choose a rental car in the DRIGO app — car sharing in Dubai and Sharjah" class="step-img" loading="lazy">
-                            <img src="assets/images/02rigthImage.svg" alt="Confirm your car rental booking on DRIGO in Dubai or Sharjah in seconds" class="step-img" loading="lazy">
-                        </div>
-                    </div>
-                </div>
-                <div class="steps-right">
-                    <div class="step-card step-card-large">
-                        <div class="step-header">
-                            <span class="step-number">/03</span>
-                            <h3 class="step-title">Unlock the car, and enjoy your ride</h3>
-                        </div>
-                        <p class="step-description">No physical keys needed, check the car before starting your trip, take clear photos to document the car's current condition</p>
-                        <div class="step-image">
-                            <img src="assets/images/03Image.svg" alt="Unlock the rental car with the DRIGO app — keyless car sharing in UAE" class="step-img" loading="lazy">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
 
-    <!-- Why Choose Us Section -->
-    <section class="why-choose-us">
-        <div class="container">
-            <div class="why-choose-us-header">
-                <div class="why-choose-us-left">
-                    <p class="section-tagline">WHY CHOOSE US</p>
-                    <h2 class="section-title">Simple choices,<br>Real advantages</h2>
-                </div>
-                <div class="why-choose-us-right">
-                    <p class="why-choose-us-description">Enjoy a stress-free driving experience with no deposit requirements, no unexpected costs, and full insurance coverage. You don't need to lock in your money upfront — simply book a car and pay only for the time you use it. Free parking in designated zones, fuel included on eligible trips, and built-in insurance makes your trip more comfortable and worry-free.</p>
-                </div>
-            </div>
-            <div class="advantages-grid">
-                <div class="advantage-card">
-                    <div class="advantage-icon">
-                        <img src="assets/images/ParkingIcon.svg" alt="Free parking with DRIGO car rental in Dubai and Sharjah" loading="lazy">
-                    </div>
-                    <h3 class="advantage-title">Free parking</h3>
-                    <p class="advantage-description">No parking fees during your trip.</p>
-                </div>
-                <div class="advantage-card">
-                    <div class="advantage-icon">
-                        <img src="assets/images/DepositIcon.svg" alt="No deposit car rental in Dubai and Sharjah with DRIGO" loading="lazy">
-                    </div>
-                    <h3 class="advantage-title">No deposit</h3>
-                    <p class="advantage-description">No upfront payment required.</p>
-                </div>
-                <div class="advantage-card">
-                    <div class="advantage-icon">
-                        <img src="assets/images/FuelIcon.svg" alt="Fuel included in DRIGO car rental — Dubai & Sharjah" loading="lazy">
-                    </div>
-                    <h3 class="advantage-title">Free fuel</h3>
-                    <p class="advantage-description">Drive without worrying about fuel.</p>
-                </div>
-                <div class="advantage-card">
-                    <div class="advantage-icon">
-                        <img src="assets/images/InsuranceIcon.png" alt="Comprehensive insurance included with every DRIGO car rental in UAE" loading="lazy">
-                    </div>
-                    <h3 class="advantage-title">Insurance included</h3>
-                    <p class="advantage-description">Every trip is covered with built-in insurance.</p>
-                </div>
-            </div>
-        </div>
-    </section>
 
-    <!-- Partner With Us Section -->
-    <section class="partner">
-        <div class="container">
-            <div class="partner-content">
-                <div class="partner-left">
-                    <p class="section-tagline">PARTNER WITH US</p>
-                    <h2 class="section-title">Grow your rental business<br><span class="text-bolder">With Drigo</span></h2>
-                    <p class="partner-description">List your cars on our platform and reach thousands of drivers looking for flexible, app-based rentals. We help you increase fleet utilization, simplify operations, and grow revenue — all with transparent terms and dedicated support.</p>
-                    <a href="/business" class="btn-primary" style="display:inline-block;text-decoration:none;">Start earning</a>
-                </div>
-                <div class="partner-right">
-                    <div class="partner-image">
-                        <img src="assets/images/businessDash.svg" alt="DRIGO Business dashboard — list your rental cars in Dubai and Sharjah" class="partner-img" loading="lazy">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+<!-- ============ 02 · The trip: a pinned, horizontally scrolling route in four stops ============ -->
+<section class="ride" id="trip" aria-labelledby="trip-title">
+  <div class="ride-pin">
+    <div class="ride-head wrap">
+      <div><p class="kicker"><i></i>How it works</p><h2 id="trip-title" class="split-words">Four moves. <em>Zero counters.</em></h2></div>
+      <p class="ride-count" aria-hidden="true"><span class="ride-now">01</span><span class="ride-of">/04</span></p>
+    </div>
+    <div class="ride-viewport">
+      <ol class="ride-track">
+        <li class="ride-card rc-find">
+          <div class="ride-copy"><span class="ride-n" aria-hidden="true">01</span><h3>Find.</h3><p>Open the map and see the cars parked around you across Dubai and Sharjah.</p><ul class="ride-tags"><li>Live map in the app</li><li>Cars, SUVs, premium</li></ul></div>
+          <div class="ride-media ride-media-phone"><div class="rings" aria-hidden="true"><i></i><i></i><i></i></div><div class="phone" data-inner><img src="assets/images/site/app-map-find.webp" alt="The Drigo app map with cars parked around Al Barsha and Jumeirah" width="390" height="844" decoding="async"></div></div>
+        </li>
+        <li class="ride-card rc-book">
+          <div class="ride-copy"><span class="ride-n" aria-hidden="true">02</span><h3>Book.</h3><p>Pick hourly, daily or monthly. Fuel, parking and insurance shown up front. No deposit.</p><ul class="ride-tags"><li>No security deposit</li><li>Packages shown up front</li></ul></div>
+          <div class="ride-media"><img data-inner src="assets/images/site/ride-book.webp" sizes="(max-width: 900px) 92vw, 50vw" alt="Two phones showing Drigo rental packages with fuel, parking and insurance, and directions to the car" width="2200" height="1650" decoding="async"></div>
+        </li>
+        <li class="ride-card rc-drive">
+          <div class="ride-copy"><span class="ride-n" aria-hidden="true">03</span><h3>Unlock.</h3><p>Walk up, tap unlock from 30 metres, go. Blink the lights if you can&rsquo;t spot it.</p><ul class="ride-tags"><li>Phone is the key</li><li>Blink the lights</li></ul></div>
+          <div class="ride-media"><img data-inner src="assets/images/site/ride-unlock.webp" sizes="(max-width: 900px) 92vw, 50vw" alt="A phone showing Drigo directions to the car, with Blink car lights and the Reach car to unlock control" width="2200" height="1650" decoding="async"></div>
+        </li>
+        <li class="ride-card rc-park">
+          <div class="ride-copy"><span class="ride-n" aria-hidden="true">04</span><h3>Park.</h3><p>End the rental in any designated zone with one swipe. Then get on with your day.</p><ul class="ride-tags"><li>Swipe to end</li><li>No meters, no hunting</li></ul></div>
+          <div class="ride-media ride-media-phone ride-media-soft"><div class="rings" aria-hidden="true"><i></i><i></i><i></i></div><div class="phone" data-inner><img src="assets/images/site/app-end-rental.webp" alt="The Drigo app showing the Before ending rental checklist with the End rental button" width="390" height="844" decoding="async"></div></div>
+        </li>
+      </ol>
+    </div>
+  </div>
+</section>
 
-    <!-- Available Cars Section -->
-    <section id="available-cars" class="available-cars">
-        <div class="container">
-            <div class="available-cars-header">
-                <p class="section-tagline">AVAILABLE CARS</p>
-                <h2 class="section-title">Cars that fit your journey</h2>
-            </div>
-            <div class="cars-grid" id="cars-grid">
-                <!-- Cars will be loaded dynamically from API -->
-            </div>
-        </div>
-    </section>
+<!-- ============ 03 · Plans: giant rows, a preview follows the cursor ============ -->
+<section class="plans" id="plans" aria-labelledby="plans-title">
+  <div class="wrap">
+    <div class="sec-head">
+      <p class="kicker"><i></i>The cars</p>
+      <h2 id="plans-title" class="split-words">Every car, <em>its own price.</em></h2>
+      <p>There&rsquo;s no fixed price list. Each model has its own packages, so what you pay depends on the car you pick. Here&rsquo;s where each one starts; the app shows the exact price before you book.</p>
+    </div>
+    <ul class="plan-list">
+      <li class="plan"><a href="#get-the-app"><span class="plan-n">01</span><span class="plan-name" data-roll>Geely GX3 Pro</span><span class="plan-desc"><b>From AED 129 / day</b>SUV · 5 seats · 150 km a day</span><span class="plan-go" aria-hidden="true"><svg><use href="#arrow-up-right"/></svg></span></a></li>
+      <li class="plan"><a href="#get-the-app"><span class="plan-n">02</span><span class="plan-name" data-roll>Geely Emgrand</span><span class="plan-desc"><b>From AED 139 / day</b>Sedan · 5 seats · 150 km a day</span><span class="plan-go" aria-hidden="true"><svg><use href="#arrow-up-right"/></svg></span></a></li>
+      <li class="plan"><a href="#get-the-app"><span class="plan-n">03</span><span class="plan-name" data-roll>Geely Coolray</span><span class="plan-desc"><b>From AED 159 / day</b>SUV · 5 seats · 150 km a day</span><span class="plan-go" aria-hidden="true"><svg><use href="#arrow-up-right"/></svg></span></a></li>
+      <li class="plan"><a href="#get-the-app"><span class="plan-n">04</span><span class="plan-name" data-roll>GAC GS3 Emzoom</span><span class="plan-desc"><b>From AED 159 / day</b>SUV · 5 seats · 150 km a day</span><span class="plan-go" aria-hidden="true"><svg><use href="#arrow-up-right"/></svg></span></a></li>
+    </ul>
+    <p class="plans-note">From-prices are live. The exact price for your car, package and dates is shown in the app before you book.</p>
+  </div>
+  <div class="plan-preview" aria-hidden="true"><article class="pp-panel" data-i="0"><img class="pp-photo" src="assets/images/site/car-gx3-pro.webp" alt="" width="1080" height="458" loading="lazy" decoding="async"><header><span><small>2026 · SUV</small><strong>Geely GX3 Pro</strong></span></header><ul><li><svg><use href="#check"/></svg>5 seats, 150 km a day included</li><li><svg><use href="#check"/></svg>Fuel included on eligible trips</li><li><svg><use href="#check"/></svg>Hourly and daily packages</li></ul><span class="pp-foot"><span>From <b>AED 129</b> / day</span><svg><use href="#arrow-up-right"/></svg></span></article><article class="pp-panel" data-i="1"><img class="pp-photo" src="assets/images/site/car-emgrand.webp" alt="" width="1080" height="458" loading="lazy" decoding="async"><header><span><small>2026 · Sedan</small><strong>Geely Emgrand</strong></span></header><ul><li><svg><use href="#check"/></svg>5 seats, 150 km a day included</li><li><svg><use href="#check"/></svg>Fuel included on eligible trips</li><li><svg><use href="#check"/></svg>Hourly and daily packages</li></ul><span class="pp-foot"><span>From <b>AED 139</b> / day</span><svg><use href="#arrow-up-right"/></svg></span></article><article class="pp-panel" data-i="2"><img class="pp-photo" src="assets/images/site/car-coolray.webp" alt="" width="1080" height="458" loading="lazy" decoding="async"><header><span><small>2026 · SUV</small><strong>Geely Coolray</strong></span></header><ul><li><svg><use href="#check"/></svg>5 seats, 150 km a day included</li><li><svg><use href="#check"/></svg>Fuel included on eligible trips</li><li><svg><use href="#check"/></svg>Hourly and daily packages</li></ul><span class="pp-foot"><span>From <b>AED 159</b> / day</span><svg><use href="#arrow-up-right"/></svg></span></article><article class="pp-panel" data-i="3"><img class="pp-photo" src="assets/images/site/car-gac-gs3.webp" alt="" width="1080" height="458" loading="lazy" decoding="async"><header><span><small>2026 · SUV</small><strong>GAC GS3 Emzoom</strong></span></header><ul><li><svg><use href="#check"/></svg>5 seats, 150 km a day included</li><li><svg><use href="#check"/></svg>Fuel included on eligible trips</li><li><svg><use href="#check"/></svg>Hourly and daily packages</li></ul><span class="pp-foot"><span>From <b>AED 159</b> / day</span><svg><use href="#arrow-up-right"/></svg></span></article></div>
+</section>
 
-    <!-- FAQ Section -->
-    <section id="faq" class="faq">
-        <div class="container">
-            <div class="faq-header">
-                <p class="section-tagline">FAQ</p>
-                <h2 class="section-title">How can we help?</h2>
-            </div>
-            <div class="faq-filters">
-                <button class="filter-btn active" data-filter="all">all</button>
-                <button class="filter-btn" data-filter="car-ownership">car ownership</button>
-                <button class="filter-btn" data-filter="insurance">insurance</button>
-                <button class="filter-btn" data-filter="tariffs">tariffs</button>
-                <button class="filter-btn" data-filter="security">security</button>
-            </div>
-            <div class="faq-list">
-                <div class="faq-item" data-category="car-ownership">
-                    <div class="faq-question">
-                        <h3>Can I rent out my own car on the platform?</h3>
-                        <span class="faq-icon">
-                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M3.5 5.25L7 8.75L10.5 5.25" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </span>
-                    </div>
-                    <div class="faq-answer">
-                        <p>Yes, you can list your car on our platform and earn money by renting it out to verified drivers. We provide comprehensive insurance coverage and handle all the administrative aspects.</p>
-                    </div>
-                </div>
-                <div class="faq-item active" data-category="car-ownership">
-                    <div class="faq-question">
-                        <h3>How does car sharing work?</h3>
-                        <span class="faq-icon">
-                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M3.5 5.25L7 8.75L10.5 5.25" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </span>
-                    </div>
-                    <div class="faq-answer">
-                        <p>Car sharing allows you to rent a car directly through the app in just a few steps. Choose a nearby car, book it for the time you need, unlock it with your phone, and start driving. When you're done, simply park the car and end the trip in the app.</p>
-                    </div>
-                </div>
-                <div class="faq-item" data-category="insurance">
-                    <div class="faq-question">
-                        <h3>Is my car insured during rentals?</h3>
-                        <span class="faq-icon">
-                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M3.5 5.25L7 8.75L10.5 5.25" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </span>
-                    </div>
-                    <div class="faq-answer">
-                        <p>Yes, all cars on our platform are covered by comprehensive insurance during rental periods. We offer three insurance packages to choose from, ensuring your car is protected.</p>
-                    </div>
-                </div>
-                <div class="faq-item" data-category="tariffs">
-                    <div class="faq-question">
-                        <h3>How do payments and earnings work?</h3>
-                        <span class="faq-icon">
-                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M3.5 5.25L7 8.75L10.5 5.25" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </span>
-                    </div>
-                    <div class="faq-answer">
-                        <p>Payments are processed automatically through the app. Car owners receive earnings directly to their account, and renters are charged only for the time they use the car. All transactions are transparent and secure.</p>
-                    </div>
-                </div>
-                <div class="faq-item" data-category="security">
-                    <div class="faq-question">
-                        <h3>What happens if the car gets damaged?</h3>
-                        <span class="faq-icon">
-                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M3.5 5.25L7 8.75L10.5 5.25" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </span>
-                    </div>
-                    <div class="faq-answer">
-                        <p>In case of damage, we have a clear process in place. Both parties document the car's condition before and after the trip. Our insurance coverage handles repairs, and we ensure fair resolution for all parties involved.</p>
-                    </div>
-                </div>
-                <div class="faq-item" data-category="car-ownership">
-                    <div class="faq-question">
-                        <h3>Who can rent a car on the app?</h3>
-                        <span class="faq-icon">
-                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M3.5 5.25L7 8.75L10.5 5.25" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </span>
-                    </div>
-                    <div class="faq-answer">
-                        <p>Anyone with a valid driver's license and a verified account can rent cars through our app. We verify all users to ensure safety and security for car owners and renters alike.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
 
-    <!-- Call to Action Section -->
-    <section class="cta">
-        <div class="container">
-            <div class="cta-card">
-                <p class="cta-headline">Your next drive is</p>
-                <h2 class="cta-title"><span class="text-bolder">Just one tap away</span></h2>
-                <p class="cta-description">With transparent pricing, built-in insurance, and instant access to cars, getting started has never been easier.</p>
-                <a href="/app/" class="btn-primary btn-cta">Get started</a>
-            </div>
-        </div>
-    </section>
+<!-- ============ 05 · Reviews: cards stack and settle as you scroll ============ -->
+<section class="voices" id="reviews" aria-labelledby="reviews-title">
+  <div class="wrap voices-grid">
+    <div class="voices-head">
+      <p class="kicker"><i></i>Drivers say</p>
+      <h2 id="reviews-title" class="split-words">Real drivers. <em>Real reviews.</em></h2>
+      <p class="voices-source">From the App Store and Google Play.</p>
+    </div>
+    <div class="voices-stack">
+      <figure class="voice v-1"><span class="voice-mark" aria-hidden="true">&ldquo;</span><div class="voice-quote"><span class="voice-stars" role="img" aria-label="Rated 5 out of 5">★★★★★</span><blockquote>Finding and unlocking cars is super easy and smooth. Quick registration and very clean vehicles. Easily the best car-sharing app around.</blockquote></div><figcaption><span class="avatar" aria-hidden="true">KH</span><span><strong>Khd321</strong><small>App Store review · Aug 2026</small></span></figcaption></figure>
+      <figure class="voice v-2"><span class="voice-mark" aria-hidden="true">&ldquo;</span><div class="voice-quote"><span class="voice-stars" role="img" aria-label="Rated 5 out of 5">★★★★★</span><blockquote>It’s convenient and easy to use. I can find the car and in 2 minutes I am driving.</blockquote></div><figcaption><span class="avatar" aria-hidden="true">WM</span><span><strong>Wajahat Mehmood</strong><small>Google Play review · Aug 2026</small></span></figcaption></figure>
+      <figure class="voice v-3"><span class="voice-mark" aria-hidden="true">&ldquo;</span><div class="voice-quote"><span class="voice-stars" role="img" aria-label="Rated 5 out of 5">★★★★★</span><blockquote>Smooth experience and reliable service!</blockquote></div><figcaption><span class="avatar" aria-hidden="true">AN</span><span><strong>Ali Nasrulla</strong><small>App Store review · Jun 2026</small></span></figcaption></figure>
+    </div>
+  </div>
+</section>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-top">
-                <div class="footer-left">
-                    <p class="footer-slogan-light">Drive your way</p>
-                    <p class="footer-slogan-bold"><span class="text-bolder">Anytime, Anywhere</span></p>
-                </div>
-                <div class="footer-center">
-                    <h3 class="footer-social-title">WE IN SOCIAL</h3>
-                    <div class="social-icons">
-                        <a href="https://www.instagram.com/drigocarsharing/" class="social-icon" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" fill="currentColor"/>
-                            </svg>
-                        </a>
-                        <a href="https://www.linkedin.com/company/getdrigo" class="social-icon" aria-label="LinkedIn" target="_blank" rel="noopener noreferrer">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" fill="currentColor"/>
-                            </svg>
-                        </a>
-                    </div>
-                </div>
-                <div class="footer-right">
-                    <a href="https://apps.apple.com/az/app/drigo-car-sharing-rental/id6757393927" class="app-download-btn" target="_blank" rel="noopener noreferrer">
-                        <div class="app-download-content">
-                            <svg width="28" height="28" viewBox="0 0 20 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="app-icon">
-                                <path d="M16.52 12.58c-.03-2.87 2.34-4.24 2.45-4.31-1.33-1.95-3.41-2.22-4.15-2.25-1.77-.18-3.45 1.04-4.34 1.04-.9 0-2.28-1.01-3.75-.99-1.93.03-3.71 1.12-4.71 2.85-2.01 3.49-.51 8.66 1.44 11.49.96 1.39 2.1 2.95 3.6 2.89 1.45-.06 1.99-.93 3.74-.93 1.74 0 2.24.93 3.76.9 1.56-.03 2.54-1.41 3.49-2.81 1.1-1.61 1.55-3.17 1.58-3.25-.03-.01-3.03-1.16-3.06-4.63h-.05zM13.64 4.15c.8-.97 1.34-2.31 1.19-3.65-1.15.05-2.55.77-3.37 1.73-.74.85-1.38 2.22-1.21 3.53 1.29.1 2.6-.65 3.39-1.61z" fill="currentColor"/>
-                            </svg>
-                            <div class="app-download-text">
-                                <span class="app-download-label">DOWNLOAD ON THE</span>
-                                <span class="app-download-name">App Store</span>
-                            </div>
-                        </div>
-                    </a>
-                    <a href="https://play.google.com/store/apps/details?id=com.drigo.mobile" class="app-download-btn" target="_blank" rel="noopener noreferrer">
-                        <div class="app-download-content">
-                            <img src="assets/images/Android.svg" alt="Google Play" class="app-icon" width="28" height="28">
-                            <div class="app-download-text">
-                                <span class="app-download-label">GET IT ON</span>
-                                <span class="app-download-name">Google Play</span>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p class="footer-copyright">© 2026 Drigo. All rights reserved</p>
-                <div class="footer-links">
-                    <a href="mailto:support@drigo.com" class="footer-link">support@drigo.com</a>
-                    <span class="footer-link-separator">•</span>
-                    <a href="privacy.html" class="footer-link">Terms & Conditions</a>
-                    <span class="footer-link-separator">•</span>
-                    <a href="privacy.html" class="footer-link">Privacy Policy</a>
-                </div>
-            </div>
-        </div>
-    </footer>
+<!-- ============ 06 · FAQ ============ -->
+<section class="qa" id="questions" aria-labelledby="faq-title">
+  <div class="wrap qa-grid">
+    <div class="qa-head">
+      <p class="kicker"><i></i>FAQ</p>
+      <h2 id="faq-title" class="split-words">Questions, <em>answered.</em></h2>
+      <p>Can&rsquo;t find what you need? Write to us and the Drigo team will get back to you.</p>
+      <a class="btn btn-line" href="mailto:support@drigo.com" data-magnetic><span data-roll>Contact support</span><svg aria-hidden="true"><use href="#arrow-right"/></svg></a>
+      <span class="qa-glyph" aria-hidden="true" data-speed="0.75">?</span>
+    </div>
+    <div class="faq">
+      <details><summary><span class="n">01</span><span class="q">How does the app work?</span><span class="pm" aria-hidden="true"></span></summary><p>Open Drigo, pick a car on the map, choose an hourly, daily or monthly rental, and unlock it with your phone when you reach it.</p></details>
+      <details><summary><span class="n">02</span><span class="q">Where can I find a car?</span><span class="pm" aria-hidden="true"></span></summary><p>Open the Drigo app for actual availability and parking zones in Dubai and Sharjah. The city on this website is an illustration.</p></details>
+      <details><summary><span class="n">03</span><span class="q">Is a security deposit required?</span><span class="pm" aria-hidden="true"></span></summary><p>Drigo offers rentals without a security deposit. Review your rental price, fees, and payment details in the app before booking.</p></details>
+      <details><summary><span class="n">04</span><span class="q">What&rsquo;s included in my rental?</span><span class="pm" aria-hidden="true"></span></summary><p>Fuel is included on eligible trips, with free parking in designated zones. Review the insurance options, coverage conditions, and full rental details in the app.</p></details>
+      <details><summary><span class="n">05</span><span class="q">What do I need to get started?</span><span class="pm" aria-hidden="true"></span></summary><p>Create an account and complete verification. You&rsquo;ll need a valid driving licence and must meet the <a href="/privacy#sec-2">rental eligibility requirements</a>.</p></details>
+      <details><summary><span class="n">06</span><span class="q">Is the car insured during my rental?</span><span class="pm" aria-hidden="true"></span></summary><p>Every rental comes with insurance cover. The app shows the cover options for your trip and what each one includes before you book. The full conditions are in <a href="/privacy#sec-8">Section 8 of the Terms</a>.</p></details>
+      <details><summary><span class="n">07</span><span class="q">What happens if the car gets damaged?</span><span class="pm" aria-hidden="true"></span></summary><p>Report it in the app straight away and follow the steps shown. What you pay depends on your cover and the circumstances, as set out in <a href="/privacy#sec-9">Section 9 of the Terms</a>.</p></details>
+      <details><summary><span class="n">08</span><span class="q">Can I list my own car on Drigo?</span><span class="pm" aria-hidden="true"></span></summary><p>Yes. Rental companies and individual car owners can tell us about their fleet through the <a href="#business">For business form</a>, and the Drigo team will get in touch.</p></details>
+    </div>
+  </div>
+</section>
 
-    <!-- JavaScript -->
-    <script src="js/script.js?v=11"></script>
+<!-- ============ 07 · Partners: violet stage, headline slides with the scroll ============ -->
+<section class="fleet" id="business" aria-labelledby="business-title">
+  <div class="wrap fleet-grid">
+    <div class="fleet-copy">
+      <p class="kicker kicker-light"><i></i>For business</p>
+      <h2 id="business-title" class="split-words">Own a fleet? <em>Let&rsquo;s move it.</em></h2>
+      <p>Connect your cars with the next journey. Tell us about your fleet and the Drigo team will get in touch.</p>
+      <a class="fleet-mail" href="mailto:support@drigo.com">support@drigo.com</a>
+    </div>
+    <form id="partner-form" class="fleet-form" aria-labelledby="business-title">
+      <label class="field"><input name="company" autocomplete="organization" required maxlength="150" placeholder=" "><span class="field-label">Company or owner name</span><i class="field-ok" aria-hidden="true"></i></label>
+      <label class="field field-select"><select name="type"><option value="company">Rental company</option><option value="individual">Individual owner</option></select><span class="field-label">Company type</span></label>
+      <label class="field"><input name="name" autocomplete="name" required maxlength="120" placeholder=" "><span class="field-label">Your name</span><i class="field-ok" aria-hidden="true"></i></label>
+      <label class="field"><input type="email" name="email" autocomplete="email" required maxlength="254" placeholder=" "><span class="field-label">Email</span><i class="field-ok" aria-hidden="true"></i></label>
+      <div class="field-phone"><label class="field field-code"><input name="phoneCode" value="+971" autocomplete="tel-country-code" required pattern="\+[0-9]{1,6}" placeholder=" " list="phone-codes" inputmode="tel"><datalist id="phone-codes"></datalist><span class="field-label">Code</span></label><label class="field field-fixed"><input type="tel" name="phone" autocomplete="tel-national" placeholder="50 123 4567" required maxlength="20"><span class="field-label">Phone number</span><i class="field-ok" aria-hidden="true"></i></label></div>
+      <p class="form-note">We&rsquo;ll use your details to respond to your enquiry. <a href="/privacy#sec-15">Privacy policy</a></p>
+      <button class="btn btn-line" type="submit" data-magnetic><span class="button-label">Send enquiry</span><svg aria-hidden="true"><use href="#arrow-right"/></svg></button>
+      <p id="form-status" class="form-status" role="status"></p>
+    </form>
+  </div>
+</section>
+
+<!-- ============ 08 · Get the app: a full-screen stage — the app, taken apart around the phone ============ -->
+<section class="getapp" id="get-the-app" aria-labelledby="getapp-title">
+  <div class="wrap getapp-grid">
+    <div class="getapp-copy">
+      <p class="kicker"><i></i>Download Drigo</p>
+      <h2 id="getapp-title" class="split-words">Your next move is <em>in your pocket.</em></h2>
+      <p class="getapp-lead">Find a car on the map, walk up and unlock it, end the trip with a swipe. All of it in one app.</p>
+      <div class="stores-row">
+        <a class="store" href="https://apps.apple.com/az/app/drigo-car-sharing-rental/id6757393927" target="_blank" rel="noopener" data-magnetic><svg class="store-logo" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" stroke="none" d="M16.4 12.6c0-2.4 2-3.5 2-3.6-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.9-.9-3.1-.8-1.6 0-3 .9-3.8 2.3-1.6 2.8-.4 7 1.2 9.3.8 1.1 1.7 2.4 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3.1.7c1.3 0 2.1-1.1 2.8-2.3.9-1.3 1.3-2.6 1.3-2.6s-2.5-1-2.5-3.7ZM14.1 5.6c.6-.8 1.1-1.9 1-3-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 2.7-1.3Z"/></svg><span><small>Download on the</small><strong>App Store</strong></span></a>
+        <a class="store" href="https://play.google.com/store/apps/details?id=com.drigo.mobile" target="_blank" rel="noopener" data-magnetic><svg class="store-logo" viewBox="0 0 24 24" aria-hidden="true"><path stroke="none" fill="#00d7fe" d="M3.6 2.2c-.3.3-.5.8-.5 1.4v16.8c0 .6.2 1.1.5 1.4l9.5-9.8z"/><path stroke="none" fill="#ffce00" d="m16.3 15.2-3.2-3.2 3.2-3.2 3.8 2.2c1.1.6 1.1 1.6 0 2.2z"/><path stroke="none" fill="#ff3a44" d="M16.3 15.2 13.1 12l-9.5 9.8c.4.4 1 .4 1.7 0z"/><path stroke="none" fill="#00f076" d="M16.3 8.8 5.3 2.2c-.7-.4-1.3-.4-1.7 0l9.5 9.8z"/></svg><span><small>Get it on</small><strong>Google Play</strong></span></a>
+      </div>
+      <p class="fineprint">Rental details, prices and availability are shown in the app.</p>
+    </div>
+    <div class="stage">
+      <div class="stage-panel" aria-hidden="true"><i class="stage-dots"></i><i class="stage-ring"></i><i class="stage-ring stage-ring-2"></i></div>
+      <div class="phone stage-back" aria-hidden="true"><img src="assets/images/site/app-unlock.webp" alt="" width="390" height="844" loading="lazy" decoding="async"></div>
+      <div class="phone phone-lg stage-main">
+        <img class="is-active" src="assets/images/site/app-map-stage.webp" alt="The Drigo map with cars parked around Al Barsha and Al Quoz" width="390" height="844" loading="lazy" decoding="async">
+        <img src="assets/images/site/app-unlock.webp" alt="Directions to the car with Blink car lights and the Reach car, 30 m to unlock control" width="390" height="844" loading="lazy" decoding="async">
+        <img src="assets/images/site/app-end-rental.webp" alt="The Before ending rental checklist with the End rental button" width="390" height="844" loading="lazy" decoding="async">
+      </div>
+      <div class="stage-steps" role="group" aria-label="Show an app screen"><button aria-pressed="true">Find</button><button aria-pressed="false">Unlock</button><button aria-pressed="false">Park</button></div>
+      <div class="frag frag-car" data-depth="1.6" aria-hidden="true"><img src="assets/images/site/car-emgrand-cutout.webp" alt="" width="360" height="240"><span><b class="chip-year">2026</b><strong>Geely Emgrand</strong><small>Sedan · 5 seats</small></span></div>
+      <div class="frag frag-unlock" data-depth="1.2" aria-hidden="true"><i class="fl"><svg viewBox="0 0 48 48"><path class="shackle" d="M15 22v-6a9 9 0 0 1 18 0"/><rect x="10" y="22" width="28" height="20" rx="5"/><circle cx="24" cy="32" r="2.6"/></svg></i><span>Reach car <b>30m</b> to unlock</span></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <p class="foot-line">Your city.<br><em>Your next move.</em></p>
+      <nav class="foot-nav" aria-label="Footer navigation">
+        <div><h3>Drive</h3><a href="#trip" data-roll>How it works</a><a href="#plans" data-roll>Cars</a><a href="#benefits" data-roll>Why Drigo</a><a href="#questions" data-roll>FAQ</a></div>
+        <div><h3>Company</h3><a href="#business" data-roll>For business</a><a href="mailto:support@drigo.com" data-roll>support@drigo.com</a><a href="/privacy" data-roll>Terms &amp; privacy</a><a href="/privacy-ar" lang="ar" dir="rtl">العربية</a><a href="https://www.instagram.com/drigocarsharing/" target="_blank" rel="noopener" data-roll>Instagram</a></div>
+        <div><h3>Get the app</h3><a href="https://apps.apple.com/az/app/drigo-car-sharing-rental/id6757393927" target="_blank" rel="noopener" data-roll>App Store</a><a href="https://play.google.com/store/apps/details?id=com.drigo.mobile" target="_blank" rel="noopener" data-roll>Google Play</a></div>
+      </nav>
+    </div>
+    <div class="foot-bottom"><span>© <span id="year">2026</span> Drigo · Dubai &amp; Sharjah</span><div class="foot-tools"><button id="pause-motion" class="footer-motion" aria-label="Pause animation" aria-pressed="false"><svg class="pause-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5v14M15 5v14"/></svg><svg class="play-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7Z"/></svg><span>Pause motion</span></button><span id="reduced-motion-label" class="footer-motion-label" hidden>Reduced motion</span><a href="#" class="to-top">Back to top <svg aria-hidden="true"><use href="#arrow-right"/></svg></a></div></div>
+  </div>
+</footer>
+<script src="js/vendor/gsap.min.js?v=1" defer></script>
+<script src="js/vendor/ScrollTrigger.min.js?v=1" defer></script>
+<script type="module" src="js/site/tracking.js?v=1"></script>
+<script type="module" src="js/site/cars.js?v=1"></script>
+<script type="module" src="js/site/app.js?v=1"></script>
 </body>
 </html>
-
