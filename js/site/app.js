@@ -1,6 +1,10 @@
-import { API } from './api.js?v=1';
-import { roll } from './roll.js?v=1';
+import { API } from './api.js?v=2';
+import { roll } from './roll.js?v=2';
+import { landing } from './landing-data.js?v=2';
 
+// Start fetching the map before waiting for the document.
+const cityModule = import('./city.js?v=20261019-loader');
+cityModule.catch(() => {}); // The initialization block below handles fallback.
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
 if (document.readyState === 'loading') await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve, { once: true }));
 
@@ -20,16 +24,16 @@ const places = [
   ['Out on the Palm.', 'Frond-shaped islands, waterfront villas and an open sweep of sea.', 'The Palm', ['Fronds', 'Sea views', 'Boardwalk']]
 ];
 function syncMotionControl() {
-  pause.hidden = reduced.matches;
+  if (pause) pause.hidden = reduced.matches;
   document.querySelector('#reduced-motion-label').hidden = !reduced.matches;
-  pause.setAttribute('aria-pressed', String(paused));
-  pause.setAttribute('aria-label', paused ? 'Resume animation' : 'Pause animation');
-  pause.querySelector('span').textContent = paused ? 'Resume motion' : 'Pause motion';
+  pause?.setAttribute('aria-pressed', String(paused));
+  pause?.setAttribute('aria-label', paused ? 'Resume animation' : 'Pause animation');
+  if (pause) pause.querySelector('span').textContent = paused ? 'Resume motion' : 'Pause motion';
   document.body.classList.toggle('motion-paused', paused);
   city?.setPaused(paused);
 }
 syncMotionControl();
-pause.addEventListener('click', () => { paused = !paused; syncMotionControl(); });
+pause?.addEventListener('click', () => { paused = !paused; syncMotionControl(); });
 reduced.addEventListener('change', () => { paused = reduced.matches; syncMotionControl(); });
 function interacted() { document.querySelector('.map-help').classList.add('has-interacted'); }
 function closePlace(restoreFocus = false, clearSelection = false) {
@@ -99,12 +103,25 @@ mapHost.addEventListener('keydown', event => {
   if (!action) return;
   event.preventDefault(); mapAction(action);
 });
-// The 3D city loads in the background, so the rest of the page is live before WebGL is.
-(async () => { try {
-  const { initCity } = await import('./city.js?v=1');
-  city = initCity(mapHost, {
+async function startMap() {
+try {
+  const { initCity } = await cityModule;
+  window.drigoLoading?.progress?.(46, .6);
+  await window.drigoLoading?.assetsReady;
+  // Building the city holds the main thread (about 1 s on a fast computer, 4–5 s on a mid-range
+  // phone), which would keep the loading screen up past its 3 s limit. So the page is shown first:
+  // the static city picture stays in the hero and the live city fades in over it once built.
+  await window.drigoLoading?.finish();
+  // The city's car labels read their prices from the car rows, which cars.js fills from the API:
+  // give that answer up to 2 s to arrive, so the labels show today's prices.
+  await Promise.race([landing().catch(() => {}), new Promise(resolve => setTimeout(resolve, 2000))]);
+  // Paint the complete loader artwork before building the live scene.
+  await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  // The build has no stage reports; the bar eases towards 94% meanwhile and finish() completes it.
+  window.drigoLoading?.progress?.(94, 4.5);
+  city = await initCity(mapHost, {
     theme: 'night',
-    onReady: () => document.body.classList.add('city-ready'),
+    onReady: () => { document.body.classList.add('city-ready'); window.drigoLoading?.finish(); },
     onInteract: interacted,
     onStatus: text => { mapStatus.textContent = text; },
     onPins: positions => {
@@ -129,14 +146,11 @@ mapHost.addEventListener('keydown', event => {
   syncMotionControl();
   window.drigoScene = city;
 } catch (error) {
-  document.querySelector('.scene-fallback').hidden = false;
-  document.querySelector('.map-tools')?.setAttribute('hidden', '');
-  document.querySelector('.map-pins').hidden = true;
-  document.querySelector('.district-nav').hidden = true;
-  document.querySelector('.map-help').hidden = true;
-  pause.hidden = true;
+  window.drigoLoading?.fail();
   console.info('Using the accessible city fallback.', error.message);
-} })();
+}
+}
+startMap();
 
 const menu = document.querySelector('.menu-button'), mobileMenu = document.querySelector('#mobile-menu');
 function closeMenu(focus = false) {
@@ -251,7 +265,7 @@ if (fine.matches && moving && window.gsap) {
     element.addEventListener('pointerleave', () => { xTo(0); yTo(0); });
   });
 }
-document.querySelectorAll('.btn').forEach(button => ['pointerenter', 'pointerleave'].forEach(type => button.addEventListener(type, event => {
+document.querySelectorAll('.btn, .store').forEach(button => ['pointerenter', 'pointerleave'].forEach(type => button.addEventListener(type, event => {
   const box = button.getBoundingClientRect();
   button.style.setProperty('--x', `${event.clientX - box.left}px`); button.style.setProperty('--y', `${event.clientY - box.top}px`);
 })));
@@ -259,70 +273,6 @@ document.querySelectorAll('[data-spot]').forEach(tile => tile.addEventListener('
   const box = tile.getBoundingClientRect();
   tile.style.setProperty('--mx', `${event.clientX - box.left}px`); tile.style.setProperty('--my', `${event.clientY - box.top}px`);
 }));
-const preview = document.querySelector('.plan-preview');
-if (preview && fine.matches && moving) {
-  // An info card for the hovered plan trails the cursor, sitting beside it so the row stays readable.
-  const list = document.querySelector('.plan-list');
-  let x = 0, y = 0, targetX = 0, targetY = 0, frame = 0;
-  const place = () => {
-    const w = preview.offsetWidth, h = preview.offsetHeight;
-    const left = targetX + 28 + w > window.innerWidth - 16 ? targetX - w - 28 : targetX + 28;
-    return [left, Math.min(Math.max(16, targetY - h / 2), window.innerHeight - h - 16)];
-  };
-  const follow = () => {
-    const [tx, ty] = place();
-    x += (tx - x) * .16; y += (ty - y) * .16;
-    const lean = Math.max(-5, Math.min(5, (tx - x) * .05));
-    preview.style.transform = `translate(${x}px, ${y}px) rotate(${lean}deg)`;
-    frame = preview.classList.contains('is-on') || Math.abs(tx - x) > .5 ? requestAnimationFrame(follow) : 0;
-  };
-  list.addEventListener('pointermove', event => { targetX = event.clientX; targetY = event.clientY; if (!frame) frame = requestAnimationFrame(follow); });
-  // Delegated, because the live car list (cars.js) may replace the rows after this runs.
-  list.addEventListener('pointerover', event => {
-    const plan = event.target instanceof Element ? event.target.closest('.plan') : null;
-    if (!plan) return;
-    const i = [...list.children].indexOf(plan);
-    if (String(i) === preview.dataset.pi && preview.classList.contains('is-on')) return;
-    targetX = event.clientX; targetY = event.clientY;
-    if (!preview.classList.contains('is-on')) [x, y] = place();
-    preview.dataset.pi = i; preview.classList.add('is-on');
-    preview.querySelectorAll('.pp-panel').forEach((panel, n) => panel.classList.toggle('is-current', n === i));
-    if (!frame) frame = requestAnimationFrame(follow);
-  });
-  list.addEventListener('pointerleave', () => preview.classList.remove('is-on'));
-  window.addEventListener('scroll', () => preview.classList.remove('is-on'), { passive: true });
-}
-
-// Download stage: the phone walks through Find → Unlock → Park; the steps take over on click.
-const stage = document.querySelector('.stage');
-if (stage) {
-  const screens = [...stage.querySelectorAll('.stage-main img')], steps = [...stage.querySelectorAll('.stage-steps button')], back = stage.querySelector('.stage-back img');
-  let current = 0, timer = 0;
-  const STEP = 3600;
-  const show = index => {
-    current = (index + screens.length) % screens.length;
-    screens.forEach((screen, i) => screen.classList.toggle('is-active', i === current));
-    if (back) { back.style.opacity = '0'; window.setTimeout(() => { back.src = screens[(current + 1) % screens.length].src; back.style.opacity = '1'; }, 260); }
-    steps.forEach((step, i) => { step.setAttribute('aria-pressed', String(i === current)); if (i === current) { step.style.animation = 'none'; void step.offsetWidth; step.style.animation = ''; } });
-  };
-  const running = () => moving && !paused && !document.hidden && !stage.closest('.is-offscreen') && !stage.classList.contains('is-held');
-  const tick = () => { timer = 0; if (!running()) return; show(current + 1); timer = window.setTimeout(tick, STEP); };
-  const wake = () => { if (running() && !timer) timer = window.setTimeout(tick, STEP); if (!running() && timer) { window.clearTimeout(timer); timer = 0; } };
-  steps.forEach((step, i) => step.addEventListener('click', () => { show(i); stage.classList.add('is-held'); wake(); }));
-  stage.style.setProperty('--step', `${STEP}ms`);
-  new IntersectionObserver(() => window.setTimeout(wake, 0)).observe(stage);
-  pause.addEventListener('click', wake); document.addEventListener('visibilitychange', wake);
-  if (fine.matches && moving) {
-    const frags = [...stage.querySelectorAll('.frag')];
-    stage.addEventListener('pointermove', event => {
-      if (paused) return;
-      const box = stage.getBoundingClientRect(), nx = (event.clientX - box.left) / box.width * 2 - 1, ny = (event.clientY - box.top) / box.height * 2 - 1;
-      frags.forEach(frag => { const depth = parseFloat(frag.dataset.depth || 1); frag.style.setProperty('--px', `${(nx * 12 * depth).toFixed(1)}px`); frag.style.setProperty('--py', `${(ny * 9 * depth).toFixed(1)}px`); });
-    });
-    stage.addEventListener('pointerleave', () => frags.forEach(frag => { frag.style.setProperty('--px', '0px'); frag.style.setProperty('--py', '0px'); }));
-  }
-}
-
 // Custom cursor: a dot that sticks to the pointer and a ring that trails it and swells over anything clickable.
 if (fine.matches && moving) {
   const root = document.documentElement, dot = document.createElement('div'), ring = document.createElement('div');
@@ -359,15 +309,9 @@ if (window.gsap && window.ScrollTrigger) {
   const media = gsap.matchMedia();
   media.add('(prefers-reduced-motion: no-preference)', () => {
     const expo = 'expo.out';
-    // Focal moment: the heading lines wipe up out of a clipped box while the 3D city rises,
-    // then the copy, actions and district tray settle in.
-    gsap.timeline({ defaults: { ease: expo } })
-      .from('.city-stage', { opacity: .15, duration: 1.6, ease: 'power2.out' }, 0)
-      .from('.hero-kicker', { y: 18, opacity: 0, duration: .8 }, .1)
-      .fromTo('.hl .ch', { yPercent: 115 }, { yPercent: 0, duration: 1.2, stagger: .028 }, .18)
-      .from('.hero-sub > *', { y: 24, opacity: 0, duration: .9, stagger: .1 }, '-=.8')
-      .from('.district-nav', { y: 26, opacity: 0, duration: .8 }, '-=.8')
-      .from('.map-footer, .map-help', { opacity: 0, duration: .9 }, '-=.6');
+    // Keep the hero readable from first paint; map startup must never freeze
+    // an entrance animation with its heading and actions hidden.
+
     // Leaving the hero: the camera orbits the city, the two headline lines part ways,
     // the floats lift off faster than the page and the frame eases back.
     const heroOut = { trigger: '.map-hero', start: 'top top', end: 'bottom top', scrub: true };
@@ -395,8 +339,6 @@ if (window.gsap && window.ScrollTrigger) {
     // Download: the phone rises into the stage and the app's pieces fly out of it to their places.
     const stageIn = { trigger: '.stage', start: 'top 90%', end: 'center 55%', scrub: .7 };
     gsap.fromTo('.stage-panel', { scale: .9, borderRadius: 80 }, { scale: 1, borderRadius: 40, ease: 'none', scrollTrigger: stageIn });
-    gsap.fromTo('.stage-main', { y: 160 }, { y: 0, ease: 'none', scrollTrigger: stageIn });
-    gsap.fromTo('.stage-back', { y: 240, opacity: 0 }, { y: 0, opacity: .92, ease: 'none', scrollTrigger: stageIn });
     gsap.utils.toArray('.frag').forEach(frag => {
       const box = frag.getBoundingClientRect(), stage = document.querySelector('.stage').getBoundingClientRect();
       const dx = stage.left + stage.width / 2 - (box.left + box.width / 2), dy = stage.top + stage.height / 2 - (box.top + box.height / 2);
@@ -424,7 +366,7 @@ if (window.gsap && window.ScrollTrigger) {
       }
     });
     ride.querySelectorAll('.ride-card').forEach(card => {
-      const inner = card.querySelector('[data-inner]');
+      const inner = card.querySelector('.ride-media-phone [data-inner]');
       if (inner) gsap.fromTo(inner, { xPercent: -7 }, { xPercent: 7, ease: 'none', scrollTrigger: { trigger: card, containerAnimation: slide, start: 'left right', end: 'right left', scrub: true } });
       gsap.fromTo(card.querySelector('.ride-copy'), { x: 120, opacity: .2 }, { x: 0, opacity: 1, ease: 'none', scrollTrigger: { trigger: card, containerAnimation: slide, start: 'left right', end: 'left 45%', scrub: true } });
       gsap.fromTo(card, { scale: .9 }, { scale: 1, ease: 'none', scrollTrigger: { trigger: card, containerAnimation: slide, start: 'left right', end: 'left 50%', scrub: true } });
@@ -436,7 +378,7 @@ if (window.gsap && window.ScrollTrigger) {
     ride.querySelectorAll('.ride-card').forEach(card => {
       gsap.from(card, { y: 70, opacity: 0, duration: 1, ease: 'expo.out', scrollTrigger: { trigger: card, start: 'top 88%' } });
       const inner = card.querySelector('.ride-media > img');
-      if (inner) gsap.fromTo(inner, { yPercent: -6, scale: 1.14 }, { yPercent: 6, scale: 1.14, ease: 'none', scrollTrigger: { trigger: card, start: 'top bottom', end: 'bottom top', scrub: true } });
+
     });
   });
   document.fonts.ready.then(() => ScrollTrigger.refresh());
@@ -450,7 +392,7 @@ const sectionWatcher = new IntersectionObserver(entries => entries.forEach(entry
   entry.target.querySelectorAll('svg').forEach(svg => { if (typeof svg.pauseAnimations !== 'function') return; entry.isIntersecting && !paused && !reduced.matches ? svg.unpauseAnimations() : svg.pauseAnimations(); });
 }), { rootMargin: '10% 0px' });
 document.querySelectorAll('main > section').forEach(section => sectionWatcher.observe(section));
-pause.addEventListener('click', () => document.querySelectorAll('main svg').forEach(svg => { if (typeof svg.pauseAnimations === 'function') paused ? svg.pauseAnimations() : svg.closest('.is-offscreen') || svg.unpauseAnimations(); }));
+pause?.addEventListener('click', () => document.querySelectorAll('main svg').forEach(svg => { if (typeof svg.pauseAnimations === 'function') paused ? svg.pauseAnimations() : svg.closest('.is-offscreen') || svg.unpauseAnimations(); }));
 
 // FAQ answers open and close smoothly.
 document.querySelectorAll('.faq details').forEach(details => {
@@ -471,13 +413,14 @@ document.querySelectorAll('.faq details').forEach(details => {
   });
 });
 
-document.querySelector('#year').textContent = String(new Date().getFullYear());
+const year = document.querySelector('#year');
+if (year) year.textContent = String(new Date().getFullYear());
 
 const form = document.querySelector('#partner-form');
 // Country codes for the phone field, as the current form offered them; typing a code still works.
 fetch(`${API}/countries`, { signal: AbortSignal.timeout(10000) })
   .then(response => response.ok ? response.json() : [])
-  .then(countries => document.querySelector('#phone-codes').replaceChildren(...countries
+  .then(countries => document.querySelector('#phone-codes')?.replaceChildren(...countries
     .filter(country => /^\+[0-9]{1,6}$/.test(country.phoneCode || ''))
     .map(country => { const option = document.createElement('option'); option.value = country.phoneCode; option.label = `${country.flag || ''} ${country.name}`.trim(); return option; })))
   .catch(() => {});
@@ -503,3 +446,110 @@ form.addEventListener('submit', async event => {
   } catch { status.classList.add('error'); status.textContent = 'Your enquiry wasn’t sent. Please try again, or email support@drigo.com.'; }
   finally { button.disabled = false; button.querySelector('.button-label').textContent = 'Send enquiry'; }
 });
+
+// Custom company-type picker; the underlying select preserves form values and reset.
+const companySelect = document.querySelector('select[name="type"]');
+if (companySelect) {
+  const oldField = companySelect.parentElement;
+  const field = document.createElement('div');
+  field.className = 'field field-select company-picker';
+  oldField.replaceWith(field);
+  field.append(...oldField.childNodes);
+  const label = field.querySelector('.field-label');
+  label.id = 'company-type-label';
+  companySelect.hidden = true;
+  const trigger = document.createElement('button');
+  trigger.type = 'button';
+  trigger.className = 'company-trigger';
+  trigger.setAttribute('role', 'combobox');
+  trigger.setAttribute('aria-haspopup', 'listbox');
+  trigger.setAttribute('aria-expanded', 'false');
+  trigger.setAttribute('aria-controls', 'company-type-options');
+  trigger.setAttribute('aria-labelledby', 'company-type-label company-type-value');
+  trigger.innerHTML = '<span id="company-type-value"></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+  const list = document.createElement('div');
+  list.id = 'company-type-options';
+  list.className = 'company-options';
+  list.setAttribute('role', 'listbox');
+  list.setAttribute('aria-labelledby', label.id);
+  list.hidden = true;
+  const options = [...companySelect.options].map((option, index) => {
+    const item = document.createElement('div');
+    item.id = `company-type-option-${index}`;
+    item.className = 'company-option';
+    item.setAttribute('role', 'option');
+    item.textContent = option.textContent;
+    item.addEventListener('pointerdown', event => event.preventDefault());
+    item.addEventListener('click', () => commit(index));
+    list.append(item);
+    return item;
+  });
+  field.append(trigger, list);
+  let active = companySelect.selectedIndex;
+  function highlight(index) {
+    active = (index + options.length) % options.length;
+    options.forEach((option, i) => option.classList.toggle('is-active', i === active));
+    trigger.setAttribute('aria-activedescendant', options[active].id);
+  }
+  function sync() {
+    trigger.querySelector('span').textContent = companySelect.selectedOptions[0].textContent;
+    options.forEach((option, i) => option.setAttribute('aria-selected', String(i === companySelect.selectedIndex)));
+  }
+  function close() {
+    list.hidden = true;
+    trigger.setAttribute('aria-expanded', 'false');
+    trigger.removeAttribute('aria-activedescendant');
+  }
+  function open() {
+    list.hidden = false;
+    trigger.setAttribute('aria-expanded', 'true');
+    highlight(companySelect.selectedIndex);
+  }
+  function commit(index) {
+    companySelect.selectedIndex = index;
+    companySelect.dispatchEvent(new Event('change', { bubbles: true }));
+    sync(); close(); trigger.focus();
+  }
+  trigger.addEventListener('click', () => list.hidden ? open() : close());
+  trigger.addEventListener('keydown', event => {
+    const key = event.key;
+    if (key === 'Tab') { close(); return; }
+    if (key === 'Escape') { event.preventDefault(); close(); return; }
+    if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(key)) {
+      event.preventDefault();
+      if (list.hidden) open();
+      else if (key === 'ArrowDown' || key === 'ArrowUp') highlight(active + (key === 'ArrowDown' ? 1 : -1));
+      if (key === 'Home') highlight(0);
+      if (key === 'End') highlight(options.length - 1);
+    } else if (key === 'Enter' || key === ' ') {
+      event.preventDefault(); list.hidden ? open() : commit(active);
+    } else if (key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey) {
+      const match = options.findIndex(option => option.textContent.toLowerCase().startsWith(key.toLowerCase()));
+      if (match >= 0) { event.preventDefault(); if (list.hidden) open(); highlight(match); }
+    }
+  });
+  document.addEventListener('pointerdown', event => { if (!field.contains(event.target)) close(); });
+  field.addEventListener('focusout', event => { if (!field.contains(event.relatedTarget)) close(); });
+  companySelect.addEventListener('change', sync);
+  companySelect.form.addEventListener('reset', () => { close(); setTimeout(sync, 0); });
+  sync();
+}
+
+// Keep each section title on its two authored lines at every container width.
+const twoLineTitles = [...document.querySelectorAll('h2 > .heading-line')].map(line => line.parentElement);
+function fitSectionTitles() {
+  twoLineTitles.forEach(title => {
+    title.style.removeProperty('font-size');
+    const size = parseFloat(getComputedStyle(title).fontSize);
+    const available = title.clientWidth;
+    const widest = Math.max(...[...title.children].map(line => line.scrollWidth));
+    if (available && widest > available) title.style.fontSize = `${size * available / widest * .99}px`;
+  });
+}
+document.fonts.ready.then(fitSectionTitles);
+let titleFitFrame;
+const titleObserver = new ResizeObserver(() => {
+  cancelAnimationFrame(titleFitFrame);
+  titleFitFrame = requestAnimationFrame(fitSectionTitles);
+});
+twoLineTitles.forEach(title => titleObserver.observe(title.parentElement));

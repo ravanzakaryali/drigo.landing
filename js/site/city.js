@@ -1,8 +1,12 @@
 import * as THREE from './vendor/three.module.min.js';
-import { buildDubaiCity } from './dubai-real-city.js?v=1';
+import { buildTrafficJourneys } from './traffic-network.js';
+import { createRooftopScene } from './rooftop-scene.js?v=20261019-no-plants';
+import { createRooftopDuo } from './rooftop-duo.js';
+import { createCityPeople } from './city-people.js';
+import { buildDubaiCity } from './dubai-real-city.js?v=20261019-culling';
 
 /** A live night city on real Dubai geography (OpenStreetMap), lit like a digital twin. */
-export function initCity(host, options = {}) {
+export async function initCity(host, options = {}) {
   if (!host) return null;
   let renderer;
   try { renderer = new THREE.WebGLRenderer({alpha:true,antialias:true,powerPreference:'high-performance'}); }
@@ -19,7 +23,7 @@ export function initCity(host, options = {}) {
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFShadowMap;
   renderer.domElement.setAttribute('aria-hidden','true');
-  renderer.domElement.style.cssText='display:block;width:100%;height:100%;pointer-events:none;';
+  renderer.domElement.style.cssText='display:block;width:100%;height:100%;pointer-events:none;opacity:0;transition:opacity 350ms ease;';
   host.appendChild(renderer.domElement);
   const geometries=new Set(), materials=new Set();
   const g=geometry=>(geometries.add(geometry),geometry);
@@ -32,11 +36,11 @@ export function initCity(host, options = {}) {
     glass:standard('#b6bdc8',{roughness:.3,metalness:.27}),glassLight:standard('#d7dce3',{roughness:.35,metalness:.2}),
     window:standard('#aeb5c1',{roughness:.38,metalness:.14}),windowDark:standard('#aab2bf'),
     road:standard('#aeb0bc'),localRoad:standard('#c7c9d2'),pavement:standard('#f7f7fa'),foundation:standard('#d4d6de'),
-    median:standard('#c4cebd'),chalk:standard('#f1eee6'),greenery:standard('#7b8a73'),greeneryLight:standard('#9baa8e'),
+    median:standard('#c4cebd'),chalk:standard('#f1eee6'),greenery:standard('#4f8a45'),greeneryLight:standard('#6aa35a'),
     trunk:standard('#c5c1b8'),water:basic('#d5cefa',{toneMapped:false,fog:false}),
     violet:standard('#74707d'),whiteGlow:basic('#fff4df',{toneMapped:false}),carRed:basic('#ff4d5b',{toneMapped:false}),tyre:standard('#555967',{roughness:.9}),
-    warmLight:basic('#f6c983',{toneMapped:false,transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide}),
-    coolLight:basic('#b0cdff',{toneMapped:false,transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide}),
+    warmLight:basic('#ffe2af',{toneMapped:false,transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide}),
+    coolLight:basic('#d6e6f7',{toneMapped:false,transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide}),
     lampLight:basic('#ffd9a4',{toneMapped:false,transparent:true,opacity:0,depthWrite:false}),
     beacon:basic('#ff3b4e',{toneMapped:false,transparent:true,opacity:0,depthWrite:false}),
   };
@@ -63,6 +67,7 @@ export function initCity(host, options = {}) {
   const lightNight={value:1},lightTimings={lamps:[],headlights:[],taillights:[],beacons:[],glints:[]};
   const lightLevelGlsl=`attribute vec4 aLightTiming; uniform float uWindowTime; uniform float uLightNight; varying float vLightLevel;
     float drigoLightLevel(){
+      if(aLightTiming.w>4.5)return aLightTiming.z;
       if(aLightTiming.y<=0.0)return 1.0;
       float phase=mod(uWindowTime+aLightTiming.x,aLightTiming.y)/aLightTiming.y;
       float level;
@@ -159,16 +164,10 @@ export function initCity(host, options = {}) {
     ribbon(path,width,mat.road,0,Math.max(32,Math.min(180,dashes)));
     for(let i=0;i<dashes;i++) {const p=path.getPointAt(i/dashes),t=path.getTangentAt(i/dashes);box(mat.porcelain,p.x,p.y+.009,p.z,.021,.008,.23,Math.atan2(t.x,t.z),false);}
   }
-  function tree(x,z,size=1,variant=0) {
-    instance(cylinder,mat.trunk,[x,.37*size,z],[.036*size,.65*size,.036*size]);
-    instance(sphere,variant%2?mat.greenery:mat.greeneryLight,[x,.86*size,z],[.3*size,.43*size,.3*size]);
-  }
-  function palm(x,z,size=1) {
-    instance(cylinder,mat.trunk,[x,.69*size,z],[.027*size,1.22*size,.027*size]);
-    for(let i=0;i<6;i++){const a=i*Math.PI/3;instance(sphere,mat.greenery,[x+Math.sin(a)*.2*size,1.27*size,z+Math.cos(a)*.2*size],[.075*size,.035*size,.34*size],[.22,a,0]);}
-  }
+  // Vegetation is disabled across streets and landmarks.
+  const tree=()=>{}, palm=()=>{};
   const context={THREE,world,g,m,standard,mat,mesh,footprint,curve,road,ribbon,box,instance,cylinder,sphere,palm,tree,windowTime,lightNight};
-  const fabric=buildDubaiCity(context);
+  const fabric=await buildDubaiCity(context);
   const landmarkModel=fabric.landmarks;
   const districtList=fabric.districts;
   const pinWorld=districtList.map(d=>new THREE.Vector3(...d.position));
@@ -182,7 +181,7 @@ export function initCity(host, options = {}) {
   const roadLightSites=new Set();
   const lightingRoutes=fabric.lampRoutes;
   for(let routeIndex=0;routeIndex<lightingRoutes.length;routeIndex++) {
-    const route=lightingRoutes[routeIndex],count=Math.max(4,Math.ceil(route.getLength()/2.2));
+    const route=lightingRoutes[routeIndex],count=Math.max(2,Math.ceil(route.getLength()/1.6));
     for(let i=0;i<count;i++) {
       const p=route.getPointAt((i+.35)/count),t=route.getTangentAt((i+.35)/count);
       const side=(i+routeIndex)%2?1:-1,offset=route.kerb||.45;
@@ -190,21 +189,21 @@ export function initCity(host, options = {}) {
       const site=Math.round(x*1.1)+':'+Math.round(z*1.1);
       if(roadLightSites.has(site)||!fabric.isLand(x,z)||(fabric.clearOfRoads&&!fabric.clearOfRoads(x,z,.02)))continue;
       roadLightSites.add(site);
-      lightTiming(lightTimings.lamps,roadLightSites.size,[9,26],[.14,.3],0);
+      lightTimings.lamps.push([0,0,0,0]);
       instance(cylinder,mat.graphite,[x,.27,z],[.011,.5,.011]);
-      instance(sphere,mat.lampLight,[x,.53,z],[.04,.026,.04],[0,0,0],false);
-      instance(lightPool,roadGlow,[x+t.z*.18*side,p.y+.012,z-t.x*.18*side],[.42,1,.6],[0,Math.atan2(t.x,t.z),0],false);
+      instance(sphere,mat.lampLight,[x,.53,z],[.052,.032,.052],[0,0,0],false);
+      instance(lightPool,roadGlow,[x+t.z*.18*side,p.y+.025,z-t.x*.18*side],[.7,1,.95],[0,Math.atan2(t.x,t.z),0],false);
     }
   }
   // Long-exposure traffic streams: warm headlight streaks flow one way and red
   // tail streaks the other, merged into one ribbon that runs on the scene clock.
   const trailPositions=[],trailUvs=[],trailIndices=[];
-  for(const route of trafficRoutes) {
+  for(const [routeIndex,route] of trafficRoutes.entries()) {
     const length=route.getLength(),steps=Math.max(40,Math.ceil(length*2.2)),base=trailPositions.length/3;
     for(let i=0;i<=steps;i++) {
       const p=route.getPointAt(i/steps),t=route.getTangentAt(i/steps);
       const half=route.halfWidth||.2;
-      for(const o of[-half,half]){trailPositions.push(p.x-t.z*o,p.y+.01,p.z+t.x*o);trailUvs.push(i/steps*length,o<0?0:1);}
+      for(const o of[-half,half]){trailPositions.push(p.x-t.z*o,p.y+.01,p.z+t.x*o);trailUvs.push(i/steps*length+routeIndex*1.713,o<0?0:1);}
       if(i<steps){const a=base+i*2;trailIndices.push(a,a+1,a+2,a+1,a+3,a+2);}
     }
   }
@@ -227,7 +226,7 @@ export function initCity(host, options = {}) {
       }`,
     transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,toneMapped:false,
   }));
-  const trails=new THREE.Mesh(trailGeometry,trailMaterial);trails.renderOrder=2;world.add(trails);
+  const trails=new THREE.Mesh(trailGeometry,trailMaterial);trails.renderOrder=2;trails.visible=false;world.add(trails);
   // Red aviation beacons blink on the tallest roofs; each keeps its own rhythm.
   const beaconSites=new Map();
   for(const[x,top,z]of towerTops.sort((a,b)=>b[1]-a[1])) {
@@ -255,7 +254,7 @@ export function initCity(host, options = {}) {
       for(let i=0;i<batch.matrices.length;i++) {
         const index=windowTimings.length,seed=index*1.61803398875+3.7;
         const rand=n=>{const v=Math.sin(seed*91.17+n*43.73)*43758.5453;return v-Math.floor(v);};
-        const period=18+rand(1)*39,onDuration=period*(.48+rand(2)*.27),fade=1.6+rand(3)*2.2;
+        const period=180+rand(1)*420,onDuration=period*(.62+rand(2)*.25),fade=4+rand(3)*6;
         const timing=[rand(4)*period,period,onDuration,fade];
         windowTimings.push(timing);values.set(timing,i*4);
       }
@@ -283,7 +282,7 @@ export function initCity(host, options = {}) {
     const geo=g(new THREE.BufferGeometry());geo.setAttribute('position',new THREE.BufferAttribute(positions,3));geo.setAttribute('normal',new THREE.BufferAttribute(normals,3));geo.computeBoundingSphere();const node=new THREE.Mesh(geo,nodes[0].material);node.castShadow=nodes[0].castShadow;node.receiveShadow=nodes[0].receiveShadow;world.add(node);
   }
   // Vehicles share geometry and are independently animated along real curves.
-  const carCount = 150;
+  const carCount = fabric.trafficLines.reduce((sum,line)=>sum+line.carQuota,0);
   function roundedCarBody(width, length, depth, radius) {
     const s = new THREE.Shape(), x = -width / 2, z = -length / 2;
     s.moveTo(x + radius, z);
@@ -330,20 +329,27 @@ export function initCity(host, options = {}) {
       wheel: .1, axle: .31, track: .21, head: [.16, .475, .12, .018], tail: [.17, -.475, .14, .02], trim: '#0d0e12',
       paints: ['#141519', '#f4f4f2', '#5a5f6b', '#2a3550', '#9aa1ad'] },
   ];
-  const silverCar = standard('#ffffff', { metalness: 0.55, roughness: 0.2 });
+  const silverCar = standard('#ffffff', { metalness: 0.55, roughness: 0.32 });
   const trimMaterial = standard('#ffffff', { metalness: 0.6, roughness: 0.3 });
   // Assign a model to every car up front, so each model gets an instanced body and canopy of the right size.
   const carModels = [];
   for (let i = 0; i < carCount; i++) { let r = Math.abs(Math.sin(i * 12.9898 + 4.1) * 43758.5453 % 1), k = 0; while (k < MODELS.length - 1 && r > MODELS[k].share) { r -= MODELS[k].share; k++; } carModels.push(k); }
   MODELS.forEach((model, k) => {
     model.count = carModels.filter(index => index === k).length;
-    model.bodyMesh = new THREE.InstancedMesh(profileBody(model.body, model.width, .022), silverCar, Math.max(1, model.count));
+    model.bodyMesh = new THREE.InstancedMesh(profileBody(model.body, model.width, .012), silverCar, Math.max(1, model.count));
     model.bodyMesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(Math.max(1, model.count) * 3), 3);
-    model.cabinMesh = new THREE.InstancedMesh(profileBody(model.cabin, model.cabinW, .014), mat.glass, Math.max(1, model.count));
+    model.cabinMesh = new THREE.InstancedMesh(profileBody(model.cabin, model.cabinW, .008), mat.glass, Math.max(1, model.count));
     model.bodyMesh.count = model.cabinMesh.count = model.count;
   });
   const wheelGeometry = g(new THREE.CylinderGeometry(0.088, 0.088, 0.062, 14));
   wheelGeometry.rotateZ(Math.PI / 2);
+  const drigoLogoTexture = new THREE.TextureLoader().load("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTgiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA5OCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGcgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwXzUwN18xNTY2KSI+CjxwYXRoIGQ9Ik0xNi40ODY2IDEyLjc1ODhWMEgyMS40MzgyVjIwLjcyNTZIMTYuNDI1N0MxNi40NDc0IDIwLjYyODggMTYuNDU2MSAyMC41MzE5IDE2LjQ1NjEgMjAuNDM1MUMxNi40NTYxIDIwLjM3NjEgMTYuNDY0OCAyMC4zMDg4IDE2LjQ4NjYgMjAuMjMzQzE2LjQ4NjYgMjAuMTk1MSAxNi40ODY2IDIwLjE2NTYgMTYuNDg2NiAyMC4xNDQ1QzE2LjQ4NjYgMjAuMDY4NyAxNi40ODY2IDIwLjAwMTQgMTYuNDg2NiAxOS45NDI0QzE2LjQ4NjYgMTkuODY2NiAxNi40ODY2IDE5Ljc5OTIgMTYuNDg2NiAxOS43NDAzQzE2LjQ4NjYgMTkuNzAyNCAxNi40ODY2IDE5LjY2NDUgMTYuNDg2NiAxOS42MjY2QzE2LjQ2NDggMTkuNTY3NiAxNi40NTYxIDE5LjUwMDMgMTYuNDU2MSAxOS40MjQ1QzE2LjQ1NjEgMTkuMzI3NiAxNi40NDc0IDE5LjIzMDggMTYuNDI1NyAxOS4xMzM5QzE2LjIyNTUgMTcuODgzMyAxNS42ODE2IDE2LjgzNDggMTQuNzg1MyAxNS45ODg1QzEzLjY0OTYgMTQuODg5NCAxMi4yODc3IDE0LjM0MiAxMC42OTk1IDE0LjM0MkM5LjI0NjI1IDE0LjM0MiA3Ljk4ODc2IDE0Ljc5MjYgNi45MjcwNyAxNS42OTc5QzUuODYxMDMgMTYuNjAzMiA1LjIyMTQxIDE3Ljc0ODYgNS4wMDM4NSAxOS4xMzM5QzQuOTI1NTMgMTkuNjcyOSA0LjkyNTUzIDIwLjIwMzUgNS4wMDM4NSAyMC43MjE0QzUuMjIxNDEgMjIuMTA2OCA1Ljg2NTM4IDIzLjI1MjEgNi45MjcwNyAyNC4xNTc0QzcuOTkzMTEgMjUuMDYyOCA5LjI1MDYgMjUuNTEzMyAxMC42OTk1IDI1LjUxMzNDMTAuNzM4NyAyNS41MTMzIDEwLjc3NzkgMjUuNTEzMyAxMC44MTcgMjUuNTEzM0MxMC44NTYyIDI1LjUxMzMgMTAuODg2NiAyNS41MTMzIDEwLjkwODQgMjUuNTEzM0MxMC45NDc2IDI1LjUxMzMgMTAuOTg2NyAyNS41MTMzIDExLjAyNTkgMjUuNTEzM0MxMS4wNjUgMjUuNTEzMyAxMS4wOTU1IDI1LjUxMzMgMTEuMTE3MiAyNS41MTMzQzExLjEzOSAyNS41MTMzIDExLjE1NjQgMjUuNTEzMyAxMS4xNzgyIDI1LjUxMzNDMTEuMTk5OSAyNS40OTIzIDExLjIxNzMgMjUuNDgzOCAxMS4yMzkxIDI1LjQ4MzhDMTEuMzc4MyAyNS40ODM4IDExLjUwODkgMjUuNDc1NCAxMS42MjYzIDI1LjQ1NDRDMTEuNjY1NSAyNS40MzMzIDExLjcwNDcgMjUuNDI0OSAxMS43NDM4IDI1LjQyNDlDMTEuNzY1NiAyNS40MjQ5IDExLjc5MTcgMjUuNDI0OSAxMS44MzUyIDI1LjQyNDlDMTEuODM1MiAyNS40MDM4IDExLjg0MzkgMjUuMzk1NCAxMS44NjU3IDI1LjM5NTRDMTEuODg3NCAyNS4zOTU0IDExLjkwNDggMjUuMzk1NCAxMS45MjY2IDI1LjM5NTRDMTEuOTY1NyAyNS4zNzQ0IDEyLjAwNDkgMjUuMzY1OSAxMi4wNDQxIDI1LjM2NTlDMTIuMTA1IDI1LjM0NDkgMTIuMTYxNSAyNS4zMjggMTIuMjIyNCAyNS4zMDdDMTIuMjYxNiAyNS4zMDcgMTIuMzAwOCAyNS4yOTg2IDEyLjMzOTkgMjUuMjc3NUMxMi44NTc3IDI1LjE0MjggMTMuMzUzOCAyNC45MzIyIDEzLjgzMjQgMjQuNjQxN0MxNC42Mjg2IDI0LjE2MTYgMTUuNDgxNSAyMy45MjE2IDE2LjM5OTYgMjMuOTIxNkgxNi41NzhDMTcuOTMxMiAyMy45MjE2IDE5LjA3OTkgMjQuMzgwNiAyMC4wMjQxIDI1LjI5NDRDMjAuOTY4MyAyNi4yMDgxIDIxLjQ0MjYgMjcuMzExMyAyMS40NDI2IDI4LjU5OThWMzAuMzAxSDE2LjQ5MDlWMjcuMDk2NkMxNi4zMTI2IDI3LjM4NzEgMTYuMTEyNCAyNy42NTY2IDE1Ljg5NDggMjcuOTA1MUMxNS44MzM5IDI3Ljk2NCAxNS43Nzc0IDI4LjAxODggMTUuNzE2NCAyOC4wNzc3QzE1LjY3NzMgMjguMTM2NyAxNS42MjUxIDI4LjE5MTQgMTUuNTY4NSAyOC4yNTAzQzE1LjU0NjcgMjguMjcxNCAxNS41MjkzIDI4LjI4ODIgMTUuNTA3NiAyOC4zMDkzQzE0LjgzMzIgMjguOTYyIDE0LjA3MTcgMjkuNDU4OSAxMy4yMjc2IDI5Ljc5NTdDMTIuMzgzNCAzMC4xMzI2IDExLjU0MzcgMzAuMzAxIDEwLjcwODIgMzAuMzAxQzcuODg0MzMgMzAuMzAxIDUuNDY5NDMgMjkuMzkxNSAzLjQ1OTE4IDI3LjU3MjRDMS40NDg5NCAyNS43NTMzIDAuMzA4OTMzIDIzLjQ2NjkgMC4wMzA0NTgyIDIwLjcxNzJDMC4wMzA0NTgyIDIwLjY1ODMgMC4wMzA0NTgyIDIwLjYwMzUgMC4wMzA0NTgyIDIwLjU0NDZDMC4wMDg3MDIzNSAyMC40Njg4IDAgMjAuNDAxNCAwIDIwLjM0MjRDMCAyMC4zMjE0IDAgMjAuMzA0NSAwIDIwLjI4MzVDMCAyMC4yNDU2IDAgMjAuMjA3NyAwIDIwLjE2OThDMCAyMC4xMzE5IDAgMjAuMTAyNCAwIDIwLjA4MTRDMCAyMC4wNjAzIDAgMjAuMDUxOSAwIDIwLjA1MTlDMCAxOS44NzkyIDAgMTkuNzA2NiAwIDE5LjUzNEMwIDE5LjQ1ODIgMC4wMDg3MDIzNSAxOS4zOTA4IDAuMDMwNDU4MiAxOS4zMzE4QzAuMDMwNDU4MiAxOS4yNTYxIDAuMDMwNDU4MiAxOS4xODg3IDAuMDMwNDU4MiAxOS4xMjk3QzAuMzA4OTMzIDE2LjM5NjkgMS40NTMyOSAxNC4xMTQ2IDMuNDU5MTggMTIuMjg3MkM1LjQ2OTQzIDEwLjQ1OTcgNy44ODQzMyA5LjU0NTkxIDEwLjcwODIgOS41NDU5MUMxMS41NDM3IDkuNTQ1OTEgMTIuMzgzNCA5LjcxODU2IDEzLjIyNzYgMTAuMDYzOEMxNC4wNzE3IDEwLjQwOTEgMTQuODMzMiAxMC45MDE4IDE1LjUwNzYgMTEuNTM3NkMxNS41MjkzIDExLjU1ODcgMTUuNTQ2NyAxMS41ODM5IDE1LjU2ODUgMTEuNjI2MUMxNS42Mjk0IDExLjY4NSAxNS42NzczIDExLjczMTMgMTUuNzE2NCAxMS43NjkyQzE1Ljc3NzQgMTEuODI4MiAxNS44MzM5IDExLjg4MjkgMTUuODk0OCAxMS45NDE5QzE2LjExMjQgMTIuMTkwMyAxNi4zMTI2IDEyLjQ1OTggMTYuNDkwOSAxMi43NTAzTDE2LjQ4NjYgMTIuNzU4OFpNMjkuMzc0OCAxMy4xMDQxQzMwLjM4ODYgMTIuMDA1IDMxLjYxMTMgMTEuMTQxOCAzMy4wNDI4IDEwLjUwNkMzNC40NzQ0IDkuODcwMTUgMzUuOTk3MyA5LjU1NDM0IDM3LjYwNzIgOS41NTQzNEMzOS4zNTY0IDkuNTU0MzQgNDAuNzcwNSA5Ljg0NDg4IDQxLjg0MDkgMTAuNDIxOEwzOS4yNDc2IDE0Ljc4QzM4LjgyOTkgMTQuNDg5NCAzOC4yODE2IDE0LjM0NjIgMzcuNjA3MiAxNC4zNDYySDM3LjU0NjNDMzUuMjQwMiAxNC40MDUyIDMzLjI5OTUgMTUuMTkyNiAzMS43Mjg4IDE2LjcxMjdDMzAuMTU4IDE4LjIzMjggMjkuMzcwNCAyMC4wODE0IDI5LjM3MDQgMjIuMjU0MVYzMC4zMDk0SDI0LjQxODhWOS41NTQzNEgyOS4zNzA0VjEzLjEwNDFIMjkuMzc0OFpNNDQuNDk5NSAzMC4zMDk0VjkuNTU0MzRINDkuNDUxMVYzMC4zMDk0SDQ0LjQ5OTVaTTQ2Ljk3NTMgMEM0Ny44ODkgMCA0OC42NzY2IDAuMzExNiA0OS4zMzM2IDAuOTM5MDExQzQ5Ljk5MDYgMS41NjY0MiA1MC4zMTcgMi4zMjg1OCA1MC4zMTcgMy4yMzM5QzUwLjMxNyA0LjExODE4IDQ5Ljk5MDYgNC44ODAzMyA0OS4zMzM2IDUuNTE2MTdDNDguNjc2NiA2LjE1MiA0Ny44OTM0IDYuNDY3ODEgNDYuOTc1MyA2LjQ2NzgxQzQ2LjA2MTUgNi40Njc4MSA0NS4yNzQgNi4xNTIgNDQuNjE2OSA1LjUxNjE3QzQzLjk1OTkgNC44ODAzMyA0My42MzM2IDQuMTIyMzkgNDMuNjMzNiAzLjIzMzlDNDMuNjMzNiAyLjMyODU4IDQzLjk1OTkgMS41NjY0MiA0NC42MTY5IDAuOTM5MDExQzQ1LjI3NCAwLjMxMTYgNDYuMDU3MiAwIDQ2Ljk3NTMgMFpNNjkuMTk2NyAxMi43MjkzVjkuNTU0MzRINzQuMTQ4NFYxMS4yNTU1Qzc0LjE0ODQgMTIuNTQ0IDczLjY3NDEgMTMuNjQ3MiA3Mi43Mjk5IDE0LjU2MUM3MS43ODU3IDE1LjQ3NDcgNzAuNjQ1NyAxNS45MzM3IDY5LjMxNDIgMTUuOTMzN0M2OC40NTcgMTUuOTcxNiA2Ny43MDQzIDE1LjgxMTYgNjcuMDQ3MiAxNS40NTc5QzY2LjM5MDIgMTUuMSA2NS42OTQgMTQuNzg4NCA2NC45NTg3IDE0LjUxODlDNjMuNzI3MyAxNC4yMTE1IDYyLjUyMiAxNC4yNzg5IDYxLjM0NzIgMTQuNzIxQzYwLjE3MjQgMTUuMTYzMSA1OS4yNDk5IDE1Ljg5NTggNTguNTcxMiAxNi45MTQ4QzU4LjExNDMgMTcuNTg4NiA1Ny44MjcxIDE4LjMyMTIgNTcuNzA1MyAxOS4xMDg3QzU3LjUyNjkgMjAuMzU5MyA1Ny43NTMxIDIxLjUzNDEgNTguMzkyOCAyMi42Mjg5QzU5LjExMDcgMjMuODU4NSA2MC4wOTg0IDI0LjY5MjIgNjEuMzYwMyAyNS4xMjU5QzYyLjYyMjEgMjUuNTU5NiA2My44OTcgMjUuNTkzMyA2NS4xNzYyIDI1LjIyN0M2Ni40NTk4IDI0Ljg2MDYgNjcuNDk5OCAyNC4wOTAxIDY4LjI5MTcgMjIuOTE5NUM2OS4wNDg4IDIxLjc0NDYgNjkuMzI3MyAyMC40NzcyIDY5LjEyNzEgMTkuMTA4N0g3NC4xMzk3VjI5LjUwMUM3NC4xMzk3IDI5Ljc3MDQgNzQuMTMxIDMwLjAzMTUgNzQuMTA5MiAzMC4yOEM3My43MTMyIDMzLjc0NTUgNzIuMDcyOCAzNi4zOTgzIDY5LjE4OCAzOC4yNDY4QzY3LjQ3OCAzOS4zMjQ4IDY1LjU1OTEgMzkuODYzOCA2My40MzE0IDM5Ljg2MzhDNjAuNzQ2NyAzOS44NjM4IDU4LjQxODkgMzkuMDM0MiA1Ni40NTIxIDM3LjM3OTRDNTQuNDg1NCAzNS43MjQ1IDUzLjI4MDEgMzMuNjI3NiA1Mi44NDA3IDMxLjA4ODRINTcuODgzN0M1OC4yNjIyIDMyLjI2MzMgNTguOTU0MSAzMy4yMTkxIDU5Ljk1NDggMzMuOTYwMkM2MC45NTk5IDM0LjcwMTMgNjIuMTE3NCAzNS4wNzE5IDYzLjQzMTQgMzUuMDcxOUM2NS4wMjM5IDM1LjA3MTkgNjYuMzgxNSAzNC41Mjg3IDY3LjUwNDEgMzMuNDQyM0M2OC42MjY3IDMyLjM1NTkgNjkuMTg4IDMxLjA0MjEgNjkuMTg4IDI5LjUwMVYyNy4xMDVDNjkuMDA5NiAyNy4zOTU2IDY4LjgwOTUgMjcuNjY1IDY4LjU5MTkgMjcuOTEzNUM2Ny44MTc0IDI4Ljc4MDkgNjYuODczMiAyOS40MjUyIDY1Ljc1OTMgMjkuODQ2MkM2NS42MjAxIDI5LjkwNTIgNjUuNDg5NSAyOS45NTE1IDY1LjM3MiAyOS45ODk0QzY1LjMzMjkgMjkuOTg5NCA2NS4zMDI0IDI5Ljk5NzggNjUuMjgwNyAzMC4wMTg5QzY1LjI0MTUgMzAuMDE4OSA2NS4yMTEgMzAuMDI3MyA2NS4xODkzIDMwLjA0ODRDNjUuMTUwMSAzMC4wNDg0IDY1LjExOTcgMzAuMDU2OCA2NS4wOTc5IDMwLjA3NzhDNjUuMDU4OCAzMC4wNzc4IDY1LjAxOTYgMzAuMDc3OCA2NC45ODA0IDMwLjA3NzhDNjQuOTU4NyAzMC4wOTg5IDY0LjkzMjYgMzAuMTA3MyA2NC44ODkxIDMwLjEwNzNDNjQuODQ5OSAzMC4xMjg0IDY0LjgxMDcgMzAuMTM2OCA2NC43NzE2IDMwLjEzNjhDNjQuNzQ5OCAzMC4xMzY4IDY0LjczMjQgMzAuMTQ1MiA2NC43MTA3IDMwLjE2NjNDNjQuNjQ5NyAzMC4xNjYzIDY0LjU5MzIgMzAuMTc0NyA2NC41MzIzIDMwLjE5NTdDNjQuNDMyMiAzMC4yMTY4IDY0LjMzMjEgMzAuMjI1MiA2NC4yMzIgMzAuMjI1MkM2NC4yMTAzIDMwLjI0NjMgNjQuMTkyOSAzMC4yNTQ3IDY0LjE3MTEgMzAuMjU0N0M2NC4xNDk0IDMwLjI1NDcgNjQuMTMyIDMwLjI1NDcgNjQuMTEwMiAzMC4yNTQ3QzY0LjA4ODQgMzAuMjU0NyA2NC4wNjIzIDMwLjI1NDcgNjQuMDE4OCAzMC4yNTQ3QzYzLjk1NzkgMzAuMjc1NyA2My45MSAzMC4yODQyIDYzLjg3MDkgMzAuMjg0MkM2My44NDkxIDMwLjI4NDIgNjMuODIzIDMwLjI4NDIgNjMuNzc5NSAzMC4yODQyQzYzLjY2MiAzMC4yODQyIDYzLjU0MDIgMzAuMjg0MiA2My40MjI3IDMwLjI4NDJDNjMuMzIyNiAzMC4yODQyIDYzLjIzNTYgMzAuMjg0MiA2My4xNTI5IDMwLjI4NDJDNjMuMTEzOCAzMC4yODQyIDYzLjA2MTYgMzAuMjg0MiA2My4wMDUgMzAuMjg0MkM2Mi45NjU4IDMwLjI4NDIgNjIuOTM1NCAzMC4yODQyIDYyLjkxMzYgMzAuMjg0MkM2Mi44NzQ1IDMwLjI4NDIgNjIuODM1MyAzMC4yODQyIDYyLjc5NjEgMzAuMjg0MkM2Mi43NTcgMzAuMjg0MiA2Mi43MTc4IDMwLjI4NDIgNjIuNjc4NyAzMC4yODQyQzYyLjUwMDMgMzAuMjYzMSA2Mi4zMDg4IDMwLjI0NjMgNjIuMTEzIDMwLjIyNTJDNjIuMDczOSAzMC4yMjUyIDYyLjAzNDcgMzAuMjE2OCA2MS45OTU1IDMwLjE5NTdDNjEuODU2MyAzMC4xNzQ3IDYxLjcyNTggMzAuMTU3OCA2MS42MDgzIDMwLjEzNjhDNjEuNTMgMzAuMTM2OCA2MS40NjAzIDMwLjEyODQgNjEuMzk5NCAzMC4xMDczQzYxLjMyMTEgMzAuMDg2MyA2MS4yNTE1IDMwLjA3NzggNjEuMTkwNiAzMC4wNzc4QzYxLjA1MTMgMzAuMDM5OSA2MC45MjA4IDMwLjAxMDUgNjAuODAzMyAyOS45ODk0QzYwLjc4MTUgMjkuOTY4NCA2MC43NTU0IDI5Ljk1OTkgNjAuNzExOSAyOS45NTk5QzYwLjQ1NTIgMjkuODg0MSA2MC4xOTQxIDI5LjgwNDEgNTkuOTM3NCAyOS43MjgzQzU3LjYzMTMgMjguOTQwOSA1NS44MTI1IDI3LjU2NCA1NC40NzY3IDI1LjYwMTdDNTMuMTQ1MiAyMy42Mzk1IDUyLjU1NzggMjEuNDc1MSA1Mi43MTg4IDE5LjEwODdDNTIuOTk3MyAxNi4zNzU5IDU0LjE0NiAxNC4xMDIgNTYuMTY1IDEyLjI4MjlDNTguMTgzOSAxMC40NjM5IDYwLjYwMzEgOS41NTQzNCA2My40MjcxIDkuNTU0MzRDNjQuNDggOS41NTQzNCA2NS41MzMgOS44MjgwNCA2Ni41OTA0IDEwLjM3NTRDNjcuNjQzMyAxMC45MjI4IDY4LjUwOTIgMTEuNzA2MSA2OS4xODM3IDEyLjcyOTNINjkuMTk2N1pNODcuMjQ1NCA5LjU1NDM0Qzg5LjIzMzkgOS41NTQzNCA5MS4wMzk2IDEwLjAyMTcgOTIuNjU4MyAxMC45NTIzQzk0LjI3NjkgMTEuODg3MSA5NS41NzM1IDEzLjEzNzcgOTYuNTM1MSAxNC43MDQyQzk3LjUwMTEgMTYuMjcwNiA5Ny45Nzk3IDE4LjAxODEgOTcuOTc5NyAxOS45NDI0Qzk3Ljk3OTcgMjEuODQ1NyA5Ny40OTY4IDIzLjU4NDggOTYuNTM1MSAyNS4xNTEyQzk1LjU2OTIgMjYuNzE3NiA5NC4yNzY5IDI3Ljk3MjQgOTIuNjU4MyAyOC45MDNDOTEuMDM5NiAyOS44Mzc4IDg5LjIzMzkgMzAuMzAxIDg3LjI0NTQgMzAuMzAxQzg1LjI3ODcgMzAuMzAxIDgzLjQ4MTYgMjkuODMzNiA4MS44NjMgMjguOTAzQzgwLjI0NDQgMjcuOTY4MiA3OC45NDc3IDI2LjcxNzYgNzcuOTg2MSAyNS4xNTEyQzc3LjAyMDEgMjMuNTg0OCA3Ni41NDE1IDIxLjg0NTcgNzYuNTQxNSAxOS45NDI0Qzc2LjU0MTUgMTguMDE4MSA3Ny4wMjQ1IDE2LjI3MDYgNzcuOTg2MSAxNC43MDQyQzc4Ljk1MjEgMTMuMTM3NyA4MC4yNDQ0IDExLjg4MjkgODEuODYzIDEwLjk1MjNDODMuNDgxNiAxMC4wMTc1IDg1LjI3ODcgOS41NTQzNCA4Ny4yNDU0IDkuNTU0MzRaTTg3LjI0NTQgMjUuNTE3NUM4OC44Mzc5IDI1LjUxNzUgOTAuMTk5OCAyNC45NzQzIDkxLjMzMTEgMjMuODg3OUM5Mi40NjY4IDIyLjgwMTYgOTMuMDMyNSAyMS40ODc4IDkzLjAzMjUgMTkuOTQ2NkM5My4wMzI1IDE4LjQwNTUgOTIuNDY2OCAxNy4wODc1IDkxLjMzMTEgMTUuOTkyN0M5MC4xOTU1IDE0Ljg5MzYgODguODMzNiAxNC4zNDYyIDg3LjI0NTQgMTQuMzQ2MkM4NS42NTI5IDE0LjM0NjIgODQuMjk1MyAxNC44OTM2IDgzLjE3MjcgMTUuOTkyN0M4Mi4wNTAxIDE3LjA5MTcgODEuNDg4OCAxOC40MDk3IDgxLjQ4ODggMTkuOTQ2NkM4MS40ODg4IDIxLjQ4NzggODIuMDUwMSAyMi44MDE2IDgzLjE3MjcgMjMuODg3OUM4NC4yOTUzIDI0Ljk3NDMgODUuNjUyOSAyNS41MTc1IDg3LjI0NTQgMjUuNTE3NVoiIGZpbGw9IiNmZmZmZmYiLz4KPC9nPgo8ZGVmcz4KPGNsaXBQYXRoIGlkPSJjbGlwMF81MDdfMTU2NiI+CjxyZWN0IHdpZHRoPSI5OCIgaGVpZ2h0PSI0MCIgZmlsbD0id2hpdGUiLz4KPC9jbGlwUGF0aD4KPC9kZWZzPgo8L3N2Zz4K");
+  drigoLogoTexture.colorSpace = THREE.SRGBColorSpace;
+  const drigoLogoMaterial = new THREE.MeshBasicMaterial({ map: drigoLogoTexture, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 });
+  materials.add(drigoLogoMaterial);
+  const drigoLogoGeometry = g(new THREE.PlaneGeometry(1, 1));
+  drigoLogoGeometry.rotateX(-Math.PI / 2);
+  const drigoRoofLogos = new THREE.InstancedMesh(drigoLogoGeometry, drigoLogoMaterial, carCount);
   const carRoof = new THREE.InstancedMesh(unitBox, silverCar, carCount);
   const carWing = new THREE.InstancedMesh(unitBox, silverCar, carCount);
   const carTrim = new THREE.InstancedMesh(unitBox, trimMaterial, carCount * 2);
@@ -358,36 +364,75 @@ export function initCity(host, options = {}) {
   const headlightPools=new THREE.InstancedMesh(timedGeometry(lightPool,lightTimings.headlights),headlightGlow,carCount);
   const taillightPools=new THREE.InstancedMesh(timedGeometry(lightPool,lightTimings.taillights),taillightGlow,carCount);
   const solidCarMeshes = [...MODELS.flatMap(model => [model.bodyMesh, model.cabinMesh]), carRoof, carWheels, carWing, carTrim];
-  const carMeshes = [...solidCarMeshes, headlights, taillights, headlightPools, taillightPools];
+  const carMeshes = [...solidCarMeshes, drigoRoofLogos, headlights, taillights, headlightPools, taillightPools];
   carMeshes.forEach(node => { node.castShadow = solidCarMeshes.includes(node); node.frustumCulled = false; node.instanceMatrix.setUsage(THREE.DynamicDrawUsage); world.add(node); });
-  // ---- Traffic: every artery becomes a closed two-lane loop (out on one side, back on the other,
-  // joined by gentle U-turns). Cars keep their distance, slow into bends and stop at red lights.
+  // Local traffic covers every road; branded cars use connected city-wide journeys.
   const seededRandom = n => { const v = Math.sin(n * 91.7 + 12.3) * 43758.5453; return v - Math.floor(v); };
   const loops = [];
   const wrapAngle = a => Math.atan2(Math.sin(a), Math.cos(a));
-  for (const line of (fabric.trafficLines || [])) {
-    if (line.points.length < 2) continue;
-    const centre = new THREE.CatmullRomCurve3(line.points.map(([x, z]) => new THREE.Vector3(x, .08, z)), false, 'centripetal');
-    const centreLength = centre.getLength(), steps = Math.max(20, Math.ceil(centreLength / .1));
-    const lane = line.cls === 0 ? .17 : .11;
+  function makeTrafficLoop(line) {
+    const centre = new THREE.CurvePath();
+    const vertices=line.points.map(p=>new THREE.Vector3(p[0],.08,p[1]));
+    // Short rounded corners stay inside the road surface, instead of snapping headings.
+    let cursor=vertices[0];
+    for(let i=1;i<vertices.length-1;i++){
+      const previous=vertices[i-1],corner=vertices[i],next=vertices[i+1];
+      const radius=Math.min(.07,previous.distanceTo(corner)*.25,corner.distanceTo(next)*.25);
+      const enter=corner.clone().lerp(previous,radius/Math.max(.00001,corner.distanceTo(previous)));
+      const leave=corner.clone().lerp(next,radius/Math.max(.00001,corner.distanceTo(next)));
+      centre.add(new THREE.LineCurve3(cursor,enter));centre.add(new THREE.QuadraticBezierCurve3(enter,corner,leave));cursor=leave;
+    }
+    centre.add(new THREE.LineCurve3(cursor,vertices[vertices.length-1]));
+    const centreLength = centre.getLength(), steps = Math.max(20, Math.ceil(centreLength / .045));
+    const lane = line.closed ? .05 : line.cls === 0 ? .17 : line.cls===1 ? .11 : .058;
     const c = [], t = [];
     for (let i = 0; i <= steps; i++) { c.push(centre.getPointAt(i / steps)); t.push(centre.getTangentAt(i / steps)); }
     const pts = [];
     const side = (p, d, o) => new THREE.Vector3(p.x - d.z * o, p.y, p.z + d.x * o);
     for (let i = 0; i <= steps; i++) pts.push(side(c[i], t[i], lane));
+    if(!line.closed){
     // U-turn at the far end: a half circle round the centre line.
-    const endAngle = Math.atan2(t[steps].x, t[steps].z);
-    for (let k = 1; k < 12; k++) { const a = endAngle + Math.PI / 2 - k / 12 * Math.PI; pts.push(new THREE.Vector3(c[steps].x + Math.sin(a) * lane * -1, .08, c[steps].z + Math.cos(a) * lane * -1)); }
+    const addTurn=(p,d)=>{for(let k=1;k<20;k++){
+      const angle=k/20*Math.PI;
+      pts.push(new THREE.Vector3(p.x-d.z*lane*Math.cos(angle)+d.x*lane*Math.sin(angle),.08,p.z+d.x*lane*Math.cos(angle)+d.z*lane*Math.sin(angle)));
+    }};
+    addTurn(c[steps],t[steps]);
     for (let i = steps; i >= 0; i--) pts.push(side(c[i], t[i].clone().negate(), lane));
-    const startAngle = Math.atan2(-t[0].x, -t[0].z);
-    for (let k = 1; k < 12; k++) { const a = startAngle + Math.PI / 2 - k / 12 * Math.PI; pts.push(new THREE.Vector3(c[0].x + Math.sin(a) * lane * -1, .08, c[0].z + Math.cos(a) * lane * -1)); }
+    addTurn(c[0],t[0].clone().negate());
+    }else pts.pop(); // The circuit closes on its first sample, without a duplicate point.
     const n = pts.length, cum = new Float32Array(n + 1), head = new Float32Array(n);
     for (let i = 0; i < n; i++) { const a = pts[i], b = pts[(i + 1) % n]; cum[i + 1] = cum[i] + a.distanceTo(b); head[i] = Math.atan2(b.x - a.x, b.z - a.z); }
     const length = cum[n];
     // How sharply the road bends over the next stretch: drives the slow-down into turns.
     const bend = new Float32Array(n);
-    for (let i = 0; i < n; i++) { let j = i, d = 0, turn = 0; while (d < .9 && j < i + n) { const a = j % n, b = (j + 1) % n; turn = Math.max(turn, Math.abs(wrapAngle(head[b] - head[i]))); d += cum[a + 1] - cum[a]; j++; } bend[i] = turn; }
-    loops.push({ line, pts, cum, head, bend, length, n, stops: [] });
+    // Compute the same look-ahead maximum in linear time. Unwrap headings once
+    // and maintain min/max queues instead of recalculating each overlapping window.
+    const angles=new Float64Array(n*2+1),distances=new Float64Array(n*2+1);
+    angles[0]=head[0];
+    for(let k=1;k<=n*2;k++){
+      angles[k]=angles[k-1]+wrapAngle(head[k%n]-head[(k-1)%n]);
+      distances[k]=distances[k-1]+cum[(k-1)%n+1]-cum[(k-1)%n];
+    }
+    const low=[],high=[];let lo=0,hi=0,end=0;
+    for(let i=0;i<n;i++){
+      while(end<i+n && distances[end]-distances[i]<.9){
+        const k=++end;
+        while(low.length>lo&&angles[low[low.length-1]]>=angles[k])low.pop();
+        while(high.length>hi&&angles[high[high.length-1]]<=angles[k])high.pop();
+        low.push(k);high.push(k);
+      }
+      while(low[lo]<=i)lo++;
+      while(high[hi]<=i)hi++;
+      bend[i]=Math.max(Math.abs(angles[low[lo]]-angles[i]),Math.abs(angles[high[hi]]-angles[i]));
+      // Very tight U-turns can wrap past pi; retain the original wrapped metric.
+      if(bend[i]>Math.PI){let turn=0;for(let k=i+1;k<=end;k++)turn=Math.max(turn,Math.abs(wrapAngle(head[k%n]-head[i])));bend[i]=turn;}
+    }
+    return { line, pts, cum, head, bend, length, n, stops: [] };
+  }
+  let routeSliceStart=performance.now();
+  for(const line of fabric.trafficLines){
+    if(line.points.length>1)loops.push(makeTrafficLoop(line));
+    if(performance.now()-routeSliceStart>16){await new Promise(resolve=>setTimeout(resolve,0));routeSliceStart=performance.now();}
   }
   const indexAt = (loop, s) => { let lo = 0, hi = loop.n - 1; while (lo < hi) { const mid = (lo + hi + 1) >> 1; if (loop.cum[mid] <= s) lo = mid; else hi = mid - 1; } return lo; };
 
@@ -401,7 +446,7 @@ export function initCity(host, options = {}) {
       return u > 0 && u < 1 && v > 0 && v < 1 ? [p1[0] + u * (p2[0] - p1[0]), p1[1] + u * (p2[1] - p1[1]), Math.atan2(p2[0] - p1[0], p2[1] - p1[1]), Math.atan2(p4[0] - p3[0], p4[1] - p3[1])] : null;
     };
     for (let a = 0; a < loops.length; a++) for (let b = a + 1; b < loops.length; b++) {
-      if (loops[a].line.cls === 0 || loops[b].line.cls === 0) continue;
+      if (!loops[a].line.signalEligible || !loops[b].line.signalEligible || loops[a].line.cls === 0 || loops[b].line.cls === 0) continue;
       const A = segs[a], B = segs[b];
       for (let i = 1; i < A.length; i++) for (let j = 1; j < B.length; j++) {
         const hit = cross(A[i - 1], A[i], B[j - 1], B[j]);
@@ -473,22 +518,103 @@ export function initCity(host, options = {}) {
   const totalLoopLength = loops.reduce((sum, loop) => sum + loop.length, 0) || 1;
   const cars = [];
   loops.forEach((loop, li) => {
-    const count = Math.max(1, Math.round(carCount * loop.length / totalLoopLength));
+    const count = Math.min(loop.line.carQuota,Math.max(1,Math.floor(loop.length/.8)));
     for (let i = 0; i < count && cars.length < carCount; i++) cars.push({ loop, s: (i + seededRandom(li * 13 + i) * .5) / count * loop.length, v: 1.2, vmax: 1.9 + seededRandom(i * 3 + li) * .7, brake: 0, scale: .42 });
   });
-  while (cars.length < carCount && loops.length) { const loop = loops[cars.length % loops.length]; cars.push({ loop, s: seededRandom(cars.length) * loop.length, v: 1, vmax: 2, brake: 0, scale: .42 }); }
+
+  const spacious=loops.filter(loop=>loop.length>30);let overflow=0;
+  while(cars.length<carCount&&spacious.length){const loop=spacious[overflow%spacious.length];cars.push({loop,s:seededRandom(overflow*19+7)*loop.length,v:0,vmax:1,brake:0,scale:.22});overflow++;}
+  const journeys=buildTrafficJourneys(fabric.trafficLines).map(makeTrafficLoop);
+  // Keep the local traffic on every street; branded cars travel connected city circuits.
+  for(const loop of loops){const local=cars.filter(car=>car.loop===loop);const phase=seededRandom(loops.indexOf(loop)+51);local.forEach((car,i)=>{car.s=((i+.3)/local.length+phase)%1*loop.length;});}
+  const homeCounts=new Map();
+  const journeyLoads=new Map();
+  // Read the published price cards, keeping pins and the pricing section in sync.
+  const fleetPrices=new Map(Array.from(document.querySelectorAll('.plan')).map(plan=>[
+    plan.querySelector('.plan-name')?.textContent.trim(),plan.querySelector('.plan-desc')?.textContent.trim()
+  ]));
   const modelSlot = MODELS.map(() => 0);
   cars.forEach((car, i) => {
     const k = carModels[i % carModels.length], model = MODELS[k];
     car.model = model; car.slot = modelSlot[k]++;
-    const paint = new THREE.Color(model.paints[Math.floor(seededRandom(i * 4.7 + 1) * model.paints.length)]);
-    model.bodyMesh.setColorAt(car.slot, paint); carRoof.setColorAt(i, paint); carWing.setColorAt(i, paint);
+    car.trafficId=i;car.homeLoop=car.loop;
+    const homeIndex=homeCounts.get(car.loop)||0;homeCounts.set(car.loop,homeIndex+1);
+    car.isDrigo = homeIndex>0 && i % 5 === 0;
+    if(car.isDrigo&&journeys.length){
+      const start=car.loop.pts[indexAt(car.loop,car.s)];let best=null,bestIndex=0,bestScore=Infinity;
+      for(const route of journeys){
+        const load=journeyLoads.get(route)||0;
+        for(let k=0;k<route.n;k+=12){const d=start.distanceToSquared(route.pts[k]),score=d*.08+Math.pow(load/Math.max(1,route.length)*100,2);
+          if(score<bestScore){bestScore=score;best=route;bestIndex=k;}}
+      }
+      car.loop=best;car.s=best.cum[bestIndex];journeyLoads.set(best,(journeyLoads.get(best)||0)+1);
+    }
+    car.distanceTravelled=0;
+    car.drigoName = ["Geely Emgrand", "Geely GX3 Pro", "Geely Coolray", "GAC GS3 Emzoom"][Math.floor(i / 4) % 4];
+    car.scale=.22;
+    car.vmax=.72+seededRandom(i)*.32;
+    car.v=0;
+
+    const paint = new THREE.Color(car.isDrigo ? "#f5f1ff" : model.paints[Math.floor(seededRandom(i * 4.7 + 1) * model.paints.length)]);
+    car.paint=paint.clone();car.trimColor=new THREE.Color(model.trim||'#000000');
+    model.bodyMesh.setColorAt(car.slot, paint); carRoof.setColorAt(i, car.isDrigo ? new THREE.Color("#713dff") : paint); carWing.setColorAt(i, paint);
     const trim = new THREE.Color(model.trim || '#000000'); carTrim.setColorAt(i * 2, trim); carTrim.setColorAt(i * 2 + 1, trim);
   });
+  for(const route of journeys){
+    const fleet=cars.filter(car=>car.loop===route).sort((a,b)=>a.s-b.s);
+    const phase=seededRandom(journeys.indexOf(route)*17.31+2);
+    fleet.forEach((car,i)=>{car.s=((i/fleet.length+phase)%1)*route.length;});
+    // Signals apply to city journeys as well as local traffic.
+    for(const sig of signals)for(let k=0;k<route.n;k++){
+      const p=route.pts[k];if(Math.hypot(p.x-sig.x,p.z-sig.z)>.2)continue;
+      const heading=route.head[k],a=Math.abs(Math.sin(heading-sig.ha)),b=Math.abs(Math.sin(heading-sig.hb));
+      const stopS=(route.cum[k]-.35+route.length)%route.length;
+      if(!route.stops.some(stop=>stop.sig===sig&&Math.min(Math.abs(stop.s-stopS),route.length-Math.abs(stop.s-stopS))<1.5))route.stops.push({s:stopS,sig,which:a<b?'a':'b'});k+=5;
+    }
+  }
+  // Small, depth-tested Drigo markers travel with nearby cars, never through buildings.
+  const rooftopCarBadges=[];
+  const badgeTextures=[];
+  const roofSite=fabric.roundedTowers.find(roof=>roof.featured);
+  if(roofSite){
+    const candidates=cars.filter(car=>car.isDrigo&&car.loop.line.nearRooftop).map(car=>{
+      const point=car.loop.pts[indexAt(car.loop,car.s)];
+      return {car,distance:Math.hypot(point.x-roofSite.x,point.z-roofSite.z)};
+    }).sort((a,b)=>a.distance-b.distance).filter((_,index)=>index%8===0);
+    const labels=new Map();
+    for(const {car} of candidates){
+      if(!labels.has(car.drigoName)){
+        const canvas=document.createElement('canvas');canvas.width=384;canvas.height=208;
+        const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;
+        const material=m(new THREE.SpriteMaterial({map:texture,depthTest:true,depthWrite:false,toneMapped:false}));
+        labels.set(car.drigoName,{canvas,texture,material,name:car.drigoName,price:fleetPrices.get(car.drigoName)||''});badgeTextures.push(texture);
+      }
+      const badge=new THREE.Sprite(labels.get(car.drigoName).material);badge.scale.set(.72,.39,1);badge.visible=false;world.add(badge);rooftopCarBadges.push({car,badge});
+    }
+    function paintBadges(){
+      for(const {canvas,texture,name,price} of labels.values()){
+        const ctx=canvas.getContext('2d');ctx.clearRect(0,0,384,208);ctx.fillStyle='#ffffff';ctx.beginPath();ctx.roundRect(2,2,380,188,24);ctx.fill();
+        ctx.beginPath();ctx.moveTo(180,188);ctx.lineTo(192,207);ctx.lineTo(204,188);ctx.fill();
+        ctx.fillStyle='#5424ff';ctx.beginPath();ctx.roundRect(24,18,142,53,15);ctx.fill();
+        if(drigoLogoTexture.image?.complete)ctx.drawImage(drigoLogoTexture.image,42,22,106,43);
+        else {ctx.fillStyle='#fff';ctx.font='bold 40px sans-serif';ctx.textAlign='left';ctx.fillText('drigo',42,58);}
+        ctx.fillStyle='#6c687d';ctx.textAlign='left';ctx.font='500 25px sans-serif';ctx.fillText(name,24,111,336);ctx.fillStyle='#171120';ctx.font='700 28px sans-serif';ctx.fillText(price,24,155,336);texture.needsUpdate=true;
+      }
+    }
+    paintBadges();drigoLogoTexture.image?.addEventListener('load',paintBadges,{once:true});
+  }
   let trafficClock = null;
   function stepTraffic(time) {
     const dt = trafficClock === null ? 0 : Math.min(.1, Math.max(0, time - trafficClock)); trafficClock = time;
     if (!dt) return;
+    // Shared lane occupancy prevents different journeys from driving through each other.
+    const occupancy=new Map();
+    for(const car of cars){
+      const loop=car.loop,k=indexAt(loop,car.s),p=loop.pts[k],q=loop.pts[(k+1)%loop.n],f=(car.s-loop.cum[k])/Math.max(.00001,loop.cum[k+1]-loop.cum[k]);
+      car.trafficX=p.x+(q.x-p.x)*f;car.trafficZ=p.z+(q.z-p.z)*f;car.trafficHeading=loop.head[k];
+      const key=Math.floor(car.trafficX/2)+','+Math.floor(car.trafficZ/2);
+      if(!occupancy.has(key))occupancy.set(key,[]);occupancy.get(key).push(car);
+    }
     const byLoop = new Map();
     for (const car of cars) (byLoop.get(car.loop) || byLoop.set(car.loop, []).get(car.loop)).push(car);
     for (const [loop, list] of byLoop) {
@@ -500,7 +626,16 @@ export function initCity(host, options = {}) {
         const i = indexAt(loop, car.s);
         // Slow into bends and U-turns, keep a safe distance, stop at red and amber lights.
         let target = car.vmax / (1 + loop.bend[i] * 2.4);
-        target = Math.min(target, car.vmax * Math.max(0, (gap - .5) / 1.6));
+        // Vehicle-sized clearance plus time headway; anticipate a slower leader.
+        const clearance=car.scale*1.35,headway=.2+car.v*1.4;
+        target=Math.min(target,car.vmax*Math.max(0,(gap-clearance)/headway));
+        if(leader&&gap<headway+clearance)target=Math.min(target,Math.max(0,leader.v+(gap-clearance)*.45));
+        const dx=Math.sin(car.trafficHeading),dz=Math.cos(car.trafficHeading),cx=Math.floor(car.trafficX/2),cz=Math.floor(car.trafficZ/2);
+        for(let x=cx-1;x<=cx+1;x++)for(let z=cz-1;z<=cz+1;z++)for(const other of occupancy.get(x+','+z)||[]){
+          if(other===car||other.loop===loop||Math.cos(other.trafficHeading-car.trafficHeading)<.8)continue;
+          const ox=other.trafficX-car.trafficX,oz=other.trafficZ-car.trafficZ,ahead=ox*dx+oz*dz,lateral=Math.abs(ox*dz-oz*dx);
+          if(ahead>.01&&ahead<2&&lateral<.065)target=Math.min(target,car.vmax*Math.max(0,(ahead-clearance)/headway));
+        }
         for (const stop of loop.stops) {
           const d = ((stop.s - car.s) % loop.length + loop.length) % loop.length;
           if (d > 3.2) continue;
@@ -509,9 +644,10 @@ export function initCity(host, options = {}) {
         }
         car.pull = Math.max(0, Math.min(1, (car.pull || 0) + (car.hold && car.v < .4 ? dt * 1.5 : car.hold ? 0 : -dt)));
         if (car.hold) target = 0;
-        const accel = target > car.v ? .9 : 3.2;
+        const accel = target > car.v ? .35 : .9;
         car.v += Math.max(-accel * dt, Math.min(accel * dt, target - car.v));
         car.brake = car.v > target + .05 || target < .2 ? 1 : Math.max(0, car.brake - dt * 2);
+        car.distanceTravelled+=car.v*dt;
         car.s = (car.s + car.v * dt) % loop.length;
       });
     }
@@ -527,122 +663,84 @@ export function initCity(host, options = {}) {
     resultMatrix.multiplyMatrices(carMatrix, localMatrix);
     node.setMatrixAt(index, resultMatrix);
   }
+  const steeringFront=new THREE.Vector3(),steeringBack=new THREE.Vector3();
+  function sampleLane(loop,distance,target){
+    const s=(distance%loop.length+loop.length)%loop.length,k=indexAt(loop,s);
+    return target.lerpVectors(loop.pts[k],loop.pts[(k+1)%loop.n],(s-loop.cum[k])/Math.max(.000001,loop.cum[k+1]-loop.cum[k]));
+  }
+  const renderProbe=new THREE.Vector3(),drigoPaint=new THREE.Color("#713dff");
   function updateCars(time) {
     stepTraffic(time); updateSignals(time);
-    cars.forEach((car, i) => {
+    MODELS.forEach(model=>model.renderCount=0);
+    let visibleCars=0;
+    const viewCamera=rooftopActive&&terrace?rooftopCamera:camera;
+    viewCamera.updateMatrixWorld();
+    cars.forEach((car) => {
       const loop = car.loop, k = indexAt(loop, car.s), k2 = (k + 1) % loop.n, f = (car.s - loop.cum[k]) / Math.max(1e-6, loop.cum[k + 1] - loop.cum[k]);
       carPosition.lerpVectors(loop.pts[k], loop.pts[k2], f); carPosition.y += 0.02;
       if (car.pull) { const hh = loop.head[k]; carPosition.x -= Math.cos(hh) * car.pull * .2; carPosition.z += Math.sin(hh) * car.pull * .2; }
-      // Heading eases between samples, so a car swings round a corner instead of snapping.
-      const h0 = loop.head[(k - 1 + loop.n) % loop.n], h1 = loop.head[k];
-      carQuaternion.setFromAxisAngle(up, h0 + wrapAngle(h1 - h0) * Math.min(1, .5 + f));
+      renderProbe.copy(carPosition).project(viewCamera);
+      // A padded frustum prevents popping at screen edges during camera motion.
+      if(Math.abs(renderProbe.x)>1.3||Math.abs(renderProbe.y)>1.3||renderProbe.z< -1||renderProbe.z>1)return;
+      const i=visibleCars++;
+      car.slot=car.model.renderCount++;
+      car.model.bodyMesh.setColorAt(car.slot,car.paint);
+      carRoof.setColorAt(i,car.isDrigo?drigoPaint:car.paint);
+      carWing.setColorAt(i,car.paint);
+      carTrim.setColorAt(i*2,car.trimColor);carTrim.setColorAt(i*2+1,car.trimColor);
+      // Aim along the actual wheelbase, continuously across sample boundaries.
+      // Unlike heading interpolation this cannot snap half-way through a segment.
+      sampleLane(loop,car.s+car.scale*.32,steeringFront);
+      sampleLane(loop,car.s-car.scale*.32,steeringBack);
+      const heading=Math.atan2(steeringFront.x-steeringBack.x,steeringFront.z-steeringBack.z);
+      carQuaternion.setFromAxisAngle(up,heading);
       carMatrix.compose(carPosition, carQuaternion, identityScale.setScalar(car.scale));
       const M = car.model, hidden = .0001;
+      // Brake lamps respond to actual slowing/stopping, never an unrelated timer.
+      const rearLevel=.45+car.brake*.55;
+      for(const index of [i*2,i*2+1]){const timing=taillights.geometry.attributes.aLightTiming;timing.setZ(index,rearLevel);timing.setW(index,5);}
+      taillightPools.geometry.attributes.aLightTiming.setZ(i,rearLevel);
+      taillightPools.geometry.attributes.aLightTiming.setW(i,5);
       carPart(M.bodyMesh, car.slot, 0, 0.02, 0);
       carPart(M.cabinMesh, car.slot, 0, 0.02, 0);
       carPart(carRoof, i, 0, M.roof[0], M.roof[1], M.roof[2], 0.012, M.roof[3]);
+      const logoWidth = Math.min(M.roof[2] * .9, M.roof[3] * 2.45 * .9);
+      carPart(drigoRoofLogos, i, 0, M.roof[0] + .009, M.roof[1], car.isDrigo ? logoWidth : hidden, 1, car.isDrigo ? logoWidth / 2.45 : hidden);
       if (M.wing) carPart(carWing, i, 0, M.wing[0], M.wing[1], M.wing[2], 0.014, M.wing[3]); else carPart(carWing, i, 0, 0, 0, hidden, hidden, hidden);
       const ws = M.wheel / .088;
       for (let j = 0; j < 4; j++) carPart(carWheels, i * 4 + j, j % 2 ? M.track : -M.track, M.wheel, j < 2 ? -M.axle : M.axle, ws, ws, ws);
       for (let j = 0; j < 2; j++) {
         const sx = j ? 1 : -1;
-        carPart(headlights, i * 2 + j, sx * (M.width / 2 - M.head[2] / 2 - .02), M.head[0], M.head[1], M.head[2], M.head[3], 0.02);
-        carPart(taillights, i * 2 + j, sx * (M.width / 2 - M.tail[2] / 2 - .02), M.tail[0], M.tail[1], M.tail[2], M.tail[3], 0.02);
+        carPart(headlights, i * 2 + j, sx * (M.width / 2 - M.head[2] / 2 - .02), M.head[0]+.015, M.head[1]+.012, M.head[2]*1.25, Math.max(.035,M.head[3]), 0.035);
+        carPart(taillights, i * 2 + j, sx * (M.width / 2 - M.tail[2] / 2 - .02), M.tail[0]+.015, M.tail[1]-.012, M.tail[2]*1.25, Math.max(.035,M.tail[3]), 0.035);
         // Grilles: twin kidneys on the BMW, a wide black grille on the G-Wagon and Range Rover, a tall chrome one on the Rolls.
         if (!M.trim) carPart(carTrim, i * 2 + j, 0, 0, 0, hidden, hidden, hidden);
         else if (M.key === 'bmw') carPart(carTrim, i * 2 + j, sx * .035, .095, M.body[1][0] + .005, .05, .04, .02);
         else if (M.key === 'rolls') carPart(carTrim, i * 2 + j, sx * .03, .115, M.body[1][0] + .005, .06, .07, .02);
         else carPart(carTrim, i * 2 + j, sx * .06, M.head[0], M.head[1] + .003, .12, .05, .02);
       }
-      carPart(headlightPools,i,0,.005,1.12,.43,1,1.04);
+      carPart(headlightPools,i,0,.008,1.0,.65,1,1.3);
       carPart(taillightPools,i,0,.004,-.62-car.brake*.12,.28+car.brake*.16,1,.37+car.brake*.3);
     });
+    MODELS.forEach(model=>{
+      model.bodyMesh.count=model.cabinMesh.count=model.renderCount;
+      model.bodyMesh.instanceColor.needsUpdate=true;
+    });
+    for(const node of [carRoof,carWing,drigoRoofLogos,headlightPools,taillightPools])node.count=visibleCars;
+    for(const node of [carTrim,headlights,taillights])node.count=visibleCars*2;
+    carWheels.count=visibleCars*4;
+    for(const node of [carRoof,carWing,carTrim])node.instanceColor.needsUpdate=true;
+    taillights.geometry.attributes.aLightTiming.needsUpdate=true;
+    taillightPools.geometry.attributes.aLightTiming.needsUpdate=true;
     carMeshes.forEach(node => { node.instanceMatrix.needsUpdate = true; });
   }
 
 
-  // ---- People: walkers on the kerb strips, a crowd strolling round the Burj plaza, and the JBR / Jumeirah beach walks.
-  const free=(x,z)=>fabric.isLand(x,z)&&!(fabric.insideBuilding&&fabric.insideBuilding(x,z));
-  const walkers=[];
-  // Sidewalk walkers pace a short stretch of pavement back and forth.
-  (fabric.sidewalks||[]).forEach((walk,routeIndex)=>{
-    const length=walk.curve.getLength(),count=Math.min(40,Math.floor(length/.75));
-    for(let i=0;i<count;i++){
-      const t=(i+.5+seededRandom(routeIndex*31+i)*.4)/count,p=walk.curve.getPointAt(Math.min(.999,t)),d=walk.curve.getTangentAt(Math.min(.999,t));
-      const span=.5+seededRandom(i*7+routeIndex)*.5,first=(i+routeIndex)%2?1:-1;
-      // Try one kerb, then the other: a person walks only where no other road or building is in the way.
-      for(const side of[first,-first]){
-        const x=p.x-d.z*walk.offset*side,z=p.z+d.x*walk.offset*side;
-        const ok=[-1,0,1].every(k=>{const px=x+d.x*span*k,pz=z+d.z*span*k;return free(px,pz)&&(!fabric.clearOfRoads||fabric.clearOfRoads(px,pz,0,walk.entry));});
-        if(ok){walkers.push({kind:'line',x,z,dx:d.x,dz:d.z,span,speed:.32+seededRandom(i+routeIndex)*.2,phase:seededRandom(i*13+routeIndex)*6.28});break;}
-      }
-    }
-  });
-  // The Burj Khalifa plaza: people stroll a slow loop between the podium and the plaza edge.
-  if(fabric.burjPlaza){
-    const[bx,bz,rx,rz]=fabric.burjPlaza;
-    for(let i=0;i<64;i++){const r=.88+seededRandom(i*5)*.14;walkers.push({kind:'ring',x:bx,z:bz,rx:rx*r,rz:rz*r,speed:(.035+seededRandom(i)*.03)*(i%3?1:-1),phase:i/64*6.283+seededRandom(i*9)*.12});}
-  }
-  // Beach walks follow the real shoreline, a step inland.
-  (fabric.beachWalks||[]).forEach((walk,w)=>{
-    const points=walk.map(([x,z])=>new THREE.Vector3(x,.03,z));if(points.length<2)return;
-    const path=new THREE.CatmullRomCurve3(points,false,'centripetal'),length=path.getLength(),count=Math.min(44,Math.floor(length/.5));
-    for(let i=0;i<count;i++){
-      const u=(i+.5)/count,p=path.getPointAt(u),d=path.getTangentAt(u);
-      for(const s of[.18,-.18]){const x=p.x-d.z*s,z=p.z+d.x*s;if(free(x,z)){walkers.push({kind:'line',x,z,dx:d.x,dz:d.z,span:.7+seededRandom(i+w*17)*.6,speed:.22+seededRandom(i*3+w)*.14,phase:seededRandom(i*7+w)*6.28});break;}}
-    }
-  });
-  // People waiting at the traffic-light corners, shifting their weight while the cars pass.
-  signals.forEach((sig,si)=>{
-    for(let k=0;k<4;k++){
-      const a=sig.ha+Math.PI/4+k*Math.PI/2,r=Math.max(loops[sig.a].line.half,loops[sig.b].line.half)+.2;
-      for(let n=0;n<2;n++){
-        const x=sig.x+Math.sin(a)*(r+n*.09),z=sig.z+Math.cos(a)*(r+n*.09)+n*.07;
-        if(free(x,z)&&(!fabric.clearOfRoads||fabric.clearOfRoads(x,z,-.02))&&seededRandom(si*11+k*3+n)>.35)walkers.push({kind:'idle',x,z,heading:a+Math.PI,phase:seededRandom(si+k+n)*6.28});
-      }
-    }
-  });
-  const peopleCount=walkers.length;
-  // Human figures: head, torso, two arms and two legs. Limbs swing from hip and shoulder as people walk.
-  const P=Math.max(1,peopleCount);
-  const torsoGeo=g(new THREE.CapsuleGeometry(.03,.075,4,10)),headGeo=g(new THREE.SphereGeometry(.023,12,10)),hairGeo=g(new THREE.SphereGeometry(.0245,12,8,0,Math.PI*2,0,Math.PI*.55));
-  const legGeo=g(new THREE.CapsuleGeometry(.0125,.085,3,8));legGeo.translate(0,-.055,0);
-  const armGeo=g(new THREE.CapsuleGeometry(.009,.07,3,8));armGeo.translate(0,-.045,0);
-  const clothes=standard('#ffffff',{roughness:.65}),skin=standard('#d9b08c',{roughness:.7}),trousers=standard('#ffffff',{roughness:.75}),hair=standard('#2a2420',{roughness:.8});
-  const mk=(geo,material)=>{const node=new THREE.InstancedMesh(geo,material,P);node.count=peopleCount;node.castShadow=true;node.frustumCulled=false;node.instanceMatrix.setUsage(THREE.DynamicDrawUsage);world.add(node);return node;};
-  const torsos=mk(torsoGeo,clothes),headsP=mk(headGeo,skin),hairs=mk(hairGeo,hair),legL=mk(legGeo,trousers),legR=mk(legGeo,trousers),armL=mk(armGeo,clothes),armR=mk(armGeo,clothes);
-  const tops=['#f7f7f7','#1d1f27','#f2efe8','#3d62c9','#c94f4f','#e0b24a','#5aa575','#ffffff','#25262e','#8a5cf0','#d9d4c7','#2f6f8f'];
-  const bottoms=['#2a2d36','#3b4252','#d8d2c4','#1d1f27','#5b6378','#f2efe8'];
-  const skins=['#e6c2a0','#c99a73','#a8774f','#7a5236','#f0d2b6'];
-  for(const node of[torsos,armL,armR,legL,legR,headsP])node.instanceColor=new THREE.InstancedBufferAttribute(new Float32Array(P*3),3);
-  walkers.forEach((w,i)=>{
-    // Long robes (kandura, abaya) are common here: a share of figures wear one colour head to toe.
-    const robe=seededRandom(i*5.1)>.72,top=new THREE.Color(robe?(seededRandom(i*2.2)>.5?'#f8f8f6':'#16171d'):tops[Math.floor(seededRandom(i*3.3)*tops.length)]);
-    const bottom=robe?top:new THREE.Color(bottoms[Math.floor(seededRandom(i*4.7)*bottoms.length)]),tone=new THREE.Color(skins[Math.floor(seededRandom(i*6.1)*skins.length)]);
-    torsos.setColorAt(i,top);armL.setColorAt(i,top);armR.setColorAt(i,top);legL.setColorAt(i,bottom);legR.setColorAt(i,bottom);headsP.setColorAt(i,tone);
-    w.robe=robe;
-  });
-  const personMatrix=new THREE.Matrix4(),limbMatrix=new THREE.Matrix4(),outMatrix=new THREE.Matrix4(),personPos=new THREE.Vector3(),personQuat=new THREE.Quaternion(),personScale=new THREE.Vector3(1,1,1);
-  const limbPos=new THREE.Vector3(),limbQuat=new THREE.Quaternion(),limbScale=new THREE.Vector3(1,1,1),xAxis=new THREE.Vector3(1,0,0);
-  const limb=(node,i,x,y,z,swing,sx=1,sy=1,sz=1)=>{limbPos.set(x,y,z);limbQuat.setFromAxisAngle(xAxis,swing);limbScale.set(sx,sy,sz);limbMatrix.compose(limbPos,limbQuat,limbScale);outMatrix.multiplyMatrices(personMatrix,limbMatrix);node.setMatrixAt(i,outMatrix);};
-  function updatePeople(time){
-    walkers.forEach((w,i)=>{
-      let x,z,heading,moving=true;
-      if(w.kind==='idle'){x=w.x+Math.sin(time*.6+w.phase)*.006;z=w.z;heading=w.heading+Math.sin(time*.3+w.phase)*.35;moving=false;}
-      else if(w.kind==='ring'){const a=w.phase+time*w.speed;x=w.x+Math.sin(a)*w.rx;z=w.z+Math.cos(a)*w.rz;heading=a+(w.speed>0?Math.PI/2:-Math.PI/2);}
-      else{const s=Math.sin(w.phase+time*w.speed),c=Math.cos(w.phase+time*w.speed);x=w.x+w.dx*w.span*s;z=w.z+w.dz*w.span*s;heading=Math.atan2(w.dx,w.dz)+(c>0?0:Math.PI);moving=Math.abs(c)>.12;}
-      const stride=moving?Math.sin(time*7.5+w.phase*3):0,swing=stride*(w.robe?.18:.42),bob=moving?Math.abs(stride)*.006:0;
-      personQuat.setFromAxisAngle(up,heading);personPos.set(x,.04+bob,z);personMatrix.compose(personPos,personQuat,personScale);
-      limb(torsos,i,0,.2,0,0,1,w.robe?1.35:1,.82);
-      limb(headsP,i,0,.3,0,0);
-      limb(hairs,i,0,.304,-.002,0);
-      limb(legL,i,-.016,.15,0,swing,w.robe?1.6:1);
-      limb(legR,i,.016,.15,0,-swing,w.robe?1.6:1);
-      limb(armL,i,-.037,.245,0,-swing*.9);
-      limb(armR,i,.037,.245,0,swing*.9);
-    });
-    for(const node of[torsos,headsP,hairs,legL,legR,armL,armR])node.instanceMatrix.needsUpdate=true;
-  }
+  // ---- People: proportioned pedestrians in everyday and local dress who walk, jog, sit on
+  // benches, chat and stroll with their kids; busiest round the Marina rooftop (city-people.js).
+  const crowd=createCityPeople({THREE,world,g,m,fabric,signals,loops,lightNight});
+  const peopleCount=crowd.count;
+  function updatePeople(time){crowd.update(time);}
 
   // ---- Boats: yachts and abras loop through open water, each trailing a pale wake.
   const boatLoops=[];
@@ -721,7 +819,8 @@ export function initCity(host, options = {}) {
   }
 
   let disposed = false, paused = false, inView = true, raf = 0, lastTime = 0, elapsed = 0;
-  let width = 1, height = 1, mobile = false, destination = 0, progress = 0, ready = false;
+  let width = 1, height = 1, mobile = false, destination = 0, progress = 0, ready = false, initialized = false;
+  let lastBufferWidth=0,lastBufferHeight=0,lastPixelRatio=0;
   let safeTop=330,safeBottom=135,safeLeft=0,landmarkProjectedBounds=null;
   const dayMaterialState=new Map([...materials].map(material=>[material,{color:material.color?.clone(),emissive:material.emissive?.clone(),emissiveIntensity:material.emissiveIntensity}]));
   let theme = 'night', focused = false, dragging = null, lastViewSignature = '';
@@ -733,7 +832,8 @@ export function initCity(host, options = {}) {
   host.style.userSelect = 'none';
   const overview = fabric.views.overview;
   const destinations = fabric.views.destinations;
-  const cameraState = { yaw: overview.yaw, pitch: overview.pitch, zoom: overview.zoom, targetX: overview.focus[0], targetY: overview.focus[1], targetZ: overview.focus[2], framing: 0 };
+  let rooftopActive = false, rooftopSaved = null;
+  const cameraState = { distance: 100, yaw: overview.yaw, pitch: overview.pitch, zoom: overview.zoom, targetX: overview.focus[0], targetY: overview.focus[1], targetZ: overview.focus[2], framing: 0 };
   const targetState = { ...cameraState };
   const projected = new THREE.Vector3(), cameraTarget = new THREE.Vector3();
   // Page-driven camera offsets: a scroll orbit and a small lean toward the pointer, eased on top of the user's view.
@@ -777,10 +877,10 @@ export function initCity(host, options = {}) {
     for (const key of Object.keys(cameraState)) cameraState[key] += (targetState[key] - cameraState[key]) * ease;
     const driftEase = immediate || reducedMotion ? 1 : 1 - Math.exp(-delta * 3.2);
     for (const key of Object.keys(drift)) drift[key] += (driftTarget[key] - drift[key]) * driftEase;
-    const yaw = cameraState.yaw + drift.orbit * 0.62 + drift.leanX * 0.05;
-    const pitch = THREE.MathUtils.clamp(cameraState.pitch + drift.orbit * 0.16 + drift.leanY * 0.025, limits.minPitch, limits.maxPitch + 0.12);
+    const yaw = cameraState.yaw + (rooftopActive ? 0 : drift.orbit * 0.62 + drift.leanX * 0.05);
+    const pitch = THREE.MathUtils.clamp(cameraState.pitch + (rooftopActive ? 0 : drift.orbit * 0.16 + drift.leanY * 0.025), limits.minPitch, limits.maxPitch + 0.12);
     cameraTarget.set(cameraState.targetX, cameraState.targetY, cameraState.targetZ);
-    camera.position.set(cameraTarget.x + Math.sin(yaw) * 100, cameraTarget.y + Math.tan(pitch) * 100, cameraTarget.z + Math.cos(yaw) * 100);
+    camera.position.set(cameraTarget.x + Math.sin(yaw) * cameraState.distance, cameraTarget.y + Math.tan(pitch) * cameraState.distance, cameraTarget.z + Math.cos(yaw) * cameraState.distance);
     camera.lookAt(cameraTarget);
     const aspect = width / height;
     camera.updateMatrixWorld();
@@ -798,8 +898,8 @@ export function initCity(host, options = {}) {
     const span=referenceWidth/aspect;
     const mix=cameraState.framing;
     // A left safe band (hero copy) pushes the focus into the free right part of the frame.
-    const centerX=(left+right)/2*mix-(safeLeft/2)/width*(referenceWidth/cameraState.zoom);
-    const safeOffset=(safeTop-safeBottom)/2/height*span/cameraState.zoom;
+    const centerX=(left+right)/2*mix-(rooftopActive ? 0 : safeLeft/2)/width*(referenceWidth/cameraState.zoom);
+    const safeOffset=rooftopActive ? 0 : (safeTop-safeBottom)/2/height*span/cameraState.zoom;
     const centerY=(top+bottom)/2*mix+safeOffset;
     camera.left = centerX-referenceWidth/2; camera.right = centerX+referenceWidth/2;
     camera.top = centerY+span/2; camera.bottom = centerY-span/2;
@@ -832,17 +932,64 @@ export function initCity(host, options = {}) {
     safeLeft=THREE.MathUtils.clamp(Number.isFinite(leftValue)?leftValue:0,0,width*.7);
     safeTop=THREE.MathUtils.clamp(Number.isFinite(topValue)?topValue:mobile?310:330,0,height*.55);
     safeBottom=THREE.MathUtils.clamp(Number.isFinite(bottomValue)?bottomValue:mobile?190:135,0,height*.35);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, mobile ? 1.25 : 1.5));
-    renderer.setSize(width, height, false);
+    const pixelRatio=Math.min(window.devicePixelRatio || 1,mobile?1.25:1.5);
+    // Do not clear/reallocate the WebGL drawing buffer for unchanged observer sizes.
+    if(width!==lastBufferWidth||height!==lastBufferHeight||pixelRatio!==lastPixelRatio){
+      renderer.setPixelRatio(pixelRatio);renderer.setSize(width,height,false);
+      lastBufferWidth=width;lastBufferHeight=height;lastPixelRatio=pixelRatio;
+    }
     composeTarget(); updateCamera(0, true);
     renderOnce();
   }
+  let terrace=null, roofEntry=null;
+  const rooftopCamera=new THREE.PerspectiveCamera(48,1,.04,360);
+  const roofOrtho=new THREE.OrthographicCamera(-1,1,1,-1,.04,360);
+  function renderCityView(){
+    if(!rooftopActive||!terrace){renderer.render(scene,camera);return;}
+    const scale=activeRoof.radius/8;
+    const endFocus=new THREE.Vector3(activeRoof.x,activeRoof.y+.008+1.1*scale,activeRoof.z-6.5*scale);
+    let focus=endFocus,yaw=cameraState.yaw,pitch=cameraState.pitch;
+    let distance=(mobile?15:10.7)*scale/cameraState.zoom;
+    let blend=1,viewHeight=2*distance/Math.cos(pitch)*Math.tan(THREE.MathUtils.degToRad(24));
+    if(roofEntry){
+      const p=THREE.MathUtils.clamp((performance.now()-roofEntry.start)/3000,0,1),ease=p*p*(3-2*p);
+      focus=roofEntry.focus.clone().lerp(endFocus,ease);
+      yaw=roofEntry.yaw;pitch=roofEntry.pitch+(.3-roofEntry.pitch)*ease;
+      viewHeight=Math.exp(Math.log(roofEntry.height)*(1-ease)+Math.log(viewHeight)*ease);
+      distance=Math.exp(Math.log(roofEntry.distance)*(1-ease)+Math.log(distance)*ease);
+      blend=ease;if(p===1)roofEntry=null;
+    }
+    const eyeDistance=distance/Math.cos(pitch);
+    // Preserve depth precision for the closely stacked land, water and road surfaces.
+    // A millimetre-scale near plane caused those layers to fight at street distance.
+    rooftopCamera.near=Math.max(.04,eyeDistance-220);rooftopCamera.far=eyeDistance+260;
+    rooftopCamera.fov=THREE.MathUtils.radToDeg(2*Math.atan(viewHeight/(2*eyeDistance)));rooftopCamera.aspect=width/height;
+    rooftopCamera.position.set(focus.x+Math.sin(yaw)*distance,focus.y+Math.tan(pitch)*distance,focus.z+Math.cos(yaw)*distance);
+    rooftopCamera.lookAt(focus);rooftopCamera.updateProjectionMatrix();
+    if(blend<1){
+      // Morph projection at the existing camera position; never jump thousands of units
+      // away with a tiny lens (which broke depth precision and put the city in fog).
+      roofOrtho.left=-viewHeight*width/height/2;roofOrtho.right=-roofOrtho.left;
+      roofOrtho.top=viewHeight/2;roofOrtho.bottom=-roofOrtho.top;
+      roofOrtho.near=rooftopCamera.near;roofOrtho.far=rooftopCamera.far;roofOrtho.updateProjectionMatrix();
+      const ortho=roofOrtho.projectionMatrix.elements,projection=rooftopCamera.projectionMatrix.elements;
+      for(let i=0;i<16;i++)projection[i]=ortho[i]*(1-blend)+projection[i]/eyeDistance*blend;
+      rooftopCamera.projectionMatrixInverse.copy(rooftopCamera.projectionMatrix).invert();
+    }
+    rooftopCamera.updateMatrixWorld();
+    for(const {car,badge} of rooftopCarBadges){
+      const k=indexAt(car.loop,car.s),next=(k+1)%car.loop.n,f=(car.s-car.loop.cum[k])/Math.max(.0001,car.loop.cum[k+1]-car.loop.cum[k]);
+      badge.position.lerpVectors(car.loop.pts[k],car.loop.pts[next],f);badge.position.y=.43;projected.copy(badge.position).project(rooftopCamera);
+      badge.visible=!roofEntry&&badge.position.distanceTo(rooftopCamera.position)<24&&Math.abs(projected.x)<1.05&&Math.abs(projected.y)<.95&&projected.z>-1&&projected.z<1;
+    }
+    renderer.render(scene,rooftopCamera);
+  }
   function renderOnce() {
-    if (disposed) return;
-    if (reducedMotion || paused) fabric.setIntro(1);
+    if (disposed || !initialized) return;
+    fabric.setIntro(1);
     updateCars(elapsed); updatePulses(elapsed);
-    renderer.render(scene, camera);
-    if (!ready) { ready = true; options.onReady?.({ renderer }); }
+    renderCityView();
+
   }
   function frame(timestamp) {
     raf = 0;
@@ -853,15 +1000,14 @@ export function initCity(host, options = {}) {
     updateInteraction(delta);
     updateCamera(delta);
     if (!reducedMotion) {
-      // The city rises and its roads light up over the first two seconds.
-      fabric.setIntro(Math.min(1, elapsed / 1.9));
+      // Buildings are fully visible from the first frame.
       updateCars(elapsed); updatePulses(elapsed);
       rings.forEach((ring, i) => { const scale = focused && i === destination ? 1 + Math.sin(elapsed * 1.6) * 0.075 : 1; ring.scale.setScalar(scale); });
     }
-    renderer.render(scene, camera);
+    renderCityView();
     if (!reducedMotion) raf = requestAnimationFrame(frame);
   }
-  const shouldRun = () => !disposed && !paused && inView && !document.hidden;
+  const shouldRun = () => initialized && ready && !disposed && !paused && inView && !document.hidden;
   function wake() {
     if (shouldRun() && !raf) { lastTime = 0; raf = requestAnimationFrame(frame); }
     else if (!shouldRun() && raf) { cancelAnimationFrame(raf); raf = 0; lastTime = 0; }
@@ -881,12 +1027,14 @@ export function initCity(host, options = {}) {
     composeTarget(); interacted('rotate'); refreshView();
   }
   function zoomBy(delta) {
+    if(rooftopActive){const amount=Number(delta);if(!Number.isFinite(amount))return;targetState.zoom=THREE.MathUtils.clamp(targetState.zoom*(1+amount*.3),.7,1.6);refreshView();return;}
     const amount = Number(delta);
     if (!Number.isFinite(amount)) return;
     targetState.zoom = THREE.MathUtils.clamp(targetState.zoom + amount, limits.minZoom, limits.maxZoom);
     composeTarget(); interacted('zoom'); refreshView();
   }
   function resetView() {
+    closeRooftop();
     stopFollow(); release();
     focused = false;
     usePreset(overview);
@@ -907,17 +1055,17 @@ export function initCity(host, options = {}) {
       }
     }
     if(!day) {
-      const nightColors={land:'#162035',ivory:'#aebbd1',porcelain:'#bfcae0',stone:'#64738e',concrete:'#687a97',graphite:'#51637f',dark:'#233651',glass:'#182940',glassLight:'#38516f',window:'#172942',windowDark:'#112038',road:'#0b1221',localRoad:'#24324a',pavement:'#303e56',foundation:'#27344b',median:'#213b3a',chalk:'#9c9bad',greenery:'#263b3b',greeneryLight:'#3a5349',trunk:'#4b4855',tyre:'#101726'};
+      const nightColors={land:'#162035',ivory:'#aebbd1',porcelain:'#bfcae0',stone:'#64738e',concrete:'#687a97',graphite:'#51637f',dark:'#233651',glass:'#182940',glassLight:'#38516f',window:'#172942',windowDark:'#112038',road:'#0b1221',localRoad:'#24324a',pavement:'#303e56',foundation:'#27344b',median:'#213b3a',chalk:'#9c9bad',greenery:'#1f4a2e',greeneryLight:'#2d5c38',trunk:'#4b4855',tyre:'#101726'};
       for(const[name,color]of Object.entries(nightColors))mat[name].color.set(color);
       mat.window.emissive.set('#657793');mat.window.emissiveIntensity=.08;
       silverCar.color.set('#ffffff');silverCar.emissive.set('#1a2340');silverCar.emissiveIntensity=.25;trimMaterial.color.set('#ffffff');
       mat.violet.color.set('#bc575c');mat.violet.emissive.set('#db515a');mat.violet.emissiveIntensity=.8;
     }
     mat.warmLight.opacity=day?0:.94;mat.coolLight.opacity=day?0:.84;mat.lampLight.opacity=day?0:.96;mat.beacon.opacity=day?0:1;
-    lightNight.value=day?0:1;roadGlow.uniforms.uOpacity.value=day?0:.62;
-    beaconGlow.uniforms.uOpacity.value=day?0:.55;trailMaterial.uniforms.uOpacity.value=day?0:.55;waterGlint.uniforms.uOpacity.value=day?0:.42;
-    headlightGlow.uniforms.uOpacity.value=day?0:.6;signalGlows.forEach(node=>node.material.uniforms.uOpacity.value=day?0:.5);
-    taillightGlow.uniforms.uOpacity.value=day?0:.32;
+    lightNight.value=day?0:1;roadGlow.uniforms.uOpacity.value=day?0:.9;
+    beaconGlow.uniforms.uOpacity.value=day?0:.55;trailMaterial.uniforms.uOpacity.value=0;waterGlint.uniforms.uOpacity.value=day?0:.42;
+    headlightGlow.uniforms.uOpacity.value=day?0:.85;signalGlows.forEach(node=>node.material.uniforms.uOpacity.value=day?0:.5);
+    taillightGlow.uniforms.uOpacity.value=day?0:.7;
     mat.whiteGlow.color.set(day?'#f0eadf':'#fff4df');mat.carRed.color.set(day?'#aa3745':'#ff4d5b');
     ambient.color.set(day?'#ffffff':'#8194cc');ambient.groundColor.set(day?'#9b96af':'#081224');ambient.intensity=day?1.15:.6;
     key.color.set(day?'#fffdf8':'#bdcfff');key.intensity=day?3.2:1.9;
@@ -955,7 +1103,7 @@ export function initCity(host, options = {}) {
     if (event.cancelable) event.preventDefault();
     const dx = event.clientX - dragging.x, dy = event.clientY - dragging.y;
     targetState.yaw -= dx * (dragging.type === 'touch' ? 0.009 : 0.006);
-    if (dragging.type !== 'touch') targetState.pitch = THREE.MathUtils.clamp(targetState.pitch + dy * 0.0035, limits.minPitch, limits.maxPitch);
+    if (dragging.type !== 'touch') targetState.pitch = THREE.MathUtils.clamp(targetState.pitch + dy * 0.0035, rooftopActive ? .12 : limits.minPitch, rooftopActive ? .75 : limits.maxPitch);
     dragging.x = event.clientX; dragging.y = event.clientY;
     composeTarget(); refreshView(true);
   }
@@ -979,7 +1127,6 @@ export function initCity(host, options = {}) {
   const tagLayer = document.createElement('div'); tagLayer.className = 'city-tags'; tagLayer.setAttribute('aria-hidden', 'true'); host.appendChild(tagLayer);
   const hint = document.createElement('div'); hint.className = 'city-hint';
   hint.innerHTML = '<b>Tap the map</b> to find the closest car · <b>tap a car</b> to ride along · <b>tap the Burj</b>';
-  tagLayer.appendChild(hint);
   const makeTag = cls => { const el = document.createElement('div'); el.className = 'city-tag ' + cls; el.hidden = true; tagLayer.appendChild(el); return el; };
   const carTag = makeTag('is-car'), landmarkTag = makeTag('is-landmark'), toast = makeTag('is-toast');
   const projectTo = (v, out) => { projected.copy(v).project(camera); out.x = (projected.x + 1) / 2 * width; out.y = (1 - projected.y) / 2 * height; out.visible = projected.z > -1 && projected.z < 1; return out; };
@@ -989,8 +1136,21 @@ export function initCity(host, options = {}) {
     out.lerpVectors(loop.pts[k], loop.pts[k2], f); const h = loop.head[k];
     const pull = car.pull || 0; out.x -= Math.cos(h) * pull * .2; out.z += Math.sin(h) * pull * .2; out.y = .12; return out;
   };
+  // Mark a small visible sample of the illustrative Drigo fleet, following real traffic paths.
+  const drigoCars = cars.filter(car => car.isDrigo);
+  const fleetPins = Array.from({ length: 4 }, () => {
+    const el = makeTag('is-drigo');
+    el.innerHTML = "<img src=\"data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTgiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA5OCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGcgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwXzUwN18xNTY2KSI+CjxwYXRoIGQ9Ik0xNi40ODY2IDEyLjc1ODhWMEgyMS40MzgyVjIwLjcyNTZIMTYuNDI1N0MxNi40NDc0IDIwLjYyODggMTYuNDU2MSAyMC41MzE5IDE2LjQ1NjEgMjAuNDM1MUMxNi40NTYxIDIwLjM3NjEgMTYuNDY0OCAyMC4zMDg4IDE2LjQ4NjYgMjAuMjMzQzE2LjQ4NjYgMjAuMTk1MSAxNi40ODY2IDIwLjE2NTYgMTYuNDg2NiAyMC4xNDQ1QzE2LjQ4NjYgMjAuMDY4NyAxNi40ODY2IDIwLjAwMTQgMTYuNDg2NiAxOS45NDI0QzE2LjQ4NjYgMTkuODY2NiAxNi40ODY2IDE5Ljc5OTIgMTYuNDg2NiAxOS43NDAzQzE2LjQ4NjYgMTkuNzAyNCAxNi40ODY2IDE5LjY2NDUgMTYuNDg2NiAxOS42MjY2QzE2LjQ2NDggMTkuNTY3NiAxNi40NTYxIDE5LjUwMDMgMTYuNDU2MSAxOS40MjQ1QzE2LjQ1NjEgMTkuMzI3NiAxNi40NDc0IDE5LjIzMDggMTYuNDI1NyAxOS4xMzM5QzE2LjIyNTUgMTcuODgzMyAxNS42ODE2IDE2LjgzNDggMTQuNzg1MyAxNS45ODg1QzEzLjY0OTYgMTQuODg5NCAxMi4yODc3IDE0LjM0MiAxMC42OTk1IDE0LjM0MkM5LjI0NjI1IDE0LjM0MiA3Ljk4ODc2IDE0Ljc5MjYgNi45MjcwNyAxNS42OTc5QzUuODYxMDMgMTYuNjAzMiA1LjIyMTQxIDE3Ljc0ODYgNS4wMDM4NSAxOS4xMzM5QzQuOTI1NTMgMTkuNjcyOSA0LjkyNTUzIDIwLjIwMzUgNS4wMDM4NSAyMC43MjE0QzUuMjIxNDEgMjIuMTA2OCA1Ljg2NTM4IDIzLjI1MjEgNi45MjcwNyAyNC4xNTc0QzcuOTkzMTEgMjUuMDYyOCA5LjI1MDYgMjUuNTEzMyAxMC42OTk1IDI1LjUxMzNDMTAuNzM4NyAyNS41MTMzIDEwLjc3NzkgMjUuNTEzMyAxMC44MTcgMjUuNTEzM0MxMC44NTYyIDI1LjUxMzMgMTAuODg2NiAyNS41MTMzIDEwLjkwODQgMjUuNTEzM0MxMC45NDc2IDI1LjUxMzMgMTAuOTg2NyAyNS41MTMzIDExLjAyNTkgMjUuNTEzM0MxMS4wNjUgMjUuNTEzMyAxMS4wOTU1IDI1LjUxMzMgMTEuMTE3MiAyNS41MTMzQzExLjEzOSAyNS41MTMzIDExLjE1NjQgMjUuNTEzMyAxMS4xNzgyIDI1LjUxMzNDMTEuMTk5OSAyNS40OTIzIDExLjIxNzMgMjUuNDgzOCAxMS4yMzkxIDI1LjQ4MzhDMTEuMzc4MyAyNS40ODM4IDExLjUwODkgMjUuNDc1NCAxMS42MjYzIDI1LjQ1NDRDMTEuNjY1NSAyNS40MzMzIDExLjcwNDcgMjUuNDI0OSAxMS43NDM4IDI1LjQyNDlDMTEuNzY1NiAyNS40MjQ5IDExLjc5MTcgMjUuNDI0OSAxMS44MzUyIDI1LjQyNDlDMTEuODM1MiAyNS40MDM4IDExLjg0MzkgMjUuMzk1NCAxMS44NjU3IDI1LjM5NTRDMTEuODg3NCAyNS4zOTU0IDExLjkwNDggMjUuMzk1NCAxMS45MjY2IDI1LjM5NTRDMTEuOTY1NyAyNS4zNzQ0IDEyLjAwNDkgMjUuMzY1OSAxMi4wNDQxIDI1LjM2NTlDMTIuMTA1IDI1LjM0NDkgMTIuMTYxNSAyNS4zMjggMTIuMjIyNCAyNS4zMDdDMTIuMjYxNiAyNS4zMDcgMTIuMzAwOCAyNS4yOTg2IDEyLjMzOTkgMjUuMjc3NUMxMi44NTc3IDI1LjE0MjggMTMuMzUzOCAyNC45MzIyIDEzLjgzMjQgMjQuNjQxN0MxNC42Mjg2IDI0LjE2MTYgMTUuNDgxNSAyMy45MjE2IDE2LjM5OTYgMjMuOTIxNkgxNi41NzhDMTcuOTMxMiAyMy45MjE2IDE5LjA3OTkgMjQuMzgwNiAyMC4wMjQxIDI1LjI5NDRDMjAuOTY4MyAyNi4yMDgxIDIxLjQ0MjYgMjcuMzExMyAyMS40NDI2IDI4LjU5OThWMzAuMzAxSDE2LjQ5MDlWMjcuMDk2NkMxNi4zMTI2IDI3LjM4NzEgMTYuMTEyNCAyNy42NTY2IDE1Ljg5NDggMjcuOTA1MUMxNS44MzM5IDI3Ljk2NCAxNS43Nzc0IDI4LjAxODggMTUuNzE2NCAyOC4wNzc3QzE1LjY3NzMgMjguMTM2NyAxNS42MjUxIDI4LjE5MTQgMTUuNTY4NSAyOC4yNTAzQzE1LjU0NjcgMjguMjcxNCAxNS41MjkzIDI4LjI4ODIgMTUuNTA3NiAyOC4zMDkzQzE0LjgzMzIgMjguOTYyIDE0LjA3MTcgMjkuNDU4OSAxMy4yMjc2IDI5Ljc5NTdDMTIuMzgzNCAzMC4xMzI2IDExLjU0MzcgMzAuMzAxIDEwLjcwODIgMzAuMzAxQzcuODg0MzMgMzAuMzAxIDUuNDY5NDMgMjkuMzkxNSAzLjQ1OTE4IDI3LjU3MjRDMS40NDg5NCAyNS43NTMzIDAuMzA4OTMzIDIzLjQ2NjkgMC4wMzA0NTgyIDIwLjcxNzJDMC4wMzA0NTgyIDIwLjY1ODMgMC4wMzA0NTgyIDIwLjYwMzUgMC4wMzA0NTgyIDIwLjU0NDZDMC4wMDg3MDIzNSAyMC40Njg4IDAgMjAuNDAxNCAwIDIwLjM0MjRDMCAyMC4zMjE0IDAgMjAuMzA0NSAwIDIwLjI4MzVDMCAyMC4yNDU2IDAgMjAuMjA3NyAwIDIwLjE2OThDMCAyMC4xMzE5IDAgMjAuMTAyNCAwIDIwLjA4MTRDMCAyMC4wNjAzIDAgMjAuMDUxOSAwIDIwLjA1MTlDMCAxOS44NzkyIDAgMTkuNzA2NiAwIDE5LjUzNEMwIDE5LjQ1ODIgMC4wMDg3MDIzNSAxOS4zOTA4IDAuMDMwNDU4MiAxOS4zMzE4QzAuMDMwNDU4MiAxOS4yNTYxIDAuMDMwNDU4MiAxOS4xODg3IDAuMDMwNDU4MiAxOS4xMjk3QzAuMzA4OTMzIDE2LjM5NjkgMS40NTMyOSAxNC4xMTQ2IDMuNDU5MTggMTIuMjg3MkM1LjQ2OTQzIDEwLjQ1OTcgNy44ODQzMyA5LjU0NTkxIDEwLjcwODIgOS41NDU5MUMxMS41NDM3IDkuNTQ1OTEgMTIuMzgzNCA5LjcxODU2IDEzLjIyNzYgMTAuMDYzOEMxNC4wNzE3IDEwLjQwOTEgMTQuODMzMiAxMC45MDE4IDE1LjUwNzYgMTEuNTM3NkMxNS41MjkzIDExLjU1ODcgMTUuNTQ2NyAxMS41ODM5IDE1LjU2ODUgMTEuNjI2MUMxNS42Mjk0IDExLjY4NSAxNS42NzczIDExLjczMTMgMTUuNzE2NCAxMS43NjkyQzE1Ljc3NzQgMTEuODI4MiAxNS44MzM5IDExLjg4MjkgMTUuODk0OCAxMS45NDE5QzE2LjExMjQgMTIuMTkwMyAxNi4zMTI2IDEyLjQ1OTggMTYuNDkwOSAxMi43NTAzTDE2LjQ4NjYgMTIuNzU4OFpNMjkuMzc0OCAxMy4xMDQxQzMwLjM4ODYgMTIuMDA1IDMxLjYxMTMgMTEuMTQxOCAzMy4wNDI4IDEwLjUwNkMzNC40NzQ0IDkuODcwMTUgMzUuOTk3MyA5LjU1NDM0IDM3LjYwNzIgOS41NTQzNEMzOS4zNTY0IDkuNTU0MzQgNDAuNzcwNSA5Ljg0NDg4IDQxLjg0MDkgMTAuNDIxOEwzOS4yNDc2IDE0Ljc4QzM4LjgyOTkgMTQuNDg5NCAzOC4yODE2IDE0LjM0NjIgMzcuNjA3MiAxNC4zNDYySDM3LjU0NjNDMzUuMjQwMiAxNC40MDUyIDMzLjI5OTUgMTUuMTkyNiAzMS43Mjg4IDE2LjcxMjdDMzAuMTU4IDE4LjIzMjggMjkuMzcwNCAyMC4wODE0IDI5LjM3MDQgMjIuMjU0MVYzMC4zMDk0SDI0LjQxODhWOS41NTQzNEgyOS4zNzA0VjEzLjEwNDFIMjkuMzc0OFpNNDQuNDk5NSAzMC4zMDk0VjkuNTU0MzRINDkuNDUxMVYzMC4zMDk0SDQ0LjQ5OTVaTTQ2Ljk3NTMgMEM0Ny44ODkgMCA0OC42NzY2IDAuMzExNiA0OS4zMzM2IDAuOTM5MDExQzQ5Ljk5MDYgMS41NjY0MiA1MC4zMTcgMi4zMjg1OCA1MC4zMTcgMy4yMzM5QzUwLjMxNyA0LjExODE4IDQ5Ljk5MDYgNC44ODAzMyA0OS4zMzM2IDUuNTE2MTdDNDguNjc2NiA2LjE1MiA0Ny44OTM0IDYuNDY3ODEgNDYuOTc1MyA2LjQ2NzgxQzQ2LjA2MTUgNi40Njc4MSA0NS4yNzQgNi4xNTIgNDQuNjE2OSA1LjUxNjE3QzQzLjk1OTkgNC44ODAzMyA0My42MzM2IDQuMTIyMzkgNDMuNjMzNiAzLjIzMzlDNDMuNjMzNiAyLjMyODU4IDQzLjk1OTkgMS41NjY0MiA0NC42MTY5IDAuOTM5MDExQzQ1LjI3NCAwLjMxMTYgNDYuMDU3MiAwIDQ2Ljk3NTMgMFpNNjkuMTk2NyAxMi43MjkzVjkuNTU0MzRINzQuMTQ4NFYxMS4yNTU1Qzc0LjE0ODQgMTIuNTQ0IDczLjY3NDEgMTMuNjQ3MiA3Mi43Mjk5IDE0LjU2MUM3MS43ODU3IDE1LjQ3NDcgNzAuNjQ1NyAxNS45MzM3IDY5LjMxNDIgMTUuOTMzN0M2OC40NTcgMTUuOTcxNiA2Ny43MDQzIDE1LjgxMTYgNjcuMDQ3MiAxNS40NTc5QzY2LjM5MDIgMTUuMSA2NS42OTQgMTQuNzg4NCA2NC45NTg3IDE0LjUxODlDNjMuNzI3MyAxNC4yMTE1IDYyLjUyMiAxNC4yNzg5IDYxLjM0NzIgMTQuNzIxQzYwLjE3MjQgMTUuMTYzMSA1OS4yNDk5IDE1Ljg5NTggNTguNTcxMiAxNi45MTQ4QzU4LjExNDMgMTcuNTg4NiA1Ny44MjcxIDE4LjMyMTIgNTcuNzA1MyAxOS4xMDg3QzU3LjUyNjkgMjAuMzU5MyA1Ny43NTMxIDIxLjUzNDEgNTguMzkyOCAyMi42Mjg5QzU5LjExMDcgMjMuODU4NSA2MC4wOTg0IDI0LjY5MjIgNjEuMzYwMyAyNS4xMjU5QzYyLjYyMjEgMjUuNTU5NiA2My44OTcgMjUuNTkzMyA2NS4xNzYyIDI1LjIyN0M2Ni40NTk4IDI0Ljg2MDYgNjcuNDk5OCAyNC4wOTAxIDY4LjI5MTcgMjIuOTE5NUM2OS4wNDg4IDIxLjc0NDYgNjkuMzI3MyAyMC40NzcyIDY5LjEyNzEgMTkuMTA4N0g3NC4xMzk3VjI5LjUwMUM3NC4xMzk3IDI5Ljc3MDQgNzQuMTMxIDMwLjAzMTUgNzQuMTA5MiAzMC4yOEM3My43MTMyIDMzLjc0NTUgNzIuMDcyOCAzNi4zOTgzIDY5LjE4OCAzOC4yNDY4QzY3LjQ3OCAzOS4zMjQ4IDY1LjU1OTEgMzkuODYzOCA2My40MzE0IDM5Ljg2MzhDNjAuNzQ2NyAzOS44NjM4IDU4LjQxODkgMzkuMDM0MiA1Ni40NTIxIDM3LjM3OTRDNTQuNDg1NCAzNS43MjQ1IDUzLjI4MDEgMzMuNjI3NiA1Mi44NDA3IDMxLjA4ODRINTcuODgzN0M1OC4yNjIyIDMyLjI2MzMgNTguOTU0MSAzMy4yMTkxIDU5Ljk1NDggMzMuOTYwMkM2MC45NTk5IDM0LjcwMTMgNjIuMTE3NCAzNS4wNzE5IDYzLjQzMTQgMzUuMDcxOUM2NS4wMjM5IDM1LjA3MTkgNjYuMzgxNSAzNC41Mjg3IDY3LjUwNDEgMzMuNDQyM0M2OC42MjY3IDMyLjM1NTkgNjkuMTg4IDMxLjA0MjEgNjkuMTg4IDI5LjUwMVYyNy4xMDVDNjkuMDA5NiAyNy4zOTU2IDY4LjgwOTUgMjcuNjY1IDY4LjU5MTkgMjcuOTEzNUM2Ny44MTc0IDI4Ljc4MDkgNjYuODczMiAyOS40MjUyIDY1Ljc1OTMgMjkuODQ2MkM2NS42MjAxIDI5LjkwNTIgNjUuNDg5NSAyOS45NTE1IDY1LjM3MiAyOS45ODk0QzY1LjMzMjkgMjkuOTg5NCA2NS4zMDI0IDI5Ljk5NzggNjUuMjgwNyAzMC4wMTg5QzY1LjI0MTUgMzAuMDE4OSA2NS4yMTEgMzAuMDI3MyA2NS4xODkzIDMwLjA0ODRDNjUuMTUwMSAzMC4wNDg0IDY1LjExOTcgMzAuMDU2OCA2NS4wOTc5IDMwLjA3NzhDNjUuMDU4OCAzMC4wNzc4IDY1LjAxOTYgMzAuMDc3OCA2NC45ODA0IDMwLjA3NzhDNjQuOTU4NyAzMC4wOTg5IDY0LjkzMjYgMzAuMTA3MyA2NC44ODkxIDMwLjEwNzNDNjQuODQ5OSAzMC4xMjg0IDY0LjgxMDcgMzAuMTM2OCA2NC43NzE2IDMwLjEzNjhDNjQuNzQ5OCAzMC4xMzY4IDY0LjczMjQgMzAuMTQ1MiA2NC43MTA3IDMwLjE2NjNDNjQuNjQ5NyAzMC4xNjYzIDY0LjU5MzIgMzAuMTc0NyA2NC41MzIzIDMwLjE5NTdDNjQuNDMyMiAzMC4yMTY4IDY0LjMzMjEgMzAuMjI1MiA2NC4yMzIgMzAuMjI1MkM2NC4yMTAzIDMwLjI0NjMgNjQuMTkyOSAzMC4yNTQ3IDY0LjE3MTEgMzAuMjU0N0M2NC4xNDk0IDMwLjI1NDcgNjQuMTMyIDMwLjI1NDcgNjQuMTEwMiAzMC4yNTQ3QzY0LjA4ODQgMzAuMjU0NyA2NC4wNjIzIDMwLjI1NDcgNjQuMDE4OCAzMC4yNTQ3QzYzLjk1NzkgMzAuMjc1NyA2My45MSAzMC4yODQyIDYzLjg3MDkgMzAuMjg0MkM2My44NDkxIDMwLjI4NDIgNjMuODIzIDMwLjI4NDIgNjMuNzc5NSAzMC4yODQyQzYzLjY2MiAzMC4yODQyIDYzLjU0MDIgMzAuMjg0MiA2My40MjI3IDMwLjI4NDJDNjMuMzIyNiAzMC4yODQyIDYzLjIzNTYgMzAuMjg0MiA2My4xNTI5IDMwLjI4NDJDNjMuMTEzOCAzMC4yODQyIDYzLjA2MTYgMzAuMjg0MiA2My4wMDUgMzAuMjg0MkM2Mi45NjU4IDMwLjI4NDIgNjIuOTM1NCAzMC4yODQyIDYyLjkxMzYgMzAuMjg0MkM2Mi44NzQ1IDMwLjI4NDIgNjIuODM1MyAzMC4yODQyIDYyLjc5NjEgMzAuMjg0MkM2Mi43NTcgMzAuMjg0MiA2Mi43MTc4IDMwLjI4NDIgNjIuNjc4NyAzMC4yODQyQzYyLjUwMDMgMzAuMjYzMSA2Mi4zMDg4IDMwLjI0NjMgNjIuMTEzIDMwLjIyNTJDNjIuMDczOSAzMC4yMjUyIDYyLjAzNDcgMzAuMjE2OCA2MS45OTU1IDMwLjE5NTdDNjEuODU2MyAzMC4xNzQ3IDYxLjcyNTggMzAuMTU3OCA2MS42MDgzIDMwLjEzNjhDNjEuNTMgMzAuMTM2OCA2MS40NjAzIDMwLjEyODQgNjEuMzk5NCAzMC4xMDczQzYxLjMyMTEgMzAuMDg2MyA2MS4yNTE1IDMwLjA3NzggNjEuMTkwNiAzMC4wNzc4QzYxLjA1MTMgMzAuMDM5OSA2MC45MjA4IDMwLjAxMDUgNjAuODAzMyAyOS45ODk0QzYwLjc4MTUgMjkuOTY4NCA2MC43NTU0IDI5Ljk1OTkgNjAuNzExOSAyOS45NTk5QzYwLjQ1NTIgMjkuODg0MSA2MC4xOTQxIDI5LjgwNDEgNTkuOTM3NCAyOS43MjgzQzU3LjYzMTMgMjguOTQwOSA1NS44MTI1IDI3LjU2NCA1NC40NzY3IDI1LjYwMTdDNTMuMTQ1MiAyMy42Mzk1IDUyLjU1NzggMjEuNDc1MSA1Mi43MTg4IDE5LjEwODdDNTIuOTk3MyAxNi4zNzU5IDU0LjE0NiAxNC4xMDIgNTYuMTY1IDEyLjI4MjlDNTguMTgzOSAxMC40NjM5IDYwLjYwMzEgOS41NTQzNCA2My40MjcxIDkuNTU0MzRDNjQuNDggOS41NTQzNCA2NS41MzMgOS44MjgwNCA2Ni41OTA0IDEwLjM3NTRDNjcuNjQzMyAxMC45MjI4IDY4LjUwOTIgMTEuNzA2MSA2OS4xODM3IDEyLjcyOTNINjkuMTk2N1pNODcuMjQ1NCA5LjU1NDM0Qzg5LjIzMzkgOS41NTQzNCA5MS4wMzk2IDEwLjAyMTcgOTIuNjU4MyAxMC45NTIzQzk0LjI3NjkgMTEuODg3MSA5NS41NzM1IDEzLjEzNzcgOTYuNTM1MSAxNC43MDQyQzk3LjUwMTEgMTYuMjcwNiA5Ny45Nzk3IDE4LjAxODEgOTcuOTc5NyAxOS45NDI0Qzk3Ljk3OTcgMjEuODQ1NyA5Ny40OTY4IDIzLjU4NDggOTYuNTM1MSAyNS4xNTEyQzk1LjU2OTIgMjYuNzE3NiA5NC4yNzY5IDI3Ljk3MjQgOTIuNjU4MyAyOC45MDNDOTEuMDM5NiAyOS44Mzc4IDg5LjIzMzkgMzAuMzAxIDg3LjI0NTQgMzAuMzAxQzg1LjI3ODcgMzAuMzAxIDgzLjQ4MTYgMjkuODMzNiA4MS44NjMgMjguOTAzQzgwLjI0NDQgMjcuOTY4MiA3OC45NDc3IDI2LjcxNzYgNzcuOTg2MSAyNS4xNTEyQzc3LjAyMDEgMjMuNTg0OCA3Ni41NDE1IDIxLjg0NTcgNzYuNTQxNSAxOS45NDI0Qzc2LjU0MTUgMTguMDE4MSA3Ny4wMjQ1IDE2LjI3MDYgNzcuOTg2MSAxNC43MDQyQzc4Ljk1MjEgMTMuMTM3NyA4MC4yNDQ0IDExLjg4MjkgODEuODYzIDEwLjk1MjNDODMuNDgxNiAxMC4wMTc1IDg1LjI3ODcgOS41NTQzNCA4Ny4yNDU0IDkuNTU0MzRaTTg3LjI0NTQgMjUuNTE3NUM4OC44Mzc5IDI1LjUxNzUgOTAuMTk5OCAyNC45NzQzIDkxLjMzMTEgMjMuODg3OUM5Mi40NjY4IDIyLjgwMTYgOTMuMDMyNSAyMS40ODc4IDkzLjAzMjUgMTkuOTQ2NkM5My4wMzI1IDE4LjQwNTUgOTIuNDY2OCAxNy4wODc1IDkxLjMzMTEgMTUuOTkyN0M5MC4xOTU1IDE0Ljg5MzYgODguODMzNiAxNC4zNDYyIDg3LjI0NTQgMTQuMzQ2MkM4NS42NTI5IDE0LjM0NjIgODQuMjk1MyAxNC44OTM2IDgzLjE3MjcgMTUuOTkyN0M4Mi4wNTAxIDE3LjA5MTcgODEuNDg4OCAxOC40MDk3IDgxLjQ4ODggMTkuOTQ2NkM4MS40ODg4IDIxLjQ4NzggODIuMDUwMSAyMi44MDE2IDgzLjE3MjcgMjMuODg3OUM4NC4yOTUzIDI0Ljk3NDMgODUuNjUyOSAyNS41MTc1IDg3LjI0NTQgMjUuNTE3NVoiIGZpbGw9IiNmZmZmZmYiLz4KPC9nPgo8ZGVmcz4KPGNsaXBQYXRoIGlkPSJjbGlwMF81MDdfMTU2NiI+CjxyZWN0IHdpZHRoPSI5OCIgaGVpZ2h0PSI0MCIgZmlsbD0id2hpdGUiLz4KPC9jbGlwUGF0aD4KPC9kZWZzPgo8L3N2Zz4K\" alt=\"Drigo\"><small></small>";
+    return { el, car: null };
+  });
   const tags = fabric.tags || [];
   function pick(px, py) {
+    if (!rooftopActive) {
+      ndc.set(px / width * 2 - 1, -(py / height) * 2 + 1);
+      raycaster.setFromCamera(ndc, camera);
+      const roofHit = raycaster.intersectObjects(roofTargets, false)[0];
+      if (roofHit) return {kind:'rooftop', roof:roofHit.object.userData.roof};
+    }
     // Traffic lights first (small targets), then cars, then landmarks.
     let best = null, bestD = 16;
     signalHeads.forEach(h => { projectTo(probe.set(h.x, .6, h.z), screen); const d = Math.hypot(screen.x - px, screen.y - py); if (screen.visible && d < bestD) { bestD = d; best = { kind: 'signal', sig: h.sig }; } });
@@ -1008,6 +1168,76 @@ export function initCity(host, options = {}) {
   }
   const raycaster = new THREE.Raycaster(), ndc = new THREE.Vector2(), groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), groundHit = new THREE.Vector3();
   function groundAt(px, py) { ndc.set(px / width * 2 - 1, -(py / height) * 2 + 1); raycaster.setFromCamera(ndc, camera); return raycaster.ray.intersectPlane(groundPlane, groundHit) ? groundHit.clone() : null; }
+
+  // A hidden rooftop scene on the round Marina towers.
+  const marina = destinations[1].focus;
+  const marinaRoofs = fabric.roundedTowers.filter(t=>Math.hypot(t.x-marina[0],t.z-marina[2])<11);
+  const characterRoof=fabric.roundedTowers.find(t=>t.featured)||marinaRoofs.reduce((best,t)=>!best||Math.hypot(t.x-6.6,t.z-53.5)<Math.hypot(best.x-6.6,best.z-53.5)?t:best,null);
+  const roofTargets = (characterRoof?[characterRoof]:[]).map(roof=>{
+    const target=new THREE.Mesh(g(new THREE.CylinderGeometry(roof.radius,roof.radius,roof.y,16)),m(new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false})));
+    target.position.set(roof.x,roof.y/2,roof.z);target.userData.roof=roof;world.add(target);return target;
+  });
+  // Street trees and pocket parks (city-greenery.js). Built after the day-material snapshot
+  // so the night theme leaves their greens alone.
+  const greenery={count:0};
+  const rooftopDuo = createRooftopDuo({THREE,g,m});
+  world.add(rooftopDuo.root);
+  let activeRoof=characterRoof;
+  if(activeRoof){
+    terrace=createRooftopScene({THREE,g,m});
+    const scale=activeRoof.radius/8,miniature=terrace.roofGroup.clone(true);
+    for(const child of [...miniature.children])if(child.name==='rooftop-characters'||child.name==='tower-shell')miniature.remove(child);
+    miniature.scale.setScalar(scale);miniature.position.set(activeRoof.x,activeRoof.y+.008,activeRoof.z);world.add(miniature);
+    // Share the terrace design across every round roof using instancing.
+    const otherRoofs=fabric.roundedTowers.filter(roof=>roof!==activeRoof);
+    const template=miniature.clone(true);template.position.set(0,0,0);template.scale.setScalar(1);template.updateMatrixWorld(true);
+    const groups=new Map();
+    template.traverse(node=>{
+      if(!node.isMesh||node.material.transparent)return;
+      const key=node.geometry.uuid+':'+node.material.uuid;
+      if(!groups.has(key))groups.set(key,{geometry:node.geometry,material:node.material,parts:[]});
+      groups.get(key).parts.push(node.matrixWorld.clone());
+    });
+    const placement=new THREE.Matrix4(),combined=new THREE.Matrix4();
+    for(const group of groups.values()){
+      const batch=new THREE.InstancedMesh(group.geometry,group.material,group.parts.length*otherRoofs.length);let index=0;
+      for(const roof of otherRoofs){const k=roof.radius/8;placement.makeScale(k,k,k);placement.setPosition(roof.x,roof.y+.008,roof.z);
+        for(const part of group.parts){combined.multiplyMatrices(placement,part);batch.setMatrixAt(index++,combined);}
+      }
+      batch.instanceMatrix.needsUpdate=true;world.add(batch);
+    }
+
+    rooftopDuo.root.scale.setScalar(.85*scale);rooftopDuo.root.rotation.y=Math.PI+.28;
+    rooftopDuo.root.position.set(activeRoof.x,activeRoof.y+.008,activeRoof.z-6.5*scale);
+  }
+  const rooftopLight=new THREE.PointLight('#fff1da',.35,2,1.4);rooftopLight.visible=false;world.add(rooftopLight);
+  const heroElement=host.closest('.hero');
+  const roofBack=document.createElement('button');roofBack.type='button';roofBack.className='rooftop-back';roofBack.textContent='← Back to Marina';roofBack.hidden=true;heroElement.appendChild(roofBack);
+  const roofCaption=document.createElement('div');roofCaption.className='rooftop-caption';roofCaption.hidden=true;roofCaption.innerHTML='<strong>Ooooooo!</strong><span>Mordecai &amp; Rigby · Drag to look around</span>';heroElement.appendChild(roofCaption);
+  const roofAccess=document.createElement('button');roofAccess.type='button';roofAccess.className='rooftop-access';roofAccess.textContent='Visit the Marina rooftop';roofAccess.hidden=true;heroElement.appendChild(roofAccess);
+  function openRooftop(roof=activeRoof){
+    if(!roof||roof!==characterRoof||rooftopActive)return;
+    stopFollow();release();rooftopSaved={...targetState};activeRoof=roof;rooftopActive=true;
+    const startFocus=cameraTarget.clone();
+    const right=new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld,0),up=new THREE.Vector3().setFromMatrixColumn(camera.matrixWorld,1);
+    startFocus.addScaledVector(right,(camera.left+camera.right)/2).addScaledVector(up,(camera.top+camera.bottom)/2);
+    const startPitch=Math.atan2(camera.position.y-cameraTarget.y,Math.hypot(camera.position.x-cameraTarget.x,camera.position.z-cameraTarget.z));
+    roofEntry=reducedMotion?null:{start:performance.now(),focus:startFocus,height:(camera.top-camera.bottom)/camera.zoom,yaw:Math.atan2(camera.position.x-cameraTarget.x,camera.position.z-cameraTarget.z),pitch:startPitch,distance:Math.hypot(camera.position.x-cameraTarget.x,camera.position.z-cameraTarget.z)};
+    if(roofEntry)targetState.yaw=roofEntry.yaw;
+    targetState.pitch=.3;targetState.zoom=1;Object.assign(cameraState,targetState);
+    heroElement.classList.add('is-rooftop');roofBack.hidden=false;roofCaption.hidden=false;roofAccess.hidden=true;
+    status('Mordecai and Rigby on the Marina rooftop. Press Escape or Back to Marina to leave.');roofBack.focus({preventScroll:true});refreshView();
+  }
+  function closeRooftop(){
+    if(!rooftopActive)return;
+    roofEntry=null;
+    rooftopCarBadges.forEach(({badge})=>badge.visible=false);
+    rooftopActive=false;rooftopLight.visible=false;Object.assign(targetState,rooftopSaved);Object.assign(cameraState,rooftopSaved);viewFocus.set(targetState.targetX,targetState.targetY,targetState.targetZ);
+    heroElement.classList.remove('is-rooftop');roofBack.hidden=true;roofCaption.hidden=true;roofAccess.hidden=destination!==1;
+    status('Returned to Marina.');host.focus({preventScroll:true});refreshView();
+  }
+  roofBack.addEventListener('click',closeRooftop);roofAccess.addEventListener('click',()=>openRooftop());
+  const roofKey=event=>{if(event.key==='Escape')closeRooftop();};document.addEventListener('keydown',roofKey);
 
   // Pin, walking route and the selected car's ring.
   const pinMaterial = m(new THREE.MeshStandardMaterial({ color: '#4d21ff', emissive: '#4d21ff', emissiveIntensity: .6, roughness: .4 }));
@@ -1053,14 +1283,16 @@ export function initCity(host, options = {}) {
   function showToast(text, seconds = 2.2) { toast.textContent = text; toast.hidden = false; toastUntil = clock + seconds; }
   function dismissHint() { hint.classList.add('is-gone'); }
   function handleTap(px, py) {
+    if(rooftopActive)return;
     dismissHint();
     const hit = pick(px, py);
+    if(hit?.kind==='rooftop'){openRooftop(hit.roof);return;}
     landmarkShown = null; landmarkTag.hidden = true;
     if (hit?.kind === 'signal') { hit.sig.phase += SIGNAL_PERIOD / 2; showToast('Lights switched'); status('Traffic light switched.'); return; }
     if (hit?.kind === 'car') {
       release(); following = hit.car; carRing.visible = true;
       targetState.zoom = Math.max(targetState.zoom, 4.3); focused = true;
-      carTag.innerHTML = '<b>Riding along</b><small>Tap the map to stop</small>'; carTag.hidden = false;
+      carTag.innerHTML = '<b>Riding along</b><small>Demo drive · tap map to stop</small>'; carTag.hidden = false;
       status('Following a car through the city. Tap the map to stop.'); refreshView(); return;
     }
     if (hit?.kind === 'landmark') {
@@ -1084,6 +1316,7 @@ export function initCity(host, options = {}) {
   }
   function updateInteraction(delta) {
     clock += delta;
+    rooftopDuo.update(clock, reducedMotion);
     // Follow cam: the view glides after the car.
     if (following) { carWorld(following, probe); viewFocus.set(probe.x, 1.2, probe.z); composeTarget(); }
     const pulse = 1 + Math.sin(clock * 4) * .08;
@@ -1110,6 +1343,43 @@ export function initCity(host, options = {}) {
     if (live || shells.length) { sparkGeometry.attributes.position.needsUpdate = true; sparkGeometry.attributes.color.needsUpdate = true; }
     // Labels follow their subject on screen.
     const place = (el, v, lift, clamp = false) => { projectTo(v, screen); let y = screen.y - lift; if (clamp) y = Math.max(150, Math.min(height - 90, y)); el.style.transform = `translate(${screen.x}px, ${y}px)`; el.classList.toggle('is-off', !screen.visible || screen.x < 0 || screen.x > width || (!clamp && (screen.y < 0 || screen.y > height))); };
+    // Select geographically separated cars, not the four nearest one screen point.
+    if (!fleetPins[0].car && drigoCars.length) {
+      const candidates=drigoCars.map(car=>({car,point:projectTo(carWorld(car,probe),{x:0,y:0,visible:false})}));
+      const visible=candidates.filter(({point:p})=>p.visible&&p.x>90&&p.x<width-90&&p.y>210&&p.y<height-110);
+      const pool=visible.length?visible:candidates,chosen=[];
+      for(const marker of fleetPins){
+        let best=null,bestScore=-Infinity;
+        for(const candidate of pool){
+          if(chosen.includes(candidate))continue;
+          const p=candidate.point;
+          const separation=chosen.length?Math.min(...chosen.map(c=>Math.hypot(p.x-c.point.x,p.y-c.point.y))): -Math.hypot(p.x-width*.72,p.y-height*.32);
+          const routeBonus=chosen.some(c=>c.car.loop===candidate.car.loop)?0:70;
+          if(separation+routeBonus>bestScore){best=candidate;bestScore=separation+routeBonus;}
+        }
+        if(!best)break;chosen.push(best);marker.car=best.car;marker.lift=20;
+        const copy=marker.el.querySelector('small');copy.textContent=marker.car.drigoName;
+        const price=document.createElement('span');price.className='car-pin-price';price.textContent=fleetPrices.get(marker.car.drigoName)||'';copy.appendChild(price);
+        marker.el.dataset.carId=String(cars.indexOf(marker.car));marker.el.hidden=false;
+      }
+    }
+    // Reserve each card's real screen rectangle; lift converging pins with a leader.
+    const pinRects=[];
+    for(const marker of fleetPins){
+      if(!marker.car)continue;
+      const p=projectTo(carWorld(marker.car,probe),{x:0,y:0,visible:false});
+      const w=marker.el.offsetWidth||140,h=marker.el.offsetHeight||85;
+      let layout=null;
+      for(const lift of [...new Set([marker.lift||20,20,20+h+16,20+(h+16)*2,20+(h+16)*3])]){
+        const box={left:p.x-w/2-8,right:p.x+w/2+8,top:p.y-lift-h-8,bottom:p.y-lift+8};
+        if(box.left<8||box.right>width-8||box.top<100||box.bottom>height-70)continue;
+        if(pinRects.some(r=>box.left<r.right&&box.right>r.left&&box.top<r.bottom&&box.bottom>r.top))continue;
+        layout={box,lift};break;
+      }
+      const off=!p.visible||!layout;
+      marker.el.classList.toggle('is-off',off);
+      if(layout){pinRects.push(layout.box);marker.lift=layout.lift;marker.el.style.setProperty('--pin-leader',`${Math.max(0,layout.lift-20)}px`);marker.el.style.transform=`translate(${p.x}px,${p.y-layout.lift}px)`;}
+    }
     if (!carTag.hidden && ringCar) place(carTag, carWorld(ringCar, probe), 34);
     if (!landmarkTag.hidden && landmarkShown) place(landmarkTag, probe.set(landmarkShown.at[0], landmarkShown.h * world.scale.y, landmarkShown.at[1]), 18, true);
     if (!toast.hidden) { toast.style.transform = `translate(${width / 2}px, ${Math.min(height * .22, 180)}px)`; if (clock > toastUntil) toast.hidden = true; }
@@ -1132,13 +1402,44 @@ export function initCity(host, options = {}) {
   host.addEventListener('lostpointercapture', onPointerEnd);
   document.addEventListener('visibilitychange', wake);
   reducedQuery.addEventListener?.('change', onPreference);
+  // Apply the complete theme and camera before exposing the first frame.
   resize();
   setTheme(options.theme === 'day' ? 'day' : 'night', false);
+  // Prepare shaders and upload geometry while the canvas is still hidden.
+  // Reveal only after a complete themed frame has reached the compositor.
+  fabric.setIntro(1);
+  updateCars(elapsed); updatePulses(elapsed);
+  async function prepareFirstFrame() {
+    // Compile only what the opening camera actually renders, rather than every
+    // district and rooftop material in the entire city before the first paint.
+    if(disposed)return;
+    initialized=true;
+    resize();
+    requestAnimationFrame(()=>{
+      if(disposed)return;
+      renderOnce();
+      requestAnimationFrame(()=>{
+        if(disposed)return;
+        ready=true;
+        renderer.domElement.style.opacity='1';
+        options.onReady?.({renderer});
+        wake();
+      });
+    });
+  }
+  prepareFirstFrame();
+  // Explicit paint on startup and page restoration, independent of scroll observers.
+  const repaint=()=>{if(disposed)return;resize();wake();};
+  const firstPaint=requestAnimationFrame(repaint);
+  window.addEventListener('pageshow',repaint);
   wake();
 
   return {
     setDestination(index) {
+      closeRooftop();
+      roofAccess.hidden=Number(index)!==1;
       stopFollow();
+      fleetPins.forEach(marker=>{marker.car=null;marker.el.hidden=true;});
       destination = THREE.MathUtils.clamp(Math.round(Number(index) || 0), 0, destinations.length - 1);
       focused = true;
       rings.forEach((ring, i) => { ring.material.color.set(i === destination ? '#c5b5ff' : '#75648e'); ring.material.opacity = i === destination ? 0.95 : 0.4; });
@@ -1152,13 +1453,18 @@ export function initCity(host, options = {}) {
     setLean(x, y) { driftTarget.leanX = THREE.MathUtils.clamp(Number(x) || 0, -1, 1); driftTarget.leanY = THREE.MathUtils.clamp(Number(y) || 0, -1, 1); wake(); },
     setProgress(t) { progress = THREE.MathUtils.clamp(Number(t) || 0, 0, 1); },
     setPaused(value) { paused = Boolean(value); notifyView(); wake(); },
-    getStats() { return { people: peopleCount, boats: boatCount, ...renderer.info.render, ...getView(), cars: carCount, progress, districtCount: districtList.length, districtNames: districtList.map(district => district.name), buildingCount: totalBuildingCount, newBuildingCount, landBounds: { ...landBounds }, trafficPathCount: trafficRoutes.length, landmarkCount: landmarkModel.landmarkCount, geo: fabric.stats, fabricBounds: { ...fabric.fabricBounds },lighting:getLightingStats() }; },
+    openRooftop, closeRooftop,
+    getRooftopState() {return {active:rooftopActive,roof:activeRoof,clearSightlines:rooftopDuo.root.userData.clearSightlines,joints:rooftopDuo.joints.map(j=>[j.rotation.x,j.rotation.y,j.rotation.z])};},
+    getRooftops() { return fabric.roundedTowers.map(t=>({...t, screen:projectTo(new THREE.Vector3(t.x,t.y,t.z),{})})); },
+    getTrafficState(all=false) {return cars.filter(car=>all||car.isDrigo).map(car=>({distance:car.distanceTravelled,speed:car.v,routeLength:car.loop.length,roads:car.loop.line.roads?.length||1,position:carWorld(car,new THREE.Vector3()).toArray()}));},
+    getStats() { return { plants:greenery.count, ready, people: peopleCount, boats: boatCount, ...renderer.info.render, ...getView(), cars: carCount, progress, districtCount: districtList.length, districtNames: districtList.map(district => district.name), buildingCount: totalBuildingCount, newBuildingCount, landBounds: { ...landBounds }, trafficPathCount: trafficRoutes.length, roadsWithCars:new Set(cars.map(c=>c.homeLoop)).size, roadCount:loops.length, cityJourneyCount:journeys.length, cityJourneyRoads:new Set(journeys.flatMap(route=>route.line.roads)).size, rooftopDrigoCars:cars.filter(c=>c.isDrigo&&c.loop.line.nearRooftop).length, landmarkCount: landmarkModel.landmarkCount, geo: fabric.stats, fabricBounds: { ...fabric.fabricBounds },lighting:getLightingStats() }; },
     resize,
     dispose() {
       if (disposed) return;
       onPointerEnd();
       disposed = true;
-      cancelAnimationFrame(raf);
+      cancelAnimationFrame(raf);cancelAnimationFrame(firstPaint);
+      window.removeEventListener('pageshow',repaint);
       resizeObserver.disconnect(); intersectionObserver.disconnect();
       host.removeEventListener('pointerdown', onPointerDown); host.removeEventListener('pointermove', onPointerMove);
       host.removeEventListener('pointerup', onPointerEnd); host.removeEventListener('pointercancel', onPointerEnd);
@@ -1166,6 +1472,9 @@ export function initCity(host, options = {}) {
       document.removeEventListener('visibilitychange', wake);
       reducedQuery.removeEventListener?.('change', onPreference);
       Object.assign(host.style, originalHostStyle);
+      rooftopDuo.dispose();terrace?.dispose();badgeTextures.forEach(texture=>texture.dispose());
+      roofBack.remove();roofCaption.remove();roofAccess.remove();document.removeEventListener('keydown',roofKey);
+      drigoLogoTexture.dispose();
       geometries.forEach(geometry => geometry.dispose());
       materials.forEach(material => material.dispose());
       renderer.dispose(); renderer.domElement.remove();

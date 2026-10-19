@@ -1,9 +1,9 @@
 /** Real Dubai geography from OpenStreetMap, built with the same white architectural
  *  material as before: shaded blocks, lit windows, roof slabs, real arteries and the coast. */
-import * as geo from './dubai-geo.js?v=1';
-import { buildReferenceLandmarks } from './dubai-landmarks.js?v=1';
+import * as geo from './dubai-geo.js';
+import { buildReferenceLandmarks } from './dubai-landmarks.js?v=20261019-no-rays';
 
-export function buildDubaiCity(context) {
+export async function buildDubaiCity(context) {
   const { THREE, world, g, m, mat, mesh, footprint, road, ribbon, box, instance, cylinder, palm, tree } = context;
   const toLocal = (lat, lon) => { const e = (lon - 55.23) * 111320 * Math.cos(25.18 * Math.PI / 180), n = (lat - 25.18) * 110750; return [(e - n) / Math.SQRT2 / geo.unitMetres, -(e + n) / Math.SQRT2 / geo.unitMetres]; };
   const random = n => { const value = Math.sin(n * 127.1 + 311.7) * 43758.5453123; return value - Math.floor(value); };
@@ -21,12 +21,26 @@ export function buildDubaiCity(context) {
     for (const [x, z] of ring) { minX = Math.min(minX, x); maxX = Math.max(maxX, x); minZ = Math.min(minZ, z); maxZ = Math.max(maxZ, z); }
     return { minX, maxX, minZ, maxZ };
   });
-  function pointInRing(x, z, ring) {
-    let inside = false;
-    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
-      const [xi, zi] = ring[i], [xj, zj] = ring[j];
-      if ((zi > z) !== (zj > z) && x < (xj - xi) * (z - zi) / (zj - zi) + xi) inside = !inside;
+  // Index polygon edges by height: a horizontal ray only touches edges in its row.
+  // This preserves the exact coastline test without scanning thousands of vertices.
+  const ringEdgeRows=new WeakMap();
+  function pointInRing(x,z,ring) {
+    let rows=ringEdgeRows.get(ring);
+    if(!rows){
+      rows=new Map();ringEdgeRows.set(ring,rows);
+      for(let i=0,j=ring.length-1;i<ring.length;j=i++){
+        const [xi,zi]=ring[i],[xj,zj]=ring[j];
+        if(zi===zj)continue;
+        const edge=[xi,zi,xj,zj];
+        for(let row=Math.floor(Math.min(zi,zj));row<=Math.floor(Math.max(zi,zj));row++){
+          if(!rows.has(row))rows.set(row,[]);
+          rows.get(row).push(edge);
+        }
+      }
     }
+    let inside=false;
+    for(const [xi,zi,xj,zj]of rows.get(Math.floor(z))||[])
+      if((zi>z)!==(zj>z)&&x<(xj-xi)*(z-zi)/(zj-zi)+xi)inside=!inside;
     return inside;
   }
   function isLand(x, z) {
@@ -93,13 +107,13 @@ export function buildDubaiCity(context) {
       }
     }
   }
-  function distanceToSegment(x, z, s) {
+  function squaredDistanceToSegment(x, z, s) {
     const dx = s.x1 - s.x0, dz = s.z1 - s.z0, len2 = dx * dx + dz * dz;
     const t = len2 ? Math.max(0, Math.min(1, ((x - s.x0) * dx + (z - s.z0) * dz) / len2)) : 0;
-    return Math.hypot(x - (s.x0 + dx * t), z - (s.z0 + dz * t));
+    const ex=x-(s.x0+dx*t),ez=z-(s.z0+dz*t);return ex*ex+ez*ez;
   }
   function clearOfRoads(x, z, radius, ignore = null) {
-    for (const s of segmentGrid.get(bucket(x, z)) || []) if (s.entry !== ignore && distanceToSegment(x, z, s) < s.half + radius + .06) return false;
+    for (const s of segmentGrid.get(bucket(x, z)) || []) if (s.entry !== ignore && squaredDistanceToSegment(x, z, s) < (s.half + radius + .06)**2) return false;
     return true;
   }
   // A box footprint is clear when no road edge comes within a kerb of any of 25 points across it
@@ -107,9 +121,14 @@ export function buildDubaiCity(context) {
   function footprintClear(x, z, w, d, kerb = .05) {
     const segments = new Set();
     for (const [cx, cz] of [[x - w / 2, z - d / 2], [x + w / 2, z - d / 2], [x - w / 2, z + d / 2], [x + w / 2, z + d / 2]]) for (const s of segmentGrid.get(bucket(cx, cz)) || []) segments.add(s);
-    for (const s of segments) for (let i = 0; i <= 4; i++) for (let j = 0; j <= 4; j++) {
+    for (const s of segments) {
+      const margin=s.half+kerb;
+      if(Math.max(s.x0,s.x1)+margin<x-w/2||Math.min(s.x0,s.x1)-margin>x+w/2||
+         Math.max(s.z0,s.z1)+margin<z-d/2||Math.min(s.z0,s.z1)-margin>z+d/2)continue;
+      for (let i = 0; i <= 4; i++) for (let j = 0; j <= 4; j++) {
       const px = x - w / 2 + w * i / 4, pz = z - d / 2 + d * j / 4;
-      if (distanceToSegment(px, pz, s) < s.half + kerb) return false;
+      if (squaredDistanceToSegment(px, pz, s) < (s.half + kerb)**2) return false;
+      }
     }
     return true;
   }
@@ -153,8 +172,17 @@ export function buildDubaiCity(context) {
   };
   const insideBuilding = (x, z) => (builtGrid.get(`${Math.floor(x)}:${Math.floor(z)}`) || []).some(r => x >= r[0] && x <= r[2] && z >= r[1] && z <= r[3]);
   const footprintBox = (x, z, w, d, h) => { fitPoints.push(new THREE.Vector3(x - w / 2, .08, z - d / 2), new THREE.Vector3(x + w / 2, h + .25, z + d / 2)); registerFootprint(x, z, w + .12, d + .12); buildingCount++; };
-  function litWindows(x, z, w, d, h, seed, tall) {
+  function litWindows(x, z, w, d, h, seed, tall, rounded=false) {
     const floors = Math.max(1, Math.min(15, Math.floor(h / (tall ? .55 : .48))));
+    if(rounded){
+      for(let floor=0;floor<floors;floor++)for(let face=0;face<8;face++){
+        const key=seed+floor*43+face*71;if(random(key)<.22)continue;
+        const angle=(face+.5)*Math.PI/4,rx=w*.57*Math.cos(Math.PI/8)+.008,rz=d*.57*Math.cos(Math.PI/8)+.008;
+        const y=.2+(floor+.5)*h/floors,yaw=Math.atan2(Math.sin(angle)/w,Math.cos(angle)/d);
+        box(random(key+7)>.75?mat.coolLight:mat.warmLight,x+Math.sin(angle)*rx,y,z+Math.cos(angle)*rz,Math.min(w,d)*.16,Math.min(.13,h/floors*.32),.008,yaw,false);
+      }
+      return;
+    }
     for (let floor = 0; floor < floors; floor++) for (let col = 0; col < 3; col++) {
       const key = seed + floor * 43 + col * 71;
       const y = .34 + (floor + .4) * (h - .12) / floors;
@@ -166,10 +194,20 @@ export function buildDubaiCity(context) {
       }
     }
   }
-  function tower(x, z, w, d, h, seed) {
-    const variant = Math.floor(random(seed + 4) * 5);
+  const roundedTowers = [];
+  // Permanently keep nearby rectangular blocks below the round Marina roofs.
+  // Match the same deterministic round-tower selection used by the builder.
+  const marinaRoundSites=geo.towers.filter(([x,z])=>Math.hypot(x-6.5,z-57.56)<12 && Math.floor(random(Math.round(x*91+z*17)+4)*5)===0);
+  const nearMarinaRooftop=(x,z)=>marinaRoundSites.some(([rx,rz])=>Math.hypot(x-rx,z-rz)<3.2);
+  let featuredRoofPlaced=false;
+  function tower(x, z, w, d, h, seed, featured=false) {
+    const variant = featured ? 0 : Math.floor(random(seed + 4) * 5);
+    // Keep the immediate neighbours below the featured Marina rooftop.
+    // Rebuild the whole tower at this height, including its windows and crown.
+    if (variant !== 0 && nearMarinaRooftop(x,z)) h = Math.min(h, .3);
     box(mat.foundation, x, .115, z, w + .34, .15, d + .34);
     if (variant === 0) {
+      roundedTowers.push({ x, z, y: h + .295, radius: Math.min(w, d) * .55, featured });
       instance(cylinder, mat.glassLight, [x, .2 + h / 2, z], [w * .57, h, d * .57]);
       const floors = Math.min(14, Math.floor(h / .51));
       for (let i = 0; i <= floors; i++) instance(cylinder, mat.ivory, [x, .2 + i * h / floors, z], [w * .58, .038, d * .58]);
@@ -193,10 +231,15 @@ export function buildDubaiCity(context) {
       } else box(mat.porcelain, x, h + .24, z, w + .04, .1, d + .04);
     }
     if (variant === 4) { box(mat.ivory, x - w * .19, h + .66, z, .2, .9, .2); box(mat.glassLight, x - w * .19, h + 1.2, z, .035, .3, .035); }
-    litWindows(x, z, w, d, h, seed, true);
+    litWindows(x, z, w, d, h, seed, true,variant===0);
     footprintBox(x, z, w, d, h + 1.35);
   }
   function lowRise(x, z, w, d, h, seed, historic = false) {
+    // Replace one existing block inside the dense Marina neighbourhood.
+    if(!featuredRoofPlaced && Math.abs(x-14)<.8 && Math.abs(z-54)<.8){
+      featuredRoofPlaced=true;tower(x,z,w,d,2.59,seed,true);return;
+    }
+    if(nearMarinaRooftop(x,z)) h=Math.min(h,.4);
     const material = historic ? mat.chalk : mat.ivory;
     box(mat.foundation, x, .11, z, w + .22, .13, d + .22);
     box(material, x, .18 + h / 2, z, w, h, d);
@@ -225,6 +268,7 @@ export function buildDubaiCity(context) {
     registerFootprint(x, z, w, d);
     box(mat.ivory, x, .1 + h / 2, z, w, h, d);
     box(mat.porcelain, x, h + .14, z, w + .08, .08, d + .08);
+    litWindows(x,z,w,d,h,Math.round(x*91+z*17),false);
     buildingCount++;
   }
 
@@ -253,6 +297,7 @@ export function buildDubaiCity(context) {
     if (k <= .45) { towerSkips.spacing++; continue; }
     w *= k; d *= k;
     const [x, z] = spot;
+    if(Math.hypot(x-6.601801948466053,z-53.52819805153395)<.05)continue;
     tower(x, z, w, d, h, seed);
     towerRecords.push({ x, z, h, w, d });
   }
@@ -271,7 +316,9 @@ export function buildDubaiCity(context) {
   const palmRings = geo.land.map((ring, i) => ({ ring, i, c: ring.reduce(([sx, sz], [x, z]) => [sx + x / ring.length, sz + z / ring.length], [0, 0]) }))
     .filter(r => Math.hypot(r.c[0] - palmCentreReal[0], r.c[1] - palmCentreReal[1]) < 12 && r.ring.length >= 8);
   const onPalm = (x, z) => Math.hypot(x - palmCentreReal[0], z - palmCentreReal[1]) < 13 && palmRings.some(({ ring, i }) => { const b = ringBounds[i]; return x >= b.minX && x <= b.maxX && z >= b.minZ && z <= b.maxZ && pointInRing(x, z, ring); });
+  let sliceStart=performance.now();
   for (const [key, type] of urbanType) {
+    if(performance.now()-sliceStart>16){await new Promise(resolve=>setTimeout(resolve,0));sliceStart=performance.now();}
     const [gx, gz] = key.split(':').map(Number);
     const seed = gx * 131 + gz * 17, r = random(seed);
     let x = gx + geo.gridOrigin + .5 + (random(seed + 1) - .5) * .18, z = gz + geo.gridOrigin + .5 + (random(seed + 2) - .5) * .18;
@@ -346,8 +393,15 @@ export function buildDubaiCity(context) {
   const arteries = roadPolylines.filter(entry => entry.cls <= 1 && entry.points.length > 2 && entry.points.filter(inCore).length > entry.points.length * .6)
     .map(entry => ({ ...entry, length: polylineLength(entry.points), source: entry })).sort((a, b) => b.length - a.length);
   const trafficEntries = arteries.filter(entry => entry.length >= 7).slice(0, 26);
-  const trafficLines = trafficEntries.map(entry => ({ points: entry.points, cls: entry.cls, half: roadHalf(entry.cls), entry: entry.source }));
-  const trafficPaths = trafficEntries.map(entry => Object.assign(toCurve(entry.points, .08, true), { halfWidth: entry.cls === 0 ? .27 : .17 }));
+  const trafficLines = roadPolylines.filter(entry=>entry.points.length>=2).map(entry=>{
+    const length=polylineLength(entry.points);
+    const roof=roundedTowers.find(t=>t.featured);
+    const nearRooftop=roof&&entry.points.some(([x,z])=>Math.hypot(x-roof.x,z-roof.z)<12);
+    return {points:entry.points,cls:entry.cls,half:roadHalf(entry.cls),entry,
+      nearRooftop:Boolean(nearRooftop),carQuota:entry.cls<2?Math.min(100,Math.max(5,Math.ceil(length*2/4))):Math.min(16,Math.max(3,Math.ceil(length*2/4))),
+      signalEligible:trafficEntries.some(artery=>artery.source===entry)};
+  });
+  const trafficPaths = trafficLines.map(entry => Object.assign(toCurve(entry.points, .08, false), { halfWidth: entry.cls === 0 ? .27 : entry.cls === 1 ? .17 : .085 }));
   // Pavements: the white kerb strip of the city arteries, where pedestrians walk.
   const sidewalks = arteries.slice(0, 120).map(entry => ({ curve: toCurve(entry.points, .06, false), offset: roadHalf(entry.cls) - .035, entry: entry.source }));
   // Beach walks: the real coastline beside JBR / the Marina and Jumeirah, nudged a little inland.
@@ -364,7 +418,7 @@ export function buildDubaiCity(context) {
     return walks;
   }
   const beachWalks = [...shoreline(25.0790, 55.1335, 3.2), ...shoreline(25.2050, 55.2400, 3)];
-  const lampRoutes = arteries.slice(0, 60).map(entry => Object.assign(toCurve(entry.points, .06, false), { kerb: roadHalf(entry.cls) + .1 }));
+  const lampRoutes = roadPolylines.filter(entry=>entry.points.length>1).map(entry => Object.assign(toCurve(entry.points, .06, false), { kerb: roadHalf(entry.cls) + .1 }));
 
   // ---- Districts, camera views and framing.
   const districtSpecs = [
@@ -389,7 +443,7 @@ export function buildDubaiCity(context) {
   function setIntro(value) { const t = Math.max(0, Math.min(1, Number(value) || 0)); world.scale.y = Math.max(.02, 1 - Math.pow(1 - t, 3)); }
 
   return {
-    buildingCount, trafficPaths, trafficLines, lampRoutes, sidewalks, beachWalks, fitPoints, districts, views, isLand, clearOfRoads, insideBuilding,
+    roundedTowers, buildingCount, trafficPaths, trafficLines, lampRoutes, sidewalks, beachWalks, fitPoints, districts, views, isLand, clearOfRoads, insideBuilding,
     burjPlaza: [...place('burjKhalifa'), 2.32, 2.02], setTheme, setIntro,
     tags: [
       { key: 'burj', name: 'Burj Khalifa', sub: '828 m · the tallest building in the world', at: place('burjKhalifa'), h: 20.2, r: 1.1 },

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="244 203 232 58" width="232" height="58" fill="none">    <style>.w{transform-box:fill-box;transform-origin:center;animation:s .55s linear infinite}@keyframes s{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.w{animation:none}}</style><defs>
+      <linearGradient id="load-beam"><stop stop-color="#e9ddff" stop-opacity=".28"/><stop offset="1" stop-color="#e9ddff" stop-opacity="0"/></linearGradient>
+      </defs>    <g>
+      <ellipse cx="324" cy="253" rx="77" ry="6" fill="#03050d" opacity=".7"/>
+      <path d="M378 234L472 215V255L378 240Z" fill="url(#load-beam)"/>
+      <path d="M250 233L265 230L283 210Q288 205 301 205H331Q342 205 351 214L364 227L379 230Q387 232 387 240V246H249V239Z" fill="#c9c3d6"/>
+      <path d="M278 228L291 212H309V228ZM314 212H330Q336 212 341 217L352 228H314Z" fill="#29223e"/>
+      <path d="M250 234H385V242H250Z" fill="#a9a3b9"/>
+      <path d="M248 243H387" stroke="#a39caf" stroke-width="2"/>
+      <rect x="375" y="231" width="10" height="4" rx="2" fill="#fbf1ff"/>
+      <rect x="249" y="233" width="5" height="4" rx="1" fill="#ff788d"/>
+      <g fill="#10101b" stroke="#b1a8bf" stroke-width="2"><circle cx="278" cy="245" r="11"/><circle cx="360" cy="245" r="11"/></g>
+      <g class="w" stroke="#8a809e" stroke-width="1.5"><circle cx="278" cy="245" r="5"/><path d="M273 245H283M278 240V250"/></g>
+      <g class="w" stroke="#8a809e" stroke-width="1.5"><circle cx="360" cy="245" r="5"/><path d="M355 245H365M360 240V250"/></g>
+    </g></svg>

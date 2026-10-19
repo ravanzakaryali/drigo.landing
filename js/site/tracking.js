@@ -1,7 +1,7 @@
 // Meta Pixel + CAPI — app download tracking.
 // Every App Store / Google Play click is sent twice with one event id: from the browser (Pixel)
 // and from our server (CAPI via /landing/track), so Meta can deduplicate the pair.
-import { API } from './api.js?v=1';
+import { API } from './api.js?v=2';
 
 function eventId() {
   if (window.crypto?.randomUUID) return crypto.randomUUID();

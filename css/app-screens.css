@@ -1,0 +1,120 @@
+/* App screens drawn in HTML (js/site/app-screens.js). Laid out at the app's 390 × 844 and scaled
+   to the phone frame with --s, so the proportions match the real screens at any size. */
+.app-screen { position: relative; display: block; width: 100%; aspect-ratio: 390 / 844; overflow: hidden; border-radius: 23px; background: #fff; }
+.app-screen-overlay { position: absolute; inset: 0; z-index: 3; aspect-ratio: auto; background: none; pointer-events: none; }
+.as-canvas { position: absolute; left: 0; top: 0; width: 390px; height: 844px; transform: scale(var(--s, .6)); transform-origin: 0 0; color: #15131c; font: 400 14px/1.35 var(--body); letter-spacing: 0; text-align: left; -webkit-font-smoothing: antialiased; }
+.as-canvas * { box-sizing: border-box; }
+.as-canvas b, .as-canvas strong { font-weight: 700; }
+.as-canvas small { display: block; font-size: 12.5px; color: #6f6a7d; }
+/* The page styles every image inside a phone frame as a full screenshot; screen parts opt out */
+.app-screen img { width: auto; height: auto; max-width: none; aspect-ratio: auto; border-radius: 0; background: none; }
+.as-i { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+/* Status bar, home indicator */
+.as-status { position: absolute; z-index: 6; inset: 0 0 auto; height: 50px; display: flex; align-items: center; justify-content: space-between; padding: 6px 28px 0 34px; font: 600 16px/1 var(--body); }
+.as-status-icons { display: flex; align-items: center; gap: 6px; }
+.as-signal { width: 18px; height: 11px; background: linear-gradient(90deg, currentColor 0 3px, transparent 3px 5px, currentColor 5px 8px, transparent 8px 10px, currentColor 10px 13px, transparent 13px 15px, currentColor 15px); clip-path: polygon(0 75%, 25% 75%, 25% 50%, 50% 50%, 50% 25%, 75% 25%, 75% 0, 100% 0, 100% 100%, 0 100%); }
+.as-wifi { width: 16px; height: 12px; border-radius: 50% 50% 0 0 / 100% 100% 0 0; background: currentColor; clip-path: polygon(50% 100%, 0 20%, 100% 20%); }
+.as-battery { position: relative; width: 25px; height: 12px; border: 1.5px solid currentColor; border-radius: 4px; opacity: .95; }
+.as-battery::before { content: ''; position: absolute; inset: 1.5px 5px 1.5px 1.5px; border-radius: 1.5px; background: currentColor; }
+.as-home { position: absolute; z-index: 7; left: 50%; bottom: 8px; width: 134px; height: 5px; margin-left: -67px; border-radius: 3px; background: #15131c; }
+
+/* Map backgrounds: the Dubai map from the app */
+.as-map { position: absolute; inset: 0 0 auto; background: #e9edf0 url('../assets/images/site/app-map-dubai.webp') 50% 22% / 390px auto no-repeat; }
+.as-map-strip { height: 80px; }
+.as-map-walk { height: 300px; background-position: 50% 38%; }
+.as-route { position: absolute; inset: 0; width: 100%; height: 100%; fill: none; stroke: #4d21ff; stroke-width: 5; stroke-dasharray: .1 10; stroke-linecap: round; }
+.as-pin { position: absolute; left: 282px; top: 128px; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: #4d21ff; color: #fff; box-shadow: 0 0 0 6px #4d21ff33; }
+.as-pin .as-i { width: 20px; height: 20px; }
+
+/* Sheets */
+.as-sheet { position: absolute; left: 0; right: 0; bottom: 0; padding: 22px 24px 0; border-radius: 28px 28px 0 0; background: #fff; box-shadow: 0 -8px 30px #10183014; }
+.as-grab { position: absolute; left: 50%; top: 9px; width: 40px; height: 4px; margin-left: -20px; border-radius: 2px; background: #d9d7e0; }
+.as-year { display: inline-block; padding: 3px 8px; border-radius: 6px; background: #4d21ff; color: #fff; font: 700 12.5px/1.2 var(--body); font-style: normal; }
+.as-year.is-small { padding: 2px 6px; margin-right: 6px; font-size: 11px; }
+.as-title { display: block; margin-top: 8px; font: 700 20px/1.2 var(--body); }
+.as-sub { display: block; margin-top: 3px; font-size: 14px; color: #6f6a7d; }
+.app-screen .as-car { position: absolute; right: 18px; top: 28px; width: 170px; height: 92px; object-fit: contain; }
+.app-screen .as-car.is-small { top: 18px; width: 120px; height: 66px; }
+.as-help { position: absolute; z-index: 2; right: 22px; top: -12px; display: grid; place-items: center; width: 48px; height: 48px; padding: 0; border: 3px solid #fff; border-radius: 50%; background: #4d21ff; color: #fff; }
+.as-help.is-square { position: static; border: 0; border-radius: 14px; width: 52px; height: 52px; }
+.as-help.is-soft { background: #e6e0ff; color: #4d21ff; }
+.as-help.is-amber { background: #e0a100; color: #fff; }
+.as-h { display: block; margin: 20px 0 10px; font: 700 16px/1.2 var(--body); }
+
+/* Booking */
+.as-sheet-book { top: 46px; }
+.as-specs { display: flex; gap: 8px; margin: 22px -24px 0 0; overflow: hidden; }
+.as-spec { flex: none; width: 104px; padding: 12px; border-radius: 14px; background: #f3f2f6; }
+.as-spec .as-i { width: 26px; height: 26px; color: #8a8597; margin-bottom: 16px; }
+.as-spec b { display: block; margin-top: 2px; font-size: 15px; }
+.as-included { display: grid; gap: 8px; margin-top: 16px; }
+.as-inc { display: flex; align-items: center; gap: 12px; padding: 8px 14px 8px 8px; border: 1px solid #d9d2ff; border-radius: 14px; }
+.as-inc > span:nth-child(2) { flex: 1; min-width: 0; }
+.as-inc b { display: block; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.as-inc-icon { display: grid; place-items: center; flex: none; width: 46px; height: 46px; border-radius: 10px; background: #4d21ff; color: #fff; }
+.as-inc.is-blue { border-color: #cfe0ff; } .as-inc.is-blue .as-inc-icon { background: #2f6bff; }
+.as-inc.is-green { border-color: #cdeccf; } .as-inc.is-green .as-inc-icon { background: #1f9d3a; }
+.as-inc.is-plain { border: 0; background: #f3f2f6; } .as-inc.is-plain .as-inc-icon { background: none; color: #15131c; }
+.as-free { flex: none; padding: 3px 7px; border-radius: 5px; background: #1f9d3a; color: #fff; font: 800 11px/1.2 var(--body); letter-spacing: .02em; }
+.as-packages { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.as-pack { padding: 12px 14px; border: 1.5px solid transparent; border-radius: 14px; background: #f3f2f6; }
+.as-pack.is-on { border-color: #4d7bff; background: #eaf0ff; }
+.as-pack small { color: #3d3a4a; }
+.as-pack > span { display: block; margin-top: 6px; white-space: nowrap; }
+.as-pack s { color: #6f6a7d; font-size: 12.5px; }
+.as-pack b { font-size: 17px; }
+.as-actions { position: absolute; z-index: 5; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 16px 24px 40px; background: linear-gradient(transparent, #fff 22%); }
+.as-btn { display: grid; place-items: center; height: 52px; border-radius: 999px; background: #4d21ff; color: #fff; font: 700 16px/1 var(--body); }
+.as-btn.is-soft { background: #ece7ff; color: #4d21ff; }
+
+/* Walk to the car + unlock */
+.as-walk-head { position: absolute; z-index: 4; left: 24px; right: 24px; top: 56px; display: flex; align-items: center; gap: 14px; }
+.as-back { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 14px; background: #fff; box-shadow: 0 4px 16px #10183014; }
+.as-back.is-soft { background: #e6e0ff; color: #4d21ff; box-shadow: none; }
+.as-eta { flex: 1; } .as-eta b { display: block; font-size: 19px; } .as-eta small { color: #3d3a4a; }
+.as-blink { position: absolute; z-index: 4; left: 24px; right: 24px; top: 202px; display: flex; align-items: center; justify-content: space-between; height: 44px; padding: 0 12px 0 16px; border-radius: 12px; background: #fff; box-shadow: 0 4px 16px #10183014; font-size: 15px; }
+.as-blink b { display: flex; align-items: center; gap: 6px; color: #4d21ff; }
+.as-sheet-walk { top: 256px; }
+.as-rows { display: grid; gap: 8px; }
+.as-row { display: flex; align-items: center; gap: 12px; padding: 7px 14px 7px 7px; border-radius: 12px; background: #f3f2f6; }
+.as-row > span:nth-child(2) { flex: 1; }
+.as-row b { font-size: 15px; }
+.as-row-icon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 9px; background: #fff; }
+.as-amount { font-size: 15px; white-space: nowrap; }
+.as-more { display: flex; align-items: center; gap: 6px; margin-top: 12px; font-size: 13.5px; }
+.as-more .as-i { width: 16px; height: 16px; }
+.as-unlock { position: absolute; z-index: 5; left: 24px; right: 24px; bottom: 40px; display: flex; align-items: center; gap: 14px; height: 58px; padding: 4px; border-radius: 999px; background: #0d0c12; color: #fff; font-size: 15px; }
+.as-unlock-knob { display: grid; place-items: center; width: 50px; height: 50px; border-radius: 50%; background: #fff; color: #0d0c12; }
+.as-unlock b { flex: 1; text-align: center; margin-right: 50px; }
+
+/* End rental */
+.as-end-bg { position: absolute; inset: 0; padding: 56px 24px 0; background: #f6f5f9; }
+.as-end-head { display: flex; gap: 10px; margin-bottom: 18px; }
+.as-end-head .as-back { margin-right: auto; }
+.app-screen .as-end-bg .as-car { top: 118px; }
+.as-end-zones { position: absolute; left: 24px; right: 24px; bottom: 140px; }
+.as-dim { position: absolute; inset: 0; background: #15131c66; }
+.as-modal { position: absolute; z-index: 4; left: 22px; right: 22px; top: 206px; padding: 24px 22px 22px; border-radius: 22px; background: #fff; box-shadow: 0 20px 60px #0004; }
+.as-modal > strong { display: block; font-size: 18px; }
+.as-modal > small { margin-top: 6px; font-size: 13.5px; }
+.as-modal ol { display: grid; gap: 8px; margin: 18px 0; padding: 0; list-style: none; }
+.as-modal li { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 10px; background: #f3f2f6; font-size: 13px; line-height: 1.35; }
+.as-modal li i { display: grid; place-items: center; flex: none; width: 28px; height: 28px; border-radius: 50%; background: #4d21ff; color: #fff; font: 700 13px/1 var(--body); font-style: normal; }
+.as-x { position: absolute; right: 18px; top: 20px; color: #3d3a4a; }
+.as-swipe { position: absolute; z-index: 5; left: 24px; right: 24px; bottom: 40px; display: flex; align-items: center; height: 58px; padding: 4px; border-radius: 999px; background: #d4161f; color: #fff; }
+.as-swipe-knob { display: grid; place-items: center; width: 50px; height: 50px; border-radius: 50%; background: #fff; color: #15131c; }
+.as-swipe b { flex: 1; text-align: center; margin-right: 50px; font-size: 15px; }
+
+/* Map screen: the real map stays an image; only its bottom sheet is drawn */
+.as-sheet-map { top: 590px; padding: 24px 16px 0; }
+.as-chips { display: flex; gap: 6px; margin-bottom: 12px; }
+.as-chip { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border-radius: 10px; background: #f3f2f6; font-size: 13.5px; font-weight: 600; }
+.as-chip.is-on { background: #fff; box-shadow: inset 0 0 0 1.5px #d9d7e0; }
+.as-chip .as-i { width: 18px; height: 18px; }
+.as-card { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; padding: 10px 14px 10px 10px; border-radius: 14px; background: #f6f5f9; }
+.app-screen .as-card > img { width: 92px; height: 52px; object-fit: contain; }
+.as-card > span:nth-child(2) { flex: 1; min-width: 0; }
+.as-card > span:nth-child(2) > b { display: block; font-size: 16px; }
+.as-card > span:nth-child(2) > span { display: flex; align-items: center; margin-top: 4px; font-size: 13px; color: #6f6a7d; }
+.as-card-price { text-align: right; } .as-card-price b { font-size: 14.5px; white-space: nowrap; }

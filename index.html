@@ -61,12 +61,27 @@
     <meta name="twitter:image" content="https://drigo.com/assets/images/og-image.png">
     <meta name="twitter:image:alt" content="DRIGO car rental app in Dubai and Sharjah">
 
-    <!-- Fonts (self-hosted) -->
+    <!-- Fonts (self-hosted) and the first picture of the city -->
     <link rel="preload" href="assets/fonts/Unbounded.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="assets/fonts/Figtree.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" as="image" href="assets/images/site/city-preview-desktop.webp" media="(min-width:760px)" fetchpriority="high">
+    <link rel="preload" as="image" href="assets/images/site/city-preview-mobile.webp" media="(max-width:759px)" fetchpriority="high">
 
     <!-- CSS -->
-    <link rel="stylesheet" href="css/site.css?v=1">
+    <link rel="stylesheet" href="css/style.css?v=2">
+    <link rel="stylesheet" href="css/map-experience.css?v=2">
+    <link rel="stylesheet" href="css/hero-night.css?v=2">
+    <link rel="stylesheet" href="css/site.css?v=2">
+    <link rel="stylesheet" href="css/mobile.css?v=2">
+    <link rel="stylesheet" href="css/app-screens.css?v=1">
+
+    <!-- The 3D city: start fetching its modules early (URLs match the imports exactly) -->
+    <link rel="modulepreload" href="js/site/city.js?v=20261019-loader" fetchpriority="low">
+    <link rel="modulepreload" href="js/site/vendor/three.module.min.js" fetchpriority="low">
+    <link rel="modulepreload" href="js/site/vendor/three.core.min.js" fetchpriority="low">
+    <link rel="modulepreload" href="js/site/dubai-real-city.js?v=20261019-culling" fetchpriority="low">
+    <link rel="modulepreload" href="js/site/dubai-geo.js" fetchpriority="low">
+    <link rel="modulepreload" href="js/site/dubai-landmarks.js?v=20261019-no-rays" fetchpriority="low">
 
     <!-- JSON-LD: Organization -->
     <script type="application/ld+json">
@@ -228,7 +243,7 @@
           "name": "Where can I find a car?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Open the Drigo app for actual availability and parking zones in Dubai and Sharjah. The city on this website is an illustration."
+            "text": "Open the Drigo app for actual availability and parking zones in Dubai and Sharjah. You can drive and park across both cities during your rental. To end it, return to a designated zone in the city where you started: Dubai rentals end in Dubai, and Sharjah rentals end in Sharjah. The city on this website is an illustration."
           }
         },
         {
@@ -305,36 +320,87 @@
     </script>
     <noscript><img height="1" width="1" style="display:none"
     src="https://www.facebook.com/tr?id=2113963589452011&ev=PageView&noscript=1"/></noscript>
-</head>
-<body><svg style="display:none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-<symbol id="arrow-right" viewBox="0 0 24 24"><path d="M4 12h16m-7-7 7 7-7 7"/></symbol>
-<symbol id="chevron-right" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
-<symbol id="chevron-left" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></symbol>
-<symbol id="pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z" fill="currentColor" stroke="none"/><circle cx="12" cy="10" r="3" fill="white" stroke="none"/></symbol>
-<symbol id="coffee" viewBox="0 0 24 24"><path d="M4 9h12v6a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5Zm12 1h2a3 3 0 0 1 0 6h-2M3 23h15M8 6c-2-2 2-2 0-4m5 4c-2-2 2-2 0-4"/></symbol>
-<symbol id="briefcase" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V4h8v3M3 12c5 3 13 3 18 0M10 12h4v4h-4z"/></symbol>
-<symbol id="palm" viewBox="0 0 24 24"><path d="M12 22V8m0 0C9 3 4 3 2 7c4-1 7 0 10 1Zm0 0c3-5 8-5 10-1-4-1-7 0-10 1Zm0 0C7 6 3 10 4 14c2-3 5-5 8-6Zm0 0c5-2 9 2 8 6-2-3-5-5-8-6Zm0 0c-3-4-2-7 0-7 3 0 4 3 0 7"/></symbol>
-<symbol id="wallet" viewBox="0 0 24 24"><path d="M20 6H5a2 2 0 0 1 0-4h14v4M3 4v16a2 2 0 0 0 2 2h15V6m0 6h-6v5h6M16 14.5h.1"/></symbol>
-<symbol id="unlock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="12" rx="1"/><path d="M8 10V6a5 5 0 0 1 10 0"/></symbol>
-<symbol id="calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="17" rx="2"/><path d="M7 2v6m10-6v6M3 11h18"/></symbol>
-<symbol id="phone" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M10 18h4"/></symbol>
-<symbol id="plus" viewBox="0 0 24 24"><path d="M12 4v16M4 12h16"/></symbol>
-<symbol id="check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
-<symbol id="apple" viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M16.4 12.6c0-2.4 2-3.5 2-3.6-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.9-.9-3.1-.8-1.6 0-3 .9-3.8 2.3-1.6 2.8-.4 7 1.2 9.3.8 1.1 1.7 2.4 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3.1.7c1.3 0 2.1-1.1 2.8-2.3.9-1.3 1.3-2.6 1.3-2.6s-2.5-1-2.5-3.7ZM14.1 5.6c.6-.8 1.1-1.9 1-3-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 2.7-1.3Z"/></symbol>
-<symbol id="play" viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M6 3.8v16.4c0 .8.9 1.3 1.6.9l13-8.2c.6-.4.6-1.3 0-1.7l-13-8.2C6.9 2.5 6 3 6 3.8Z"/></symbol>
-<symbol id="fuel" viewBox="0 0 24 24"><path d="M4 21V5a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v16M3 21h13M4 10h11m0-3 3 3v7a1.5 1.5 0 0 0 3 0V9l-3-3"/></symbol>
-<symbol id="parking" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M9 17V7h4a3 3 0 0 1 0 6H9"/></symbol>
-<symbol id="shield" viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3Z"/><path d="m8.5 12 2.5 2.5 4.5-5"/></symbol>
-<symbol id="route" viewBox="0 0 24 24"><circle cx="6" cy="19" r="2.5"/><circle cx="18" cy="5" r="2.5"/><path d="M8.5 19H17a3.5 3.5 0 0 0 0-7H7a3.5 3.5 0 0 1 0-7h8.5"/></symbol>
-<symbol id="arrow-up-right" viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></symbol>
-</svg>
 
+    <!-- Scripts: GSAP, the loading screen, phone helpers, then the page modules -->
+    <script defer src="js/vendor/gsap.min.js?v=2"></script>
+    <script defer src="js/vendor/ScrollTrigger.min.js?v=2"></script>
+    <script defer src="js/site/mobile.js?v=2"></script>
+    <script type="module" src="js/site/tracking.js?v=2"></script>
+    <script type="module" src="js/site/cars.js?v=2"></script>
+    <script type="module" src="js/site/app-screens.js?v=1"></script>
+    <script type="module" src="js/site/app.js?v=2"></script>
+    <style>
+html{scrollbar-gutter:stable}
+body.is-loading{overflow:hidden}
+body.is-loading:not(.is-revealing)> :not(#site-loader):not(script):not(style){visibility:hidden}
+#site-loader{position:fixed;inset:0;z-index:2147483646;display:grid;place-items:center;background:#090b19;color:#fff;transition:opacity .4s ease;isolation:isolate;contain:paint;transform:translateZ(0);cursor:default}
+#site-loader.is-leaving{opacity:0}
+#site-loader[hidden]{display:none}
+.loader-inner{text-align:center;padding:28px 20px;width:min(760px,100vw)}
+.loader-logo{filter:brightness(0) invert(1);width:112px;height:auto;display:block;margin:0 auto 12px}
+.loader-art{position:relative;width:100%;aspect-ratio:640/300;margin:0 auto;contain:layout paint;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent)}
+/* Cars drive left to right across the city. Each car is its own layer moved only by transform,
+   so the traffic keeps flowing on the compositor while the main thread builds the 3D city. */
+.loader-skyline{position:absolute;inset:0;width:100%;height:100%;display:block}
+.loader-traffic{position:absolute;left:0;width:100%;will-change:transform;transform:translate3d(var(--park,-40%),0,0)}
+.loader-traffic img{display:block;height:auto}
+.loader-traffic.is-near{top:67.7%;animation:loader-pass-near 5.4s linear infinite}.loader-traffic.is-near img{width:36.25%}
+.loader-traffic.is-far{top:70%;opacity:.5;animation:loader-pass-far 8.4s linear infinite}.loader-traffic.is-far img{width:15%}
+@keyframes loader-pass-near{from{transform:translate3d(-36.25%,0,0)}to{transform:translate3d(100%,0,0)}}
+@keyframes loader-pass-far{from{transform:translate3d(-15%,0,0)}to{transform:translate3d(100%,0,0)}}
+.loader-road{position:absolute;left:8.4%;right:8.4%;top:91.1%;height:2px;overflow:hidden;background:#090b19}
+.loader-road div{width:100%;height:100%;background:repeating-linear-gradient(90deg,#81708e80 0 24px,transparent 24px 64px)}
+/* Progress: the fill moves on a CSS transition (compositor), so it keeps gliding while the city
+   build holds the main thread; loading.js mirrors its live position in the percentage. */
+.loader-progress{position:relative;width:min(64%,420px);height:2px;margin:4px auto 0;border-radius:2px;background:#ffffff14;overflow:hidden}
+.loader-progress i{position:absolute;inset:0;border-radius:inherit;background:linear-gradient(90deg,#4f22ff00,#7c5cff 55%,#e4dbff);transform:translate3d(-100%,0,0);transition:transform .5s cubic-bezier(.2,.7,.3,1);will-change:transform}
+.loader-percent{margin:14px 0 0;font:600 13px/1 Unbounded,Arial,sans-serif;letter-spacing:.06em;font-variant-numeric:tabular-nums;color:#cfc6ff}
+.loader-label{font:400 13px/1.5 Arial,sans-serif;letter-spacing:.015em;color:#9693aa;margin:18px 0 0;display:none;align-items:center;justify-content:center;gap:9px}
+#site-loader:has(.loader-actions:not([hidden])) .loader-label{display:flex}
+.loader-label:before{content:'';width:5px;height:5px;border-radius:50%;background:#a38bff;box-shadow:0 0 12px #956bff;animation:loader-beacon 1.5s ease-in-out infinite}
+.loader-car{animation:loader-drive 2.8s ease-in-out infinite;transform-origin:320px 235px}
+.loader-lanes{animation:loader-lanes .75s linear infinite}
+.loader-route{stroke-dasharray:130 1000;animation:loader-route 3.2s linear infinite}
+.loader-windows{animation:loader-beacon 2.4s ease-in-out infinite}
+.loader-wheel{transform-box:fill-box;transform-origin:center;animation:loader-wheel .7s linear infinite}
+@keyframes loader-drive{0%,100%{transform:translate(-6px,0)}50%{transform:translate(6px,-1px)}}
+@keyframes loader-lanes{to{stroke-dashoffset:64}}
+@keyframes loader-route{from{stroke-dashoffset:150}to{stroke-dashoffset:-900}}
+@keyframes loader-beacon{0%,100%{opacity:.4}50%{opacity:1}}
+@keyframes loader-wheel{to{transform:rotate(360deg)}}
+.loader-actions{margin-top:24px;display:flex;justify-content:center;gap:12px}.loader-actions[hidden]{display:none}
+.loader-actions button{border:1px solid #ffffff35;border-radius:30px;padding:10px 16px;background:#4f22ff;color:white;font:14px Arial,sans-serif;cursor:pointer}
+.loader-actions button:last-child{background:transparent}
+body.is-loading #city-canvas canvas{transition:none!important}
+body.is-loading.city-ready .city-preview{display:none}
+@media(prefers-reduced-motion:reduce){#site-loader{transition:none}#site-loader *{animation:none!important}.loader-progress i{transition:none}}
+@media(max-width:480px){.loader-inner{padding:24px 12px}.loader-logo{width:96px}}
+</style><noscript><style>#site-loader{display:none!important}body.is-loading{overflow:auto}body.is-loading>*{visibility:visible!important}</style></noscript>
+</head>
+<body class="is-loading">
+<div id="site-loader" role="status" aria-live="polite" aria-label="Loading Drigo">
+  <div class="loader-inner"><img class="loader-logo" src="assets/svgs/logo.svg" width="142" height="58" alt="Drigo">
+  <div class="loader-art" aria-hidden="true">
+    <img class="loader-skyline" src="assets/images/site/loading-skyline.svg" width="640" height="300" alt="">
+    <div class="loader-road"><div></div></div>
+    <div class="loader-traffic is-far" style="animation-delay:-1s;--park:12%"><img src="assets/images/site/loading-car-traffic.svg" width="232" height="58" alt=""></div>
+    <div class="loader-traffic is-far" style="animation-delay:-3.8s;--park:64%"><img src="assets/images/site/loading-car-drigo.svg" width="232" height="58" alt=""></div>
+    <div class="loader-traffic is-far" style="animation-delay:-6.6s"><img src="assets/images/site/loading-car-traffic.svg" width="232" height="58" alt=""></div>
+    <div class="loader-traffic is-near" style="animation-delay:-5s"><img src="assets/images/site/loading-car-traffic.svg" width="232" height="58" alt=""></div>
+    <div class="loader-traffic is-near" style="animation-delay:-2.3s;--park:32%"><img src="assets/images/site/loading-car-drigo.svg" width="232" height="58" alt=""></div>
+  </div>
+  <div class="loader-progress" aria-hidden="true"><i></i></div>
+  <p class="loader-percent" aria-hidden="true">0%</p>
+  <p class="loader-label">Getting your city ready</p>
+  <div class="loader-actions" hidden><button type="button" id="loader-retry">Try again</button><button type="button" id="loader-continue">View website</button></div></div>
+</div>
 <a class="skip-link" href="#main">Skip to content</a>
-<header class="header"><a href="/" class="logo" aria-label="Drigo home"><img src="assets/svgs/logo.svg" width="124" height="51" alt="drigo"></a><nav class="nav" aria-label="Main navigation"><a href="#trip" data-roll>How it works</a><a href="#plans" data-roll>Cars</a><a href="#benefits" data-roll>Why Drigo</a><a href="#questions" data-roll>FAQ</a><a href="#business" data-roll>For business</a></nav><div class="header-right"><a class="nav-download" href="#get-the-app" data-magnetic><span data-roll>Get Drigo</span> <svg aria-hidden="true"><use href="#arrow-right"/></svg></a><button class="menu-button" aria-label="Open navigation" aria-expanded="false" aria-controls="mobile-menu"><span></span><span></span></button></div></header>
+<header class="header"><a href="/" class="logo" aria-label="Drigo home"><img src="assets/svgs/logo.svg" width="124" height="51" alt="drigo"></a><nav class="nav" aria-label="Main navigation"><a href="#trip" data-roll>How it works</a><a href="#plans" data-roll>Cars</a><a href="#benefits" data-roll>Why Drigo</a><a href="#questions" data-roll>FAQ</a><a href="#business" data-roll>For business</a></nav><div class="header-right"><a class="nav-download" href="#get-the-app" data-magnetic><span data-roll>Get Drigo</span> <svg aria-hidden="true"><use href="assets/images/site/icons.svg?v=1#arrow-right"/></svg></a><button class="menu-button" aria-label="Open navigation" aria-expanded="false" aria-controls="mobile-menu"><span></span><span></span></button></div></header>
 <nav id="mobile-menu" class="mobile-menu" aria-label="Mobile navigation" hidden><a href="#trip">How it works</a><a href="#plans">Cars</a><a href="#benefits">Why Drigo</a><a href="#questions">FAQ</a><a href="#business">For business</a></nav>
 <main id="main">
 <section class="hero map-hero" id="explore" aria-labelledby="hero-title">
   <div class="city-stage">
+    <picture class="city-preview" aria-hidden="true"><source media="(max-width:759px)" srcset="assets/images/site/city-preview-mobile.webp"><img src="assets/images/site/city-preview-desktop.webp" alt="" fetchpriority="high" decoding="sync" width="1440" height="900"></picture>
     <div id="city-canvas" tabindex="0" role="group" aria-label="Interactive 3D map of Dubai with five districts. Drag horizontally or use left and right arrow keys to rotate. Use plus and minus to zoom. Press Home to reset." aria-describedby="map-hint"></div>
     <div class="map-pins" aria-label="Dubai-inspired districts to explore">
       <button class="map-pin" data-destination="0" aria-label="Explore Downtown" aria-pressed="false" aria-controls="map-place"><span class="map-pin-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5" fill="currentColor" stroke="none"/></svg></span><span class="map-pin-label">Downtown</span></button>
@@ -347,11 +413,11 @@
   </div>
   <div class="map-shade" aria-hidden="true"></div>
   <div class="hero-heading">
-    <p class="hero-kicker"><i></i>Car sharing · Dubai &amp; Sharjah</p>
+    
     <h1 id="hero-title"><span class="sr-only">Your city. Your next move.</span><span class="hl hl-1" aria-hidden="true">Your city.</span><span class="hl hl-2" aria-hidden="true">Your next move.</span></h1>
     <div class="hero-sub">
       <p>Find, book and unlock a car in Dubai &amp; Sharjah. Hourly, daily or monthly, with no security deposit and fuel included on eligible trips.</p>
-      <div class="hero-actions"><a class="btn btn-violet" href="#get-the-app" data-magnetic><span data-roll>Get the app</span><svg aria-hidden="true"><use href="#arrow-right"/></svg></a><a class="hero-explore" href="#benefits"><span class="hero-explore-ring" aria-hidden="true"><svg><use href="#arrow-right"/></svg></span><span data-roll>Discover Drigo</span></a></div>
+      <div class="hero-actions"><a class="btn btn-violet" href="#get-the-app" data-magnetic><span data-roll>Get the app</span><svg aria-hidden="true"><use href="assets/images/site/icons.svg?v=1#arrow-right"/></svg></a><a class="hero-explore" href="#benefits"><span class="hero-explore-ring" aria-hidden="true"><svg><use href="assets/images/site/icons.svg?v=1#arrow-right"/></svg></span><span data-roll>Discover Drigo</span></a></div>
     </div>
   </div>
   <div class="map-help" id="map-hint"><svg class="drag-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h18M7 8l-4 4 4 4m10-8 4 4-4 4"/></svg><span>Drag to explore · Tap a district</span></div>
@@ -369,7 +435,7 @@
     <p class="place-kicker"><i></i><span id="place-count">01 / 05</span><span id="place-name">Downtown</span></p>
     <h2 id="place-title"></h2><p id="place-description"></p>
     <ul class="place-tags" id="place-tags" aria-label="Around here"></ul>
-    <div class="place-foot"><a class="place-go" href="#get-the-app">Find your drive <svg aria-hidden="true"><use href="#arrow-right"/></svg></a><div class="place-step"><button type="button" data-place-step="-1" aria-label="Previous district"><svg aria-hidden="true"><use href="#chevron-left"/></svg></button><button type="button" data-place-step="1" aria-label="Next district"><svg aria-hidden="true"><use href="#chevron-right"/></svg></button></div></div>
+    <div class="place-foot"><a class="place-go" href="#get-the-app">Find your drive <svg aria-hidden="true"><use href="assets/images/site/icons.svg?v=1#arrow-right"/></svg></a><div class="place-step"><button type="button" data-place-step="-1" aria-label="Previous district"><svg aria-hidden="true"><use href="assets/images/site/icons.svg?v=1#chevron-left"/></svg></button><button type="button" data-place-step="1" aria-label="Next district"><svg aria-hidden="true"><use href="assets/images/site/icons.svg?v=1#chevron-right"/></svg></button></div></div>
   </aside>
   <div class="map-footer"><p class="map-note">Dubai in 3D, on real streets. Map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors.</p></div>
   <p id="map-status" class="sr-only" role="status"></p>
@@ -379,33 +445,33 @@
 <section class="benefits" id="benefits" aria-labelledby="benefits-title">
   <div class="wrap">
     <div class="sec-head sec-head-row">
-      <div><p class="kicker"><i></i>Why Drigo</p><h2 id="benefits-title" class="split-words">The small print, <em>made small.</em></h2></div>
+      <div><h2 id="benefits-title" class="split-words"><span class="heading-line">The small print,</span> <em>made small.</em></h2></div>
       <p>What&rsquo;s included is shown before you book. Review the rental price, fees, cover and payment details in the app.</p>
     </div>
     <ul class="bento">
       <li class="tile tile-fuel" data-spot>
         <div class="gauge" aria-hidden="true"><svg viewBox="0 0 120 70"><path class="gauge-arc" d="M12 62a48 48 0 0 1 96 0"/><path class="gauge-fill" d="M12 62a48 48 0 0 1 96 0" pathLength="1"/><line class="gauge-needle" x1="60" y1="62" x2="60" y2="22"/><circle cx="60" cy="62" r="5"/><text x="6" y="78">E</text><text x="108" y="78">F</text></svg></div>
-        <div class="tile-copy"><h3>Fuel on eligible trips</h3><p>Refuel at partner stations on us when your trip qualifies.</p></div>
+        <div class="tile-copy"><h3>Fuel included</h3><p>Refuel at partner stations. Fuel is covered on eligible trips.</p></div>
       </li>
       <li class="tile tile-deposit" data-spot>
         <div class="odometer" aria-hidden="true"><span class="odo"><span>9</span><span>6</span><span>3</span><span>0</span></span></div>
-        <div class="tile-copy"><h3>No security deposit</h3><p>Book without a hold on your card.</p></div>
+        <div class="tile-copy"><h3>No deposit</h3><p><span>Book without a deposit.</span> <span>No hold on your card.</span></p></div>
       </li>
       <li class="tile tile-phone" data-spot>
-        <div class="tile-copy"><h3>Everything, in one app</h3><p>Choose a package, see what&rsquo;s included, start the ride.</p></div>
-        <span class="tp-bg" aria-hidden="true"><i class="tp-dots"></i><i class="tp-ring"></i><i class="tp-glow"></i></span><div class="tile-phone-wrap"><span class="tp-chip tp-chip-1" aria-hidden="true"><i><svg><use href="#parking"/></svg></i>Parking zones<b>FREE</b></span><span class="tp-chip tp-chip-2" aria-hidden="true"><i class="tp-blue"><svg><use href="#fuel"/></svg></i>Fuel included<b>FREE</b></span><div class="phone phone-sm"><img src="assets/images/site/app-booking-sm.webp" alt="The Drigo booking screen with rental packages" width="390" height="844" loading="lazy" decoding="async"></div></div>
+        <div class="tile-copy"><h3>All in one app</h3><p><span>Choose your car and package.</span> <span>See what’s included, then go.</span></p></div>
+        <span class="tp-bg" aria-hidden="true"><i class="tp-dots"></i><i class="tp-ring"></i><i class="tp-glow"></i></span><div class="tile-phone-wrap"><span class="tp-chip tp-chip-1" aria-hidden="true"><i><svg><use href="assets/images/site/icons.svg?v=1#parking"/></svg></i>Parking zones<b>FREE</b></span><span class="tp-chip tp-chip-2" aria-hidden="true"><i class="tp-blue"><svg><use href="assets/images/site/icons.svg?v=1#fuel"/></svg></i>Fuel included<b>FREE</b></span><div class="phone phone-sm"><div class="app-screen" data-screen="booking" role="img" aria-label="The Drigo booking screen with rental packages and prices"></div></div></div>
       </li>
       <li class="tile tile-park" data-spot>
-        <div class="zone" aria-hidden="true"><i></i><i></i><span><svg><use href="#parking"/></svg></span></div>
-        <div class="tile-copy"><h3>Free parking in zones</h3><p>Start and end in a designated zone. No meters, no hunting.</p></div>
+        <div class="zone" aria-hidden="true"><i></i><i></i><span><svg><use href="assets/images/site/icons.svg?v=1#parking"/></svg></span></div>
+        <div class="tile-copy"><h3>Free parking</h3><p><span>Free zones: A, AP, B, BP,</span> <span>C, CP, D and DP.</span></p></div>
       </li>
       <li class="tile tile-unlock" data-spot>
         <div class="lock" aria-hidden="true"><svg viewBox="0 0 48 48"><path class="shackle" d="M15 22v-6a9 9 0 0 1 18 0"/><rect x="10" y="22" width="28" height="20" rx="5"/><circle cx="24" cy="32" r="2.6"/></svg></div>
-        <div class="tile-copy"><h3>Your phone is the key</h3><p>Unlock as you reach the car. Blink the lights to spot it.</p></div>
+        <div class="tile-copy"><h3>No office visits</h3><p><span>Find, book and unlock in the app.</span> <span>Go straight to your car.</span></p></div>
       </li>
       <li class="tile tile-cities" data-spot>
         <div class="cities" aria-hidden="true"><svg viewBox="0 0 220 80"><path class="cities-road" d="M24 56 C 70 10, 150 70, 196 24"/><circle class="cities-a" cx="24" cy="56" r="7"/><circle class="cities-b" cx="196" cy="24" r="7"/><circle class="car-dot" r="5"><animateMotion dur="3.4s" repeatCount="indefinite" path="M24 56 C 70 10, 150 70, 196 24"/></circle><text x="10" y="78">Dubai</text><text x="168" y="12">Sharjah</text></svg></div>
-        <div class="tile-copy"><h3>Dubai &amp; Sharjah</h3><p>One account, two cities, parking zones across both.</p></div>
+        <div class="tile-copy"><h3>Dubai &amp; Sharjah</h3><p><span>Drive and park in both cities.</span> <span>End rentals in your start city.</span></p></div>
       </li>
     </ul>
   </div>
@@ -417,49 +483,48 @@
 <section class="ride" id="trip" aria-labelledby="trip-title">
   <div class="ride-pin">
     <div class="ride-head wrap">
-      <div><p class="kicker"><i></i>How it works</p><h2 id="trip-title" class="split-words">Four moves. <em>Zero counters.</em></h2></div>
+      <div><h2 id="trip-title" class="split-words"><span class="heading-line">Four moves.</span> <em>Zero counters.</em></h2></div>
       <p class="ride-count" aria-hidden="true"><span class="ride-now">01</span><span class="ride-of">/04</span></p>
     </div>
     <div class="ride-viewport">
       <ol class="ride-track">
         <li class="ride-card rc-find">
           <div class="ride-copy"><span class="ride-n" aria-hidden="true">01</span><h3>Find.</h3><p>Open the map and see the cars parked around you across Dubai and Sharjah.</p><ul class="ride-tags"><li>Live map in the app</li><li>Cars, SUVs, premium</li></ul></div>
-          <div class="ride-media ride-media-phone"><div class="rings" aria-hidden="true"><i></i><i></i><i></i></div><div class="phone" data-inner><img src="assets/images/site/app-map-find.webp" alt="The Drigo app map with cars parked around Al Barsha and Jumeirah" width="390" height="844" decoding="async"></div></div>
+          <div class="ride-media ride-media-phone"><div class="rings" aria-hidden="true"><i></i><i></i><i></i></div><div class="phone" data-inner><div class="road-map-screen"><img src="assets/images/site/app-map-dubai.webp" class="road-map-image" alt="The Drigo app map with cars parked around Al Barsha and Jumeirah" width="390" height="844" decoding="async"><div class="app-screen app-screen-overlay" data-screen="map" aria-hidden="true"></div><svg class="road-traffic" viewBox="0 0 780 1688" aria-hidden="true" focusable="false"><g class="road-car"><g><rect x="-23" y="-13" width="8" height="5" rx="2" fill="#152235"/><rect x="13" y="-13" width="8" height="5" rx="2" fill="#152235"/><rect x="-23" y="8" width="8" height="5" rx="2" fill="#152235"/><rect x="13" y="8" width="8" height="5" rx="2" fill="#152235"/><rect x="-25" y="-11" width="50" height="22" rx="8" fill="#008bd1" stroke="#07577e" stroke-width="1.5"/><path d="M5-9L12-7V7L5 9Z" fill="#172e42"/><path d="M-16-7L-10-9V9L-16 7Z" fill="#172e42"/><rect x="-8" y="-7" width="12" height="14" rx="3" fill="#13a5eb"/><path d="M23-7V-3M23 3V7" stroke="#dcf8ff" stroke-width="2"/></g><animateMotion dur="42s" begin="-0s" repeatCount="indefinite" rotate="auto" path="M 643,330 L 559,451 Q 525,502 484,555 L 350,722 Q 300,790 238,864 Q 225,882 235,889 Q 246,897 258,880 L 370,735 L 503,569 Q 544,518 577,465 L 660,344 Q 670,330 659,323 Q 650,318 643,330 Z"/></g><g class="road-car"><g><rect x="-23" y="-13" width="8" height="5" rx="2" fill="#152235"/><rect x="13" y="-13" width="8" height="5" rx="2" fill="#152235"/><rect x="-23" y="8" width="8" height="5" rx="2" fill="#152235"/><rect x="13" y="8" width="8" height="5" rx="2" fill="#152235"/><rect x="-25" y="-11" width="50" height="22" rx="8" fill="#008bd1" stroke="#07577e" stroke-width="1.5"/><path d="M5-9L12-7V7L5 9Z" fill="#172e42"/><path d="M-16-7L-10-9V9L-16 7Z" fill="#172e42"/><rect x="-8" y="-7" width="12" height="14" rx="3" fill="#13a5eb"/><path d="M23-7V-3M23 3V7" stroke="#dcf8ff" stroke-width="2"/></g><animateMotion dur="36s" begin="-7s" repeatCount="indefinite" rotate="auto" path="M 707,570 L 632,668 Q 608,701 580,739 L 477,877 Q 431,938 376,998 Q 365,1011 374,1019 Q 382,1026 393,1012 L 495,891 L 597,753 L 723,582 Q 732,570 721,564 Q 713,560 707,570 Z"/></g><g class="road-car"><g><rect x="-23" y="-13" width="8" height="5" rx="2" fill="#152235"/><rect x="13" y="-13" width="8" height="5" rx="2" fill="#152235"/><rect x="-23" y="8" width="8" height="5" rx="2" fill="#152235"/><rect x="13" y="8" width="8" height="5" rx="2" fill="#152235"/><rect x="-25" y="-11" width="50" height="22" rx="8" fill="#008bd1" stroke="#07577e" stroke-width="1.5"/><path d="M5-9L12-7V7L5 9Z" fill="#172e42"/><path d="M-16-7L-10-9V9L-16 7Z" fill="#172e42"/><rect x="-8" y="-7" width="12" height="14" rx="3" fill="#13a5eb"/><path d="M23-7V-3M23 3V7" stroke="#dcf8ff" stroke-width="2"/></g><animateMotion dur="42s" begin="-14s" repeatCount="indefinite" rotate="auto" path="M 643,330 L 559,451 Q 525,502 484,555 L 350,722 Q 300,790 238,864 Q 225,882 235,889 Q 246,897 258,880 L 370,735 L 503,569 Q 544,518 577,465 L 660,344 Q 670,330 659,323 Q 650,318 643,330 Z"/></g><g class="road-car"><g><rect x="-23" y="-13" width="8" height="5" rx="2" fill="#152235"/><rect x="13" y="-13" width="8" height="5" rx="2" fill="#152235"/><rect x="-23" y="8" width="8" height="5" rx="2" fill="#152235"/><rect x="13" y="8" width="8" height="5" rx="2" fill="#152235"/><rect x="-25" y="-11" width="50" height="22" rx="8" fill="#008bd1" stroke="#07577e" stroke-width="1.5"/><path d="M5-9L12-7V7L5 9Z" fill="#172e42"/><path d="M-16-7L-10-9V9L-16 7Z" fill="#172e42"/><rect x="-8" y="-7" width="12" height="14" rx="3" fill="#13a5eb"/><path d="M23-7V-3M23 3V7" stroke="#dcf8ff" stroke-width="2"/></g><animateMotion dur="36s" begin="-21s" repeatCount="indefinite" rotate="auto" path="M 707,570 L 632,668 Q 608,701 580,739 L 477,877 Q 431,938 376,998 Q 365,1011 374,1019 Q 382,1026 393,1012 L 495,891 L 597,753 L 723,582 Q 732,570 721,564 Q 713,560 707,570 Z"/></g><g class="road-car"><g><rect x="-23" y="-13" width="8" height="5" rx="2" fill="#152235"/><rect x="13" y="-13" width="8" height="5" rx="2" fill="#152235"/><rect x="-23" y="8" width="8" height="5" rx="2" fill="#152235"/><rect x="13" y="8" width="8" height="5" rx="2" fill="#152235"/><rect x="-25" y="-11" width="50" height="22" rx="8" fill="#008bd1" stroke="#07577e" stroke-width="1.5"/><path d="M5-9L12-7V7L5 9Z" fill="#172e42"/><path d="M-16-7L-10-9V9L-16 7Z" fill="#172e42"/><rect x="-8" y="-7" width="12" height="14" rx="3" fill="#13a5eb"/><path d="M23-7V-3M23 3V7" stroke="#dcf8ff" stroke-width="2"/></g><animateMotion dur="42s" begin="-28s" repeatCount="indefinite" rotate="auto" path="M 643,330 L 559,451 Q 525,502 484,555 L 350,722 Q 300,790 238,864 Q 225,882 235,889 Q 246,897 258,880 L 370,735 L 503,569 Q 544,518 577,465 L 660,344 Q 670,330 659,323 Q 650,318 643,330 Z"/></g><g class="road-car"><g><rect x="-23" y="-13" width="8" height="5" rx="2" fill="#152235"/><rect x="13" y="-13" width="8" height="5" rx="2" fill="#152235"/><rect x="-23" y="8" width="8" height="5" rx="2" fill="#152235"/><rect x="13" y="8" width="8" height="5" rx="2" fill="#152235"/><rect x="-25" y="-11" width="50" height="22" rx="8" fill="#008bd1" stroke="#07577e" stroke-width="1.5"/><path d="M5-9L12-7V7L5 9Z" fill="#172e42"/><path d="M-16-7L-10-9V9L-16 7Z" fill="#172e42"/><rect x="-8" y="-7" width="12" height="14" rx="3" fill="#13a5eb"/><path d="M23-7V-3M23 3V7" stroke="#dcf8ff" stroke-width="2"/></g><animateMotion dur="36s" begin="-35s" repeatCount="indefinite" rotate="auto" path="M 707,570 L 632,668 Q 608,701 580,739 L 477,877 Q 431,938 376,998 Q 365,1011 374,1019 Q 382,1026 393,1012 L 495,891 L 597,753 L 723,582 Q 732,570 721,564 Q 713,560 707,570 Z"/></g></svg></div></div></div>
         </li>
         <li class="ride-card rc-book">
           <div class="ride-copy"><span class="ride-n" aria-hidden="true">02</span><h3>Book.</h3><p>Pick hourly, daily or monthly. Fuel, parking and insurance shown up front. No deposit.</p><ul class="ride-tags"><li>No security deposit</li><li>Packages shown up front</li></ul></div>
-          <div class="ride-media"><img data-inner src="assets/images/site/ride-book.webp" sizes="(max-width: 900px) 92vw, 50vw" alt="Two phones showing Drigo rental packages with fuel, parking and insurance, and directions to the car" width="2200" height="1650" decoding="async"></div>
+          <div class="ride-media ride-media-phone ride-media-soft"><div class="rings" aria-hidden="true"><i></i><i></i><i></i></div><div class="phone" data-inner><div class="app-screen" data-screen="booking" role="img" aria-label="The Drigo booking screen with rental packages and prices"></div></div></div>
         </li>
         <li class="ride-card rc-drive">
           <div class="ride-copy"><span class="ride-n" aria-hidden="true">03</span><h3>Unlock.</h3><p>Walk up, tap unlock from 30 metres, go. Blink the lights if you can&rsquo;t spot it.</p><ul class="ride-tags"><li>Phone is the key</li><li>Blink the lights</li></ul></div>
-          <div class="ride-media"><img data-inner src="assets/images/site/ride-unlock.webp" sizes="(max-width: 900px) 92vw, 50vw" alt="A phone showing Drigo directions to the car, with Blink car lights and the Reach car to unlock control" width="2200" height="1650" decoding="async"></div>
+          <div class="ride-media ride-media-phone"><div class="rings" aria-hidden="true"><i></i><i></i><i></i></div><div class="phone" data-inner><div class="app-screen" data-screen="unlock" role="img" aria-label="Directions to the car, the rent details and the unlock control in the Drigo app"></div></div></div>
         </li>
         <li class="ride-card rc-park">
-          <div class="ride-copy"><span class="ride-n" aria-hidden="true">04</span><h3>Park.</h3><p>End the rental in any designated zone with one swipe. Then get on with your day.</p><ul class="ride-tags"><li>Swipe to end</li><li>No meters, no hunting</li></ul></div>
-          <div class="ride-media ride-media-phone ride-media-soft"><div class="rings" aria-hidden="true"><i></i><i></i><i></i></div><div class="phone" data-inner><img src="assets/images/site/app-end-rental.webp" alt="The Drigo app showing the Before ending rental checklist with the End rental button" width="390" height="844" decoding="async"></div></div>
+          <div class="ride-copy"><span class="ride-n" aria-hidden="true">04</span><h3>Park.</h3><p>End your rental in a designated zone in the city where you started. Swipe to finish in the app.</p><ul class="ride-tags"><li>Swipe to end</li><li>No meters, no hunting</li></ul></div>
+          <div class="ride-media ride-media-phone ride-media-soft"><div class="rings" aria-hidden="true"><i></i><i></i><i></i></div><div class="phone" data-inner><div class="app-screen" data-screen="end" role="img" aria-label="The Before ending rental checklist with the End rental button"></div></div></div>
         </li>
       </ol>
     </div>
   </div>
 </section>
 
-<!-- ============ 03 · Plans: giant rows, a preview follows the cursor ============ -->
+<!-- ============ 03 · Cars: expanded rows with visible photos and details ============ -->
 <section class="plans" id="plans" aria-labelledby="plans-title">
   <div class="wrap">
     <div class="sec-head">
-      <p class="kicker"><i></i>The cars</p>
-      <h2 id="plans-title" class="split-words">Every car, <em>its own price.</em></h2>
+      
+      <h2 id="plans-title" class="split-words"><span class="heading-line">Every car,</span> <em>its own price.</em></h2>
       <p>There&rsquo;s no fixed price list. Each model has its own packages, so what you pay depends on the car you pick. Here&rsquo;s where each one starts; the app shows the exact price before you book.</p>
     </div>
     <ul class="plan-list">
-      <li class="plan"><a href="#get-the-app"><span class="plan-n">01</span><span class="plan-name" data-roll>Geely GX3 Pro</span><span class="plan-desc"><b>From AED 129 / day</b>SUV · 5 seats · 150 km a day</span><span class="plan-go" aria-hidden="true"><svg><use href="#arrow-up-right"/></svg></span></a></li>
-      <li class="plan"><a href="#get-the-app"><span class="plan-n">02</span><span class="plan-name" data-roll>Geely Emgrand</span><span class="plan-desc"><b>From AED 139 / day</b>Sedan · 5 seats · 150 km a day</span><span class="plan-go" aria-hidden="true"><svg><use href="#arrow-up-right"/></svg></span></a></li>
-      <li class="plan"><a href="#get-the-app"><span class="plan-n">03</span><span class="plan-name" data-roll>Geely Coolray</span><span class="plan-desc"><b>From AED 159 / day</b>SUV · 5 seats · 150 km a day</span><span class="plan-go" aria-hidden="true"><svg><use href="#arrow-up-right"/></svg></span></a></li>
-      <li class="plan"><a href="#get-the-app"><span class="plan-n">04</span><span class="plan-name" data-roll>GAC GS3 Emzoom</span><span class="plan-desc"><b>From AED 159 / day</b>SUV · 5 seats · 150 km a day</span><span class="plan-go" aria-hidden="true"><svg><use href="#arrow-up-right"/></svg></span></a></li>
+      <li class="plan"><a href="#get-the-app"><img class="plan-photo" src="assets/images/site/car-gx3-pro.webp" alt="Geely GX3 Pro" width="1080" height="458" loading="lazy" decoding="async"><span class="plan-n">01 · 2026 · SUV</span><span class="plan-name">Geely GX3 Pro</span><span class="plan-desc"><b>From AED 129 / day</b></span><span class="plan-go" aria-hidden="true"><svg><use href="assets/images/site/icons.svg?v=1#arrow-up-right"/></svg></span><ul class="plan-details"><li><svg><use href="assets/images/site/icons.svg?v=1#check"/></svg>5 seats, 150 km a day included</li><li><svg><use href="assets/images/site/icons.svg?v=1#check"/></svg>Fuel included on eligible trips</li><li><svg><use href="assets/images/site/icons.svg?v=1#check"/></svg>Hourly and daily packages</li></ul></a></li>
+      <li class="plan"><a href="#get-the-app"><img class="plan-photo" src="assets/images/site/car-emgrand.webp" alt="Geely Emgrand" width="1080" height="458" loading="lazy" decoding="async"><span class="plan-n">02 · 2026 · Sedan</span><span class="plan-name">Geely Emgrand</span><span class="plan-desc"><b>From AED 139 / day</b></span><span class="plan-go" aria-hidden="true"><svg><use href="assets/images/site/icons.svg?v=1#arrow-up-right"/></svg></span><ul class="plan-details"><li><svg><use href="assets/images/site/icons.svg?v=1#check"/></svg>5 seats, 150 km a day included</li><li><svg><use href="assets/images/site/icons.svg?v=1#check"/></svg>Fuel included on eligible trips</li><li><svg><use href="assets/images/site/icons.svg?v=1#check"/></svg>Hourly and daily packages</li></ul></a></li>
+      <li class="plan"><a href="#get-the-app"><img class="plan-photo" src="assets/images/site/car-coolray.webp" alt="Geely Coolray" width="1080" height="458" loading="lazy" decoding="async"><span class="plan-n">03 · 2026 · SUV</span><span class="plan-name">Geely Coolray</span><span class="plan-desc"><b>From AED 159 / day</b></span><span class="plan-go" aria-hidden="true"><svg><use href="assets/images/site/icons.svg?v=1#arrow-up-right"/></svg></span><ul class="plan-details"><li><svg><use href="assets/images/site/icons.svg?v=1#check"/></svg>5 seats, 150 km a day included</li><li><svg><use href="assets/images/site/icons.svg?v=1#check"/></svg>Fuel included on eligible trips</li><li><svg><use href="assets/images/site/icons.svg?v=1#check"/></svg>Hourly and daily packages</li></ul></a></li>
+      <li class="plan"><a href="#get-the-app"><img class="plan-photo" src="assets/images/site/car-gac-gs3.webp" alt="GAC GS3 Emzoom" width="1080" height="458" loading="lazy" decoding="async"><span class="plan-n">04 · 2026 · SUV</span><span class="plan-name">GAC GS3 Emzoom</span><span class="plan-desc"><b>From AED 159 / day</b></span><span class="plan-go" aria-hidden="true"><svg><use href="assets/images/site/icons.svg?v=1#arrow-up-right"/></svg></span><ul class="plan-details"><li><svg><use href="assets/images/site/icons.svg?v=1#check"/></svg>5 seats, 150 km a day included</li><li><svg><use href="assets/images/site/icons.svg?v=1#check"/></svg>Fuel included on eligible trips</li><li><svg><use href="assets/images/site/icons.svg?v=1#check"/></svg>Hourly and daily packages</li></ul></a></li>
     </ul>
-    <p class="plans-note">From-prices are live. The exact price for your car, package and dates is shown in the app before you book.</p>
+    
   </div>
-  <div class="plan-preview" aria-hidden="true"><article class="pp-panel" data-i="0"><img class="pp-photo" src="assets/images/site/car-gx3-pro.webp" alt="" width="1080" height="458" loading="lazy" decoding="async"><header><span><small>2026 · SUV</small><strong>Geely GX3 Pro</strong></span></header><ul><li><svg><use href="#check"/></svg>5 seats, 150 km a day included</li><li><svg><use href="#check"/></svg>Fuel included on eligible trips</li><li><svg><use href="#check"/></svg>Hourly and daily packages</li></ul><span class="pp-foot"><span>From <b>AED 129</b> / day</span><svg><use href="#arrow-up-right"/></svg></span></article><article class="pp-panel" data-i="1"><img class="pp-photo" src="assets/images/site/car-emgrand.webp" alt="" width="1080" height="458" loading="lazy" decoding="async"><header><span><small>2026 · Sedan</small><strong>Geely Emgrand</strong></span></header><ul><li><svg><use href="#check"/></svg>5 seats, 150 km a day included</li><li><svg><use href="#check"/></svg>Fuel included on eligible trips</li><li><svg><use href="#check"/></svg>Hourly and daily packages</li></ul><span class="pp-foot"><span>From <b>AED 139</b> / day</span><svg><use href="#arrow-up-right"/></svg></span></article><article class="pp-panel" data-i="2"><img class="pp-photo" src="assets/images/site/car-coolray.webp" alt="" width="1080" height="458" loading="lazy" decoding="async"><header><span><small>2026 · SUV</small><strong>Geely Coolray</strong></span></header><ul><li><svg><use href="#check"/></svg>5 seats, 150 km a day included</li><li><svg><use href="#check"/></svg>Fuel included on eligible trips</li><li><svg><use href="#check"/></svg>Hourly and daily packages</li></ul><span class="pp-foot"><span>From <b>AED 159</b> / day</span><svg><use href="#arrow-up-right"/></svg></span></article><article class="pp-panel" data-i="3"><img class="pp-photo" src="assets/images/site/car-gac-gs3.webp" alt="" width="1080" height="458" loading="lazy" decoding="async"><header><span><small>2026 · SUV</small><strong>GAC GS3 Emzoom</strong></span></header><ul><li><svg><use href="#check"/></svg>5 seats, 150 km a day included</li><li><svg><use href="#check"/></svg>Fuel included on eligible trips</li><li><svg><use href="#check"/></svg>Hourly and daily packages</li></ul><span class="pp-foot"><span>From <b>AED 159</b> / day</span><svg><use href="#arrow-up-right"/></svg></span></article></div>
 </section>
 
 
@@ -467,8 +532,7 @@
 <section class="voices" id="reviews" aria-labelledby="reviews-title">
   <div class="wrap voices-grid">
     <div class="voices-head">
-      <p class="kicker"><i></i>Drivers say</p>
-      <h2 id="reviews-title" class="split-words">Real drivers. <em>Real reviews.</em></h2>
+      <h2 id="reviews-title" class="split-words"><span class="heading-line">Real drivers.</span> <em>Real reviews.</em></h2>
       <p class="voices-source">From the App Store and Google Play.</p>
     </div>
     <div class="voices-stack">
@@ -483,15 +547,15 @@
 <section class="qa" id="questions" aria-labelledby="faq-title">
   <div class="wrap qa-grid">
     <div class="qa-head">
-      <p class="kicker"><i></i>FAQ</p>
-      <h2 id="faq-title" class="split-words">Questions, <em>answered.</em></h2>
+      
+      <h2 id="faq-title" class="split-words"><span class="heading-line">Questions,</span> <em>answered.</em></h2>
       <p>Can&rsquo;t find what you need? Write to us and the Drigo team will get back to you.</p>
-      <a class="btn btn-line" href="mailto:support@drigo.com" data-magnetic><span data-roll>Contact support</span><svg aria-hidden="true"><use href="#arrow-right"/></svg></a>
+      <a class="btn btn-line" href="mailto:support@drigo.com" data-magnetic><span data-roll>Contact support</span><svg aria-hidden="true"><use href="assets/images/site/icons.svg?v=1#arrow-right"/></svg></a>
       <span class="qa-glyph" aria-hidden="true" data-speed="0.75">?</span>
     </div>
     <div class="faq">
       <details><summary><span class="n">01</span><span class="q">How does the app work?</span><span class="pm" aria-hidden="true"></span></summary><p>Open Drigo, pick a car on the map, choose an hourly, daily or monthly rental, and unlock it with your phone when you reach it.</p></details>
-      <details><summary><span class="n">02</span><span class="q">Where can I find a car?</span><span class="pm" aria-hidden="true"></span></summary><p>Open the Drigo app for actual availability and parking zones in Dubai and Sharjah. The city on this website is an illustration.</p></details>
+      <details><summary><span class="n">02</span><span class="q">Where can I find a car?</span><span class="pm" aria-hidden="true"></span></summary><p>Open the Drigo app for actual availability and parking zones in Dubai and Sharjah. You can drive and park across both cities during your rental. To end it, return to a designated zone in the city where you started: Dubai rentals end in Dubai, and Sharjah rentals end in Sharjah. The city on this website is an illustration.</p></details>
       <details><summary><span class="n">03</span><span class="q">Is a security deposit required?</span><span class="pm" aria-hidden="true"></span></summary><p>Drigo offers rentals without a security deposit. Review your rental price, fees, and payment details in the app before booking.</p></details>
       <details><summary><span class="n">04</span><span class="q">What&rsquo;s included in my rental?</span><span class="pm" aria-hidden="true"></span></summary><p>Fuel is included on eligible trips, with free parking in designated zones. Review the insurance options, coverage conditions, and full rental details in the app.</p></details>
       <details><summary><span class="n">05</span><span class="q">What do I need to get started?</span><span class="pm" aria-hidden="true"></span></summary><p>Create an account and complete verification. You&rsquo;ll need a valid driving licence and must meet the <a href="/privacy#sec-2">rental eligibility requirements</a>.</p></details>
@@ -506,19 +570,19 @@
 <section class="fleet" id="business" aria-labelledby="business-title">
   <div class="wrap fleet-grid">
     <div class="fleet-copy">
-      <p class="kicker kicker-light"><i></i>For business</p>
-      <h2 id="business-title" class="split-words">Own a fleet? <em>Let&rsquo;s move it.</em></h2>
+      
+      <h2 id="business-title" class="split-words"><span class="heading-line">Own a fleet?</span> <em>Let&rsquo;s move it.</em></h2>
       <p>Connect your cars with the next journey. Tell us about your fleet and the Drigo team will get in touch.</p>
       <a class="fleet-mail" href="mailto:support@drigo.com">support@drigo.com</a>
     </div>
     <form id="partner-form" class="fleet-form" aria-labelledby="business-title">
-      <label class="field"><input name="company" autocomplete="organization" required maxlength="150" placeholder=" "><span class="field-label">Company or owner name</span><i class="field-ok" aria-hidden="true"></i></label>
+      <label class="field"><input name="company" autocomplete="off" required maxlength="150" placeholder=" "><span class="field-label">Company or owner name</span><i class="field-ok" aria-hidden="true"></i></label>
       <label class="field field-select"><select name="type"><option value="company">Rental company</option><option value="individual">Individual owner</option></select><span class="field-label">Company type</span></label>
       <label class="field"><input name="name" autocomplete="name" required maxlength="120" placeholder=" "><span class="field-label">Your name</span><i class="field-ok" aria-hidden="true"></i></label>
       <label class="field"><input type="email" name="email" autocomplete="email" required maxlength="254" placeholder=" "><span class="field-label">Email</span><i class="field-ok" aria-hidden="true"></i></label>
       <div class="field-phone"><label class="field field-code"><input name="phoneCode" value="+971" autocomplete="tel-country-code" required pattern="\+[0-9]{1,6}" placeholder=" " list="phone-codes" inputmode="tel"><datalist id="phone-codes"></datalist><span class="field-label">Code</span></label><label class="field field-fixed"><input type="tel" name="phone" autocomplete="tel-national" placeholder="50 123 4567" required maxlength="20"><span class="field-label">Phone number</span><i class="field-ok" aria-hidden="true"></i></label></div>
       <p class="form-note">We&rsquo;ll use your details to respond to your enquiry. <a href="/privacy#sec-15">Privacy policy</a></p>
-      <button class="btn btn-line" type="submit" data-magnetic><span class="button-label">Send enquiry</span><svg aria-hidden="true"><use href="#arrow-right"/></svg></button>
+      <button class="btn btn-line" type="submit" data-magnetic><span class="button-label">Send enquiry</span><svg aria-hidden="true"><use href="assets/images/site/icons.svg?v=1#arrow-right"/></svg></button>
       <p id="form-status" class="form-status" role="status"></p>
     </form>
   </div>
@@ -528,26 +592,18 @@
 <section class="getapp" id="get-the-app" aria-labelledby="getapp-title">
   <div class="wrap getapp-grid">
     <div class="getapp-copy">
-      <p class="kicker"><i></i>Download Drigo</p>
-      <h2 id="getapp-title" class="split-words">Your next move is <em>in your pocket.</em></h2>
+      
+      <h2 id="getapp-title" class="split-words"><span class="heading-line">Your next move is</span> <em>in your pocket.</em></h2>
       <p class="getapp-lead">Find a car on the map, walk up and unlock it, end the trip with a swipe. All of it in one app.</p>
       <div class="stores-row">
-        <a class="store" href="https://apps.apple.com/az/app/drigo-car-sharing-rental/id6757393927" target="_blank" rel="noopener" data-magnetic><svg class="store-logo" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" stroke="none" d="M16.4 12.6c0-2.4 2-3.5 2-3.6-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.9-.9-3.1-.8-1.6 0-3 .9-3.8 2.3-1.6 2.8-.4 7 1.2 9.3.8 1.1 1.7 2.4 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3.1.7c1.3 0 2.1-1.1 2.8-2.3.9-1.3 1.3-2.6 1.3-2.6s-2.5-1-2.5-3.7ZM14.1 5.6c.6-.8 1.1-1.9 1-3-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 2.7-1.3Z"/></svg><span><small>Download on the</small><strong>App Store</strong></span></a>
-        <a class="store" href="https://play.google.com/store/apps/details?id=com.drigo.mobile" target="_blank" rel="noopener" data-magnetic><svg class="store-logo" viewBox="0 0 24 24" aria-hidden="true"><path stroke="none" fill="#00d7fe" d="M3.6 2.2c-.3.3-.5.8-.5 1.4v16.8c0 .6.2 1.1.5 1.4l9.5-9.8z"/><path stroke="none" fill="#ffce00" d="m16.3 15.2-3.2-3.2 3.2-3.2 3.8 2.2c1.1.6 1.1 1.6 0 2.2z"/><path stroke="none" fill="#ff3a44" d="M16.3 15.2 13.1 12l-9.5 9.8c.4.4 1 .4 1.7 0z"/><path stroke="none" fill="#00f076" d="M16.3 8.8 5.3 2.2c-.7-.4-1.3-.4-1.7 0l9.5 9.8z"/></svg><span><small>Get it on</small><strong>Google Play</strong></span></a>
+        <a class="store" href="https://apps.apple.com/az/app/drigo-car-sharing-rental/id6757393927" target="_blank" rel="noopener"><svg class="store-logo" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" stroke="none" d="M16.4 12.6c0-2.4 2-3.5 2-3.6-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.9-.9-3.1-.8-1.6 0-3 .9-3.8 2.3-1.6 2.8-.4 7 1.2 9.3.8 1.1 1.7 2.4 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3.1.7c1.3 0 2.1-1.1 2.8-2.3.9-1.3 1.3-2.6 1.3-2.6s-2.5-1-2.5-3.7ZM14.1 5.6c.6-.8 1.1-1.9 1-3-.9 0-2.1.6-2.7 1.4-.6.7-1.1 1.8-1 2.9 1 .1 2.1-.5 2.7-1.3Z"/></svg><span><small>Download on the</small><strong>App Store</strong></span></a>
+        <a class="store" href="https://play.google.com/store/apps/details?id=com.drigo.mobile" target="_blank" rel="noopener"><svg class="store-logo" viewBox="0 0 24 24" aria-hidden="true"><path stroke="none" fill="#00d7fe" d="M3.6 2.2c-.3.3-.5.8-.5 1.4v16.8c0 .6.2 1.1.5 1.4l9.5-9.8z"/><path stroke="none" fill="#ffce00" d="m16.3 15.2-3.2-3.2 3.2-3.2 3.8 2.2c1.1.6 1.1 1.6 0 2.2z"/><path stroke="none" fill="#ff3a44" d="M16.3 15.2 13.1 12l-9.5 9.8c.4.4 1 .4 1.7 0z"/><path stroke="none" fill="#00f076" d="M16.3 8.8 5.3 2.2c-.7-.4-1.3-.4-1.7 0l9.5 9.8z"/></svg><span><small>Get it on</small><strong>Google Play</strong></span></a>
       </div>
       <p class="fineprint">Rental details, prices and availability are shown in the app.</p>
     </div>
-    <div class="stage">
-      <div class="stage-panel" aria-hidden="true"><i class="stage-dots"></i><i class="stage-ring"></i><i class="stage-ring stage-ring-2"></i></div>
-      <div class="phone stage-back" aria-hidden="true"><img src="assets/images/site/app-unlock.webp" alt="" width="390" height="844" loading="lazy" decoding="async"></div>
-      <div class="phone phone-lg stage-main">
-        <img class="is-active" src="assets/images/site/app-map-stage.webp" alt="The Drigo map with cars parked around Al Barsha and Al Quoz" width="390" height="844" loading="lazy" decoding="async">
-        <img src="assets/images/site/app-unlock.webp" alt="Directions to the car with Blink car lights and the Reach car, 30 m to unlock control" width="390" height="844" loading="lazy" decoding="async">
-        <img src="assets/images/site/app-end-rental.webp" alt="The Before ending rental checklist with the End rental button" width="390" height="844" loading="lazy" decoding="async">
-      </div>
-      <div class="stage-steps" role="group" aria-label="Show an app screen"><button aria-pressed="true">Find</button><button aria-pressed="false">Unlock</button><button aria-pressed="false">Park</button></div>
-      <div class="frag frag-car" data-depth="1.6" aria-hidden="true"><img src="assets/images/site/car-emgrand-cutout.webp" alt="" width="360" height="240"><span><b class="chip-year">2026</b><strong>Geely Emgrand</strong><small>Sedan · 5 seats</small></span></div>
-      <div class="frag frag-unlock" data-depth="1.2" aria-hidden="true"><i class="fl"><svg viewBox="0 0 48 48"><path class="shackle" d="M15 22v-6a9 9 0 0 1 18 0"/><rect x="10" y="22" width="28" height="20" rx="5"/><circle cx="24" cy="32" r="2.6"/></svg></i><span>Reach car <b>30m</b> to unlock</span></div>
+    <div class="stage app-showcase">
+      <div class="stage-panel" aria-hidden="true"></div>
+      <div class="phone showcase-phone"><div class="road-map-screen"><img src="assets/images/site/app-map-dubai.webp" class="road-map-image" alt="The Drigo app showing cars on the Dubai map" width="390" height="844" loading="lazy" decoding="async"><div class="app-screen app-screen-overlay" data-screen="map" aria-hidden="true"></div><svg class="road-traffic" viewBox="0 0 780 1688" aria-hidden="true" focusable="false"><g class="road-car"><g><rect x="-23" y="-13" width="8" height="5" rx="2" fill="#152235"/><rect x="13" y="-13" width="8" height="5" rx="2" fill="#152235"/><rect x="-23" y="8" width="8" height="5" rx="2" fill="#152235"/><rect x="13" y="8" width="8" height="5" rx="2" fill="#152235"/><rect x="-25" y="-11" width="50" height="22" rx="8" fill="#008bd1" stroke="#07577e" stroke-width="1.5"/><path d="M5-9L12-7V7L5 9Z" fill="#172e42"/><path d="M-16-7L-10-9V9L-16 7Z" fill="#172e42"/><rect x="-8" y="-7" width="12" height="14" rx="3" fill="#13a5eb"/><path d="M23-7V-3M23 3V7" stroke="#dcf8ff" stroke-width="2"/></g><animateMotion dur="42s" begin="-0s" repeatCount="indefinite" rotate="auto" path="M 643,330 L 559,451 Q 525,502 484,555 L 350,722 Q 300,790 238,864 Q 225,882 235,889 Q 246,897 258,880 L 370,735 L 503,569 Q 544,518 577,465 L 660,344 Q 670,330 659,323 Q 650,318 643,330 Z"/></g><g class="road-car"><g><rect x="-23" y="-13" width="8" height="5" rx="2" fill="#152235"/><rect x="13" y="-13" width="8" height="5" rx="2" fill="#152235"/><rect x="-23" y="8" width="8" height="5" rx="2" fill="#152235"/><rect x="13" y="8" width="8" height="5" rx="2" fill="#152235"/><rect x="-25" y="-11" width="50" height="22" rx="8" fill="#008bd1" stroke="#07577e" stroke-width="1.5"/><path d="M5-9L12-7V7L5 9Z" fill="#172e42"/><path d="M-16-7L-10-9V9L-16 7Z" fill="#172e42"/><rect x="-8" y="-7" width="12" height="14" rx="3" fill="#13a5eb"/><path d="M23-7V-3M23 3V7" stroke="#dcf8ff" stroke-width="2"/></g><animateMotion dur="36s" begin="-7s" repeatCount="indefinite" rotate="auto" path="M 707,570 L 632,668 Q 608,701 580,739 L 477,877 Q 431,938 376,998 Q 365,1011 374,1019 Q 382,1026 393,1012 L 495,891 L 597,753 L 723,582 Q 732,570 721,564 Q 713,560 707,570 Z"/></g><g class="road-car"><g><rect x="-23" y="-13" width="8" height="5" rx="2" fill="#152235"/><rect x="13" y="-13" width="8" height="5" rx="2" fill="#152235"/><rect x="-23" y="8" width="8" height="5" rx="2" fill="#152235"/><rect x="13" y="8" width="8" height="5" rx="2" fill="#152235"/><rect x="-25" y="-11" width="50" height="22" rx="8" fill="#008bd1" stroke="#07577e" stroke-width="1.5"/><path d="M5-9L12-7V7L5 9Z" fill="#172e42"/><path d="M-16-7L-10-9V9L-16 7Z" fill="#172e42"/><rect x="-8" y="-7" width="12" height="14" rx="3" fill="#13a5eb"/><path d="M23-7V-3M23 3V7" stroke="#dcf8ff" stroke-width="2"/></g><animateMotion dur="42s" begin="-14s" repeatCount="indefinite" rotate="auto" path="M 643,330 L 559,451 Q 525,502 484,555 L 350,722 Q 300,790 238,864 Q 225,882 235,889 Q 246,897 258,880 L 370,735 L 503,569 Q 544,518 577,465 L 660,344 Q 670,330 659,323 Q 650,318 643,330 Z"/></g><g class="road-car"><g><rect x="-23" y="-13" width="8" height="5" rx="2" fill="#152235"/><rect x="13" y="-13" width="8" height="5" rx="2" fill="#152235"/><rect x="-23" y="8" width="8" height="5" rx="2" fill="#152235"/><rect x="13" y="8" width="8" height="5" rx="2" fill="#152235"/><rect x="-25" y="-11" width="50" height="22" rx="8" fill="#008bd1" stroke="#07577e" stroke-width="1.5"/><path d="M5-9L12-7V7L5 9Z" fill="#172e42"/><path d="M-16-7L-10-9V9L-16 7Z" fill="#172e42"/><rect x="-8" y="-7" width="12" height="14" rx="3" fill="#13a5eb"/><path d="M23-7V-3M23 3V7" stroke="#dcf8ff" stroke-width="2"/></g><animateMotion dur="36s" begin="-21s" repeatCount="indefinite" rotate="auto" path="M 707,570 L 632,668 Q 608,701 580,739 L 477,877 Q 431,938 376,998 Q 365,1011 374,1019 Q 382,1026 393,1012 L 495,891 L 597,753 L 723,582 Q 732,570 721,564 Q 713,560 707,570 Z"/></g><g class="road-car"><g><rect x="-23" y="-13" width="8" height="5" rx="2" fill="#152235"/><rect x="13" y="-13" width="8" height="5" rx="2" fill="#152235"/><rect x="-23" y="8" width="8" height="5" rx="2" fill="#152235"/><rect x="13" y="8" width="8" height="5" rx="2" fill="#152235"/><rect x="-25" y="-11" width="50" height="22" rx="8" fill="#008bd1" stroke="#07577e" stroke-width="1.5"/><path d="M5-9L12-7V7L5 9Z" fill="#172e42"/><path d="M-16-7L-10-9V9L-16 7Z" fill="#172e42"/><rect x="-8" y="-7" width="12" height="14" rx="3" fill="#13a5eb"/><path d="M23-7V-3M23 3V7" stroke="#dcf8ff" stroke-width="2"/></g><animateMotion dur="42s" begin="-28s" repeatCount="indefinite" rotate="auto" path="M 643,330 L 559,451 Q 525,502 484,555 L 350,722 Q 300,790 238,864 Q 225,882 235,889 Q 246,897 258,880 L 370,735 L 503,569 Q 544,518 577,465 L 660,344 Q 670,330 659,323 Q 650,318 643,330 Z"/></g><g class="road-car"><g><rect x="-23" y="-13" width="8" height="5" rx="2" fill="#152235"/><rect x="13" y="-13" width="8" height="5" rx="2" fill="#152235"/><rect x="-23" y="8" width="8" height="5" rx="2" fill="#152235"/><rect x="13" y="8" width="8" height="5" rx="2" fill="#152235"/><rect x="-25" y="-11" width="50" height="22" rx="8" fill="#008bd1" stroke="#07577e" stroke-width="1.5"/><path d="M5-9L12-7V7L5 9Z" fill="#172e42"/><path d="M-16-7L-10-9V9L-16 7Z" fill="#172e42"/><rect x="-8" y="-7" width="12" height="14" rx="3" fill="#13a5eb"/><path d="M23-7V-3M23 3V7" stroke="#dcf8ff" stroke-width="2"/></g><animateMotion dur="36s" begin="-35s" repeatCount="indefinite" rotate="auto" path="M 707,570 L 632,668 Q 608,701 580,739 L 477,877 Q 431,938 376,998 Q 365,1011 374,1019 Q 382,1026 393,1012 L 495,891 L 597,753 L 723,582 Q 732,570 721,564 Q 713,560 707,570 Z"/></g></svg></div></div>
     </div>
   </div>
 </section>
@@ -563,13 +619,11 @@
         <div><h3>Get the app</h3><a href="https://apps.apple.com/az/app/drigo-car-sharing-rental/id6757393927" target="_blank" rel="noopener" data-roll>App Store</a><a href="https://play.google.com/store/apps/details?id=com.drigo.mobile" target="_blank" rel="noopener" data-roll>Google Play</a></div>
       </nav>
     </div>
-    <div class="foot-bottom"><span>© <span id="year">2026</span> Drigo · Dubai &amp; Sharjah</span><div class="foot-tools"><button id="pause-motion" class="footer-motion" aria-label="Pause animation" aria-pressed="false"><svg class="pause-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5v14M15 5v14"/></svg><svg class="play-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7Z"/></svg><span>Pause motion</span></button><span id="reduced-motion-label" class="footer-motion-label" hidden>Reduced motion</span><a href="#" class="to-top">Back to top <svg aria-hidden="true"><use href="#arrow-right"/></svg></a></div></div>
+    <div class="foot-bottom"><span>© <span id="year">2026</span> Drigo · Dubai &amp; Sharjah</span><div class="foot-tools"><span id="reduced-motion-label" class="footer-motion-label" hidden>Reduced motion</span><a href="#" class="to-top">Back to top <svg aria-hidden="true"><use href="assets/images/site/icons.svg?v=1#arrow-right"/></svg></a></div></div>
   </div>
 </footer>
-<script src="js/vendor/gsap.min.js?v=1" defer></script>
-<script src="js/vendor/ScrollTrigger.min.js?v=1" defer></script>
-<script type="module" src="js/site/tracking.js?v=1"></script>
-<script type="module" src="js/site/cars.js?v=1"></script>
-<script type="module" src="js/site/app.js?v=1"></script>
-</body>
-</html>
+<a class="m-cta btn btn-violet" href="#get-the-app"><span>Get the app</span><svg aria-hidden="true"><use href="assets/images/site/icons.svg?v=1#arrow-right"/></svg></a>
+
+<!-- The loading screen runs as soon as the page is parsed, so its 3 s limit counts from the start -->
+<script src="js/site/loading.js?v=3"></script>
+</body></html>

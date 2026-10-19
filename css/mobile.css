@@ -1,0 +1,76 @@
+/* Phone refinements (≤760px). Loaded after site.css, so wider screens are untouched.
+   Goals: nothing covers the hero copy, every tap target is at least 44px, and the long
+   stacked sections become swipeable rows so the page is far shorter to scroll. */
+.m-cta { display: none; }
+
+@media (max-width: 760px) {
+  /* ---- Hero ------------------------------------------------------------------------ */
+  /* The floating fleet price cards crowd the headline and the main button on a phone. */
+  .city-tags .city-tag.is-drigo { display: none !important; }
+  /* Districts: a swipeable row of readable pills instead of five squeezed 10px labels. */
+  .map-hero .district-nav { display: flex; justify-content: flex-start; gap: 4px; padding: 5px 30px 5px 5px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; scrollbar-width: none; -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 34px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 34px), transparent); }
+  .map-hero .district-nav::-webkit-scrollbar { display: none; }
+  .map-hero .district-nav button { flex: 0 0 auto; min-height: 44px; padding: 10px 16px; font-size: 13px; scroll-snap-align: start; }
+  .map-hero .map-help { font-size: 12px; }
+
+  /* ---- Benefits: the four short facts share a two-column grid ---------------------- */
+  .benefits .bento { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .benefits .bento .tile-fuel, .benefits .bento .tile-phone { grid-column: 1 / -1; }
+  /* Pair the short facts around the app tile: fuel / deposit + parking / app / office + cities. */
+  .benefits .bento .tile-fuel { order: 1; } .benefits .bento .tile-deposit { order: 2; } .benefits .bento .tile-park { order: 3; }
+  .benefits .bento .tile-phone { order: 4; } .benefits .bento .tile-unlock { order: 5; } .benefits .bento .tile-cities { order: 6; }
+  .benefits .bento .tile-fuel { min-height: 0; padding: 26px 20px 24px; gap: 14px; }
+  .benefits .bento .tile-fuel .gauge svg { max-width: 190px; }
+  .benefits .bento .tile:is(.tile-deposit, .tile-park, .tile-unlock, .tile-cities) { min-height: 0; padding: 20px 12px 18px; grid-template-rows: 78px auto; gap: 12px; border-radius: 22px; }
+  .benefits .bento .tile:is(.tile-deposit, .tile-park, .tile-unlock, .tile-cities) h3 { margin-bottom: 6px; font-size: 16px; }
+  .benefits .bento .tile:is(.tile-deposit, .tile-park, .tile-unlock, .tile-cities) p { font-size: 13px; line-height: 1.45; }
+  .benefits .bento .tile:is(.tile-deposit, .tile-park, .tile-unlock, .tile-cities) p span { white-space: normal; }
+  .benefits .bento .odometer { gap: 6px; font-size: 54px; }
+  .benefits .bento .odometer::after { font-size: 10px; }
+  .benefits .bento .zone { width: 74px; height: 74px; }
+  .benefits .bento .zone i + i { inset: 13px; }
+  .benefits .bento .zone span { width: 38px; height: 38px; border-radius: 12px; }
+  .benefits .bento .zone svg { width: 20px; height: 20px; }
+  .benefits .bento .lock { width: 66px; height: 66px; border-radius: 20px; }
+  .benefits .bento .lock svg { width: 36px; height: 36px; }
+  .benefits .bento .cities svg { max-width: 150px; }
+
+  /* ---- The trip: four swipeable step cards with a live 01/04 counter ---------------- */
+  .ride .ride-head { flex-direction: column; align-items: stretch; gap: 14px; margin-bottom: 22px; }
+  .ride .ride-count { display: block; align-self: flex-end; flex: none; font-size: 22px; }
+  .ride .ride-count .ride-of { opacity: .4; }
+  .ride .ride-viewport { overflow: visible; }
+  .ride .ride-track { display: flex; width: auto; gap: 12px; margin: 0; padding: 4px var(--gutter) 10px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-padding-inline: var(--gutter); scrollbar-width: none; }
+  .ride .ride-track::-webkit-scrollbar { display: none; }
+  .ride .ride-card { flex: 0 0 min(84vw, 380px); display: flex; flex-direction: column; min-height: 0; scroll-snap-align: start; }
+  .ride .ride-copy { padding: 24px 22px 16px; }
+  .ride .ride-n { font-size: 50px; }
+  .ride .ride-copy h3 { margin: 14px 0 10px; font-size: 30px; }
+  .ride .ride-copy p { font-size: 15px; }
+  .ride .ride-tags { margin-top: 16px; }
+  .ride .ride-media { flex: none; height: 330px; margin: 0 10px 10px; }
+
+  /* ---- Cars: a swipeable row of car cards ---------------------------------------- */
+  .plans .plan-list { display: flex; gap: 12px; margin: 0 calc(-1 * var(--gutter)); padding: 4px var(--gutter) 10px; border-top: 0; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-padding-inline: var(--gutter); scrollbar-width: none; }
+  .plans .plan-list::-webkit-scrollbar { display: none; }
+  .plans .plan-list .plan { flex: 0 0 min(80vw, 340px); border-bottom: 0; scroll-snap-align: start; }
+  .plans .plan-list .plan > a, .plans .plan-list .plan > a:is(:hover, :focus-visible) { display: grid; grid-template-columns: minmax(0, 1fr) 44px; grid-template-rows: auto; align-content: start; gap: 6px 12px; height: 100%; padding: 10px 10px 20px; border-radius: 24px; background: var(--paper); }
+  .plans .plan-photo { grid-column: 1 / -1; grid-row: 1; width: 100%; height: auto; min-height: 0; aspect-ratio: 16 / 10; margin-bottom: 10px; border-radius: 16px; }
+  .plans .plan-list .plan-n { display: block; grid-column: 1; grid-row: 2; align-self: center; padding-left: 6px; font-size: 12px; }
+  .plans .plan-list .plan-go { grid-column: 2; grid-row: 2 / 4; align-self: start; width: 44px; height: 44px; }
+  .plans .plan-list .plan-go svg { width: 18px; height: 18px; }
+  .plans .plan-name { grid-column: 1; grid-row: 3; padding-left: 6px; font-size: 26px; line-height: 1.05; }
+  .plans .plan-list .plan-desc { grid-column: 1 / -1; grid-row: 4; padding-left: 6px; font-size: 15px; }
+  .plans .plan-details { grid-column: 1 / -1; grid-row: 5; gap: 6px; margin-top: 8px; padding-left: 6px; font-size: 13px; }
+
+  /* ---- Tap targets ---------------------------------------------------------------- */
+  .foot-nav div { gap: 0; }
+  .foot-nav a, .foot-tools .to-top { display: inline-flex; align-items: center; min-height: 44px; }
+  .fleet a[href^="mailto:"], .fleet-form a, .fineprint a { padding-block: 10px; margin-block: -10px; }
+
+  /* ---- A floating "Get the app" button once the hero has scrolled away -------------- */
+  .m-cta { position: fixed; z-index: 60; left: 50%; bottom: max(14px, env(safe-area-inset-bottom)); display: inline-flex; box-shadow: 0 18px 40px -12px #2a0fb3b3; translate: -50% calc(100% + 34px); opacity: 0; visibility: hidden; transition: translate .5s cubic-bezier(.16, 1, .3, 1), opacity .3s, visibility 0s .5s; }
+  .m-cta.is-shown { translate: -50% 0; opacity: 1; visibility: visible; transition: translate .5s cubic-bezier(.16, 1, .3, 1), opacity .3s, visibility 0s; }
+  #mobile-menu:not([hidden]) ~ .m-cta, body.is-loading .m-cta { opacity: 0; visibility: hidden; }
+}
+@media (max-width: 760px) and (prefers-reduced-motion: reduce) { .m-cta, .m-cta.is-shown { transition: none; } }
