@@ -30,9 +30,10 @@
     loader.querySelector('.loader-actions').hidden = false;
   };
   const timeout = setTimeout(fail, 30000);
-  // Never hold the page for more than 3 s. The static city picture covers the hero until the
-  // live 3D city is ready, so people arriving from an ad can start reading straight away.
-  const cap = setTimeout(() => finish(), Math.max(0, 3000 - performance.now()));
+  // Never hold the page for more than 3 s, counted from the start of the visit and including the
+  // ~0.6 s fade-out. The static city picture covers the hero until the live 3D city is ready, so
+  // people arriving from an ad can start reading straight away.
+  const cap = setTimeout(() => finish(), Math.max(0, 2400 - performance.now()));
   let revealed;
   const shown = new Promise(resolve => { revealed = resolve; });
   const finish = async () => {
