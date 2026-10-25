@@ -40,7 +40,7 @@ function describe(model) {
   };
 }
 
-const details = car => [[car.seats && `${car.seats} seats`, car.km && `${car.km} included`].filter(Boolean).join(', '), 'Fuel included on eligible trips', 'Hourly and daily packages'].filter(Boolean);
+const details = car => [[car.seats && `${car.seats} seats`, car.km && `${car.km} included`].filter(Boolean).join(', '), 'Fuel included on eligible trips', 'Daily and monthly packages'].filter(Boolean);
 
 function fill(row, car, i) {
   const photo = row.querySelector('.plan-photo');
