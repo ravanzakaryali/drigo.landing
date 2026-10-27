@@ -3,7 +3,7 @@ import { roll } from './roll.js?v=2';
 import { landing, getJSON } from './landing-data.js?v=2';
 
 // Start fetching the map before waiting for the document.
-const cityModule = import('./city.js?v=20261027-fleet');
+const cityModule = import('./city.js?v=20261027-calm');
 cityModule.catch(() => {}); // The initialization block below handles fallback.
 // How many cars the app shows right now: the city marks one and a half times as many Drigo cars (never fewer than 10).
 const appCars = getJSON('/cars/v2?pageSize=1').then(page => Number(page?.total) || 0).catch(() => 0);

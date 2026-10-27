@@ -1395,7 +1395,9 @@ export async function initCity(host, options = {}) {
     const fleetAt=car=>projectTo(carWorld(car,probe),{x:0,y:0,visible:false});
     const inView=p=>p.visible&&p.x>24&&p.x<width-24&&p.y>110&&p.y<height-80&&!fleetBlocked.some(r=>p.x>r.left&&p.x<r.right&&p.y>r.top&&p.y<r.bottom);
     const points=new Map();
-    for(const chip of fleetChips){if(!chip.car)continue;const p=fleetAt(chip.car);if(inView(p))points.set(chip,p);else chip.car=null;}
+    // A released marker fades out where it was and rests briefly before it fades in on another car.
+    const releaseChip=chip=>{chip.car=null;chip.coveredAt=null;chip.releasedAt=clock;};
+    for(const chip of fleetChips){if(!chip.car)continue;const p=fleetAt(chip.car);if(inView(p))points.set(chip,p);else releaseChip(chip);}
     if(points.size<fleetChips.length&&clock>=fleetPickAt&&drigoCars.length){
       fleetPickAt=clock;
       const box=host.getBoundingClientRect();
@@ -1405,61 +1407,86 @@ export async function initCity(host, options = {}) {
       const covered=p=>fleetCovered.some(r=>p.x>r.left-24&&p.x<r.right+24&&p.y>r.top&&p.y<r.bottom+34);
       const pool=drigoCars.filter(car=>!taken.has(car)).map(car=>({car,p:fleetAt(car)})).filter(({p})=>inView(p)&&!covered(p));
       for(const chip of fleetChips){
-        if(chip.car)continue;
+        if(chip.car||clock-(chip.releasedAt??-9)<.3)continue;
         let best=null,bestScore=-Infinity;
         for(const c of pool){
           if(taken.has(c.car))continue;
           let near=400;for(const q of points.values())near=Math.min(near,Math.hypot(c.p.x-q.x,c.p.y-q.y));
-          const score=near+(c.car.drigoName===chip.name?400:0);
+          let inside=Math.min(c.p.x-24,width-24-c.p.x,c.p.y-110,height-80-c.p.y);
+          for(const r of fleetBlocked)inside=Math.min(inside,Math.hypot(Math.max(r.left-c.p.x,0,c.p.x-r.right),Math.max(r.top-c.p.y,0,c.p.y-r.bottom)));
+          const score=Math.min(near,240)+Math.min(inside,160)+(c.car.drigoName===chip.name?400:0);
           if(score>bestScore){best=c;bestScore=score;}
         }
         if(!best){fleetPickAt=clock+.25;break;}
-        chip.car=best.car;taken.add(best.car);points.set(chip,best.p);
+        chip.car=best.car;chip.shownAt=clock;taken.add(best.car);points.set(chip,best.p);
       }
     }
-    // Reserve each card's real screen rectangle; lift converging pins with a leader.
-    const pinRects=[],carded=new Set();
+    // Reserve each card's real screen rectangle; lift converging pins with a leader. Kept calm: a card
+    // or marker stays with its car while it can and fades out for a moment rather than jump to another.
+    const pinRects=[],carded=new Set();let openRect=null;
     // The opened card sits above its car's marker, so the pointer stays on the marker.
     if(pickedPin.car){
       const p=fleetAt(pickedPin.car),w=pickedPin.el.offsetWidth,h=pickedPin.el.offsetHeight,lift=18+(fleetChips[0].el.offsetHeight||22);
       if(!p.visible||p.x<0||p.x>width||p.y<0||p.y>height||(pickedPin.hover&&!fleetChips.some(chip=>chip.car===pickedPin.car)))closePicked();
       else{
         // Kept inside the map near its edges, and hung below the car under the header or the hero copy.
-        const x=Math.min(Math.max(p.x,w/2+8),width-w/2-8);
-        const fits=y=>y-h>=100&&y<=height-8&&!fleetBlocked.some(r=>x-w/2<r.right&&x+w/2>r.left&&y-h<r.bottom&&y>r.top);
-        const below=!fits(p.y-lift)&&fits(p.y+14+h),y=below?p.y+14+h:p.y-lift;
+        // When neither fits, it slides sideways off the copy (its pointer still aims at the car).
+        const clampX=x=>Math.min(Math.max(x,w/2+8),width-w/2-8),fits=(x,y)=>y-h>=100&&y<=height-8&&!fleetBlocked.some(r=>x-w/2<r.right&&x+w/2>r.left&&y-h<r.bottom&&y>r.top);
+        const xs=[p.x,...fleetBlocked.flatMap(r=>[r.right+w/2+8,r.left-w/2-8])].map(clampX).filter(x=>Math.abs(x-p.x)<=w*.9).sort((a,b)=>Math.abs(a-p.x)-Math.abs(b-p.x));
+        let place=null;
+        for(const x of xs){for(const [y,below] of [[p.y-lift,false],[p.y+14+h,true]])if(fits(x,y)){place={x,y,below};break;}if(place)break;}
+        const {x,y,below}=place||{x:clampX(p.x),y:p.y-lift,below:false};
         pickedPin.el.classList.toggle('is-below',below);
-        pinRects.push({left:x-w/2-8,right:x+w/2+8,top:y-h-8,bottom:y+8});pickedPin.el.style.transform=`translate(${x}px,${y}px)`;
+        pickedPin.el.style.setProperty('--arrow-x',`${Math.max(-w/2+14,Math.min(w/2-14,p.x-x))}px`);
+        openRect={left:x-w/2-8,right:x+w/2+8,top:y-h-8,bottom:y+8};pickedPin.el.style.transform=`translate(${x}px,${y}px)`;
       }
     }
     for(const marker of fleetPins){
+      // While a car's card is open the price cards step aside; they return on the same cars.
+      if(pickedPin.car){marker.el.classList.add('is-off');continue;}
       const w=marker.el.offsetWidth,h=marker.el.offsetHeight;
+      const fit=([chip,p])=>{
+        for(const lift of [...new Set([chip.car===marker.car&&marker.lift||20,20,20+h+16,20+(h+16)*2,20+(h+16)*3])]){
+          const box={left:p.x-w/2-8,right:p.x+w/2+8,top:p.y-lift-h-8,bottom:p.y-lift+8};
+          if(box.left<8||box.right>width-8||box.top<100||box.bottom>height-70)continue;
+          if([...pinRects,...fleetBlocked].some(r=>box.left<r.right&&box.right>r.left&&box.top<r.bottom&&box.bottom>r.top))continue;
+          return {car:chip.car,p,box,lift};
+        }
+        return null;
+      };
       let layout=null;
       if(w){
-        const own=[...points].filter(([chip])=>chip.car.drigoName===marker.name&&chip.car!==pickedPin.car).sort(([a],[b])=>(b.car===marker.car)-(a.car===marker.car));
-        for(const [chip,p] of own){
-          for(const lift of [...new Set([chip.car===marker.car&&marker.lift||20,20,20+h+16,20+(h+16)*2,20+(h+16)*3])]){
-            const box={left:p.x-w/2-8,right:p.x+w/2+8,top:p.y-lift-h-8,bottom:p.y-lift+8};
-            if(box.left<8||box.right>width-8||box.top<100||box.bottom>height-70)continue;
-            if([...pinRects,...fleetBlocked].some(r=>box.left<r.right&&box.right>r.left&&box.top<r.bottom&&box.bottom>r.top))continue;
-            layout={car:chip.car,p,box,lift};break;
+        const current=marker.car&&[...points].find(([chip])=>chip.car===marker.car);
+        if(current)layout=fit(current);
+        if(layout)marker.lostAt=null;
+        else{
+          // A card that does not fit waits on its car (faded) for a moment; one whose car left fades
+          // out first. Only then does it move to another car of its model, and fade in there.
+          marker.lostAt??=clock;
+          if(clock-marker.lostAt>=(current?1.5:.3)){
+            for(const entry of points)if(entry[0].car.drigoName===marker.name&&entry[0].car!==marker.car&&(layout=fit(entry)))break;
+            if(layout){marker.lostAt=null;marker.shownAt=clock;}
           }
-          if(layout)break;
         }
       }
-      marker.el.classList.toggle('is-off',!layout);
+      marker.el.classList.toggle('is-off',!layout||clock-(marker.shownAt??-9)<.05);
       if(!layout)continue;
       pinRects.push(layout.box);carded.add(layout.car);marker.car=layout.car;marker.lift=layout.lift;
       marker.el.dataset.carId=String(cars.indexOf(marker.car));
       marker.el.style.setProperty('--pin-leader',`${Math.max(0,layout.lift-20)}px`);marker.el.style.transform=`translate(${layout.p.x}px,${layout.p.y-layout.lift}px)`;
     }
-    // A card marks its own car; a marker that a card covers moves to another car.
-    fleetCovered=pinRects;
+    // A card marks its own car. A marker under a price card fades and, if the card has not passed by
+    // after a few seconds, moves to another car; under the open card it only fades until it closes.
+    fleetCovered=openRect?[...pinRects,openRect]:pinRects;
     for(const chip of fleetChips){
       const p=points.get(chip),box=p&&{left:p.x-24,right:p.x+24,top:p.y-34,bottom:p.y};
-      if(p&&!carded.has(chip.car)&&chip.car!==pickedPin.car&&pinRects.some(r=>box.left<r.right&&box.right>r.left&&box.top<r.bottom&&box.bottom>r.top))chip.car=null;
-      chip.el.hidden=!chip.car;if(!chip.car)continue;
-      chip.el.classList.toggle('is-off',carded.has(chip.car));chip.el.classList.toggle('is-open',chip.car===pickedPin.car);
+      const hit=r=>box.left<r.right&&box.right>r.left&&box.top<r.bottom&&box.bottom>r.top;
+      const underCard=!!p&&!carded.has(chip.car)&&chip.car!==pickedPin.car&&pinRects.some(hit);
+      const underOpen=!!p&&!!openRect&&chip.car!==pickedPin.car&&hit(openRect);
+      if(underCard){if(clock-(chip.coveredAt??=clock)>4)releaseChip(chip);}else chip.coveredAt=null;
+      if(!chip.car){chip.el.classList.add('is-off');chip.el.classList.remove('is-open');chip.el.hidden=clock-(chip.releasedAt??-9)>.3;continue;}
+      chip.el.hidden=false;
+      chip.el.classList.toggle('is-off',carded.has(chip.car)||underCard||underOpen||clock-(chip.shownAt??-9)<.05);chip.el.classList.toggle('is-open',chip.car===pickedPin.car);
       chip.el.style.transform=`translate(${p.x}px,${p.y-8}px)`;
     }
     if (!carTag.hidden && ringCar) place(carTag, carWorld(ringCar, probe), 34);

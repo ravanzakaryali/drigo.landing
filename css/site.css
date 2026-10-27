@@ -1140,3 +1140,6 @@ input[name="company"]::-webkit-contacts-auto-fill-button { visibility: hidden; d
 .city-tag.is-drigo .car-pin-meta { display:block; margin-top:2px; font-size:10px; font-weight:500; color:#716b80; white-space:nowrap; }
 .city-tags .city-tag.is-drigo.is-picked:not([hidden]) { display:flex !important; }
 .city-tag.is-drigo.is-below::after { top:-5px; bottom:auto; }
+.city-tag.is-drigo.is-picked::after { margin-left:calc(var(--arrow-x, 0px) - 5px); }
+/* Price cards fade when they step aside instead of popping. */
+.city-tag.is-drigo:not(.is-picked) { transition: opacity .2s; }
