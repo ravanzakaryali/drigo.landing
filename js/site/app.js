@@ -1,10 +1,12 @@
 import { API } from './api.js?v=2';
 import { roll } from './roll.js?v=2';
-import { landing } from './landing-data.js?v=2';
+import { landing, getJSON } from './landing-data.js?v=2';
 
 // Start fetching the map before waiting for the document.
-const cityModule = import('./city.js?v=20261019-loader');
+const cityModule = import('./city.js?v=20261027-fleet');
 cityModule.catch(() => {}); // The initialization block below handles fallback.
+// How many cars the app shows right now: the city marks one and a half times as many Drigo cars (never fewer than 10).
+const appCars = getJSON('/cars/v2?pageSize=1').then(page => Number(page?.total) || 0).catch(() => 0);
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
 if (document.readyState === 'loading') await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve, { once: true }));
 
@@ -113,14 +115,19 @@ try {
   // the static city picture stays in the hero and the live city fades in over it once built.
   await window.drigoLoading?.finish();
   // The city's car labels read their prices from the car rows, which cars.js fills from the API:
-  // give that answer up to 2 s to arrive, so the labels show today's prices.
-  await Promise.race([landing().catch(() => {}), new Promise(resolve => setTimeout(resolve, 2000))]);
+  // give that answer up to 2 s to arrive, so the labels show today's prices. The app's car count
+  // shares the same 2 s.
+  const [, carsInApp] = await Promise.all([
+    Promise.race([landing().catch(() => {}), new Promise(resolve => setTimeout(resolve, 2000))]),
+    Promise.race([appCars, new Promise(resolve => setTimeout(resolve, 2000, 0))])
+  ]);
   // Paint the complete loader artwork before building the live scene.
   await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
   // The build has no stage reports; the bar eases towards 94% meanwhile and finish() completes it.
   window.drigoLoading?.progress?.(94, 4.5);
   city = await initCity(mapHost, {
     theme: 'night',
+    fleetSize: Math.max(10, Math.round(carsInApp * 1.5)),
     onReady: () => { document.body.classList.add('city-ready'); window.drigoLoading?.finish(); },
     onInteract: interacted,
     onStatus: text => { mapStatus.textContent = text; },

@@ -71,12 +71,12 @@
     <link rel="stylesheet" href="css/style.css?v=2">
     <link rel="stylesheet" href="css/map-experience.css?v=2">
     <link rel="stylesheet" href="css/hero-night.css?v=2">
-    <link rel="stylesheet" href="css/site.css?v=2">
+    <link rel="stylesheet" href="css/site.css?v=3">
     <link rel="stylesheet" href="css/mobile.css?v=2">
     <link rel="stylesheet" href="css/app-screens.css?v=1">
 
     <!-- The 3D city: start fetching its modules early (URLs match the imports exactly) -->
-    <link rel="modulepreload" href="js/site/city.js?v=20261019-loader" fetchpriority="low">
+    <link rel="modulepreload" href="js/site/city.js?v=20261027-fleet" fetchpriority="low">
     <link rel="modulepreload" href="js/site/vendor/three.module.min.js" fetchpriority="low">
     <link rel="modulepreload" href="js/site/vendor/three.core.min.js" fetchpriority="low">
     <link rel="modulepreload" href="js/site/dubai-real-city.js?v=20261019-culling" fetchpriority="low">
@@ -327,7 +327,7 @@
     <script type="module" src="js/site/tracking.js?v=2"></script>
     <script type="module" src="js/site/cars.js?v=3"></script>
     <script type="module" src="js/site/app-screens.js?v=1"></script>
-    <script type="module" src="js/site/app.js?v=2"></script>
+    <script type="module" src="js/site/app.js?v=3"></script>
     <style>
 html{scrollbar-gutter:stable}
 body.is-loading{overflow:hidden}
@@ -469,8 +469,8 @@ body.is-loading.city-ready .city-preview{display:none}
         <div class="tile-copy"><h3>No office visits</h3><p><span>Find, book and unlock in the app.</span> <span>Go straight to your car.</span></p></div>
       </li>
       <li class="tile tile-cities" data-spot>
-        <div class="cities" aria-hidden="true"><svg viewBox="0 0 220 80"><path class="cities-road" d="M24 56 C 70 10, 150 70, 196 24"/><circle class="cities-a" cx="24" cy="56" r="7"/><circle class="cities-b" cx="196" cy="24" r="7"/><circle class="car-dot" r="5"><animateMotion dur="3.4s" repeatCount="indefinite" path="M24 56 C 70 10, 150 70, 196 24"/></circle><text x="10" y="78">Dubai</text><text x="168" y="12">Sharjah</text></svg></div>
-        <div class="tile-copy"><h3>Dubai &amp; Sharjah</h3><p><span>Drive and park in both cities.</span> <span>End rentals in your start city.</span></p></div>
+        <div class="cities" aria-hidden="true"><svg viewBox="36 0 184 92"><defs><radialGradient id="uae-fade-g" cx=".68" cy=".35" r=".75"><stop offset=".55" stop-color="#fff"/><stop offset=".95" stop-color="#000"/></radialGradient><mask id="uae-fade"><rect width="220" height="92" fill="url(#uae-fade-g)"/></mask></defs><path class="uae-land" mask="url(#uae-fade)" d="M0 68L35 68L75 69L102 64L116 57L129 47L145 40L155 33L165 25L179 17L190 7L193 12L199 21L201 21L204 31L204 37L204 42L192 49L186 58L178 66L170 74L160 92L0 92Z"/><path class="cities-road" d="M153 36C145.7 40.7 112.2 54.2 116 59C119.8 63.8 162.2 68.5 176 65C189.8 61.5 197.8 45.8 199 38C200.2 30.2 189.5 19.2 183 18C176.5 16.8 165 28 160 31C155 34 160.3 31.3 153 36"/><path class="uae-trail" pathLength="1" d="M153 36C145.7 40.7 112.2 54.2 116 59C119.8 63.8 162.2 68.5 176 65C189.8 61.5 197.8 45.8 199 38C200.2 30.2 189.5 19.2 183 18C176.5 16.8 165 28 160 31C155 34 160.3 31.3 153 36"><animate attributeName="stroke-dashoffset" values="1;0;0" keyTimes="0;.8;1" dur="7s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;1;0" keyTimes="0;.86;1" dur="7s" repeatCount="indefinite"/></path><g class="uae-stops"><circle cx="116" cy="59" r="2.6"/><circle cx="176" cy="65" r="2.6"/><circle cx="199" cy="38" r="2.6"/><circle cx="183" cy="18" r="2.6"/><circle cx="160" cy="31" r="2.6"/></g><circle class="uae-home-ring" cx="153" cy="36" r="5"><animate attributeName="r" values="5;13" dur="1.6s" repeatCount="indefinite"/><animate attributeName="opacity" values=".6;0" dur="1.6s" repeatCount="indefinite"/></circle><circle class="uae-home" cx="153" cy="36" r="5.5"/><circle class="car-dot" r="4"><animateMotion dur="7s" repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;.8;1" calcMode="linear" path="M153 36C145.7 40.7 112.2 54.2 116 59C119.8 63.8 162.2 68.5 176 65C189.8 61.5 197.8 45.8 199 38C200.2 30.2 189.5 19.2 183 18C176.5 16.8 165 28 160 31C155 34 160.3 31.3 153 36"/></circle><text x="144" y="26" text-anchor="end">Dubai</text></svg></div>
+        <div class="tile-copy"><h3>All of the UAE</h3><p><span>Drive to any emirate.</span> <span>End rentals in your start city.</span></p></div>
       </li>
     </ul>
   </div>

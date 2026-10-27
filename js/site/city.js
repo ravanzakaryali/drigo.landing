@@ -533,6 +533,9 @@ export async function initCity(host, options = {}) {
   const fleetPrices=new Map(Array.from(document.querySelectorAll('.plan')).map(plan=>[
     plan.querySelector('.plan-name')?.textContent.trim(),plan.querySelector('.plan-desc')?.textContent.trim()
   ]));
+  // Every published model drives in the city; the fixed list only covers rows that never loaded.
+  const fleetNames=[...fleetPrices.keys()].filter(Boolean);
+  if(!fleetNames.length)fleetNames.push("Geely Emgrand", "Geely GX3 Pro", "Geely Coolray", "GAC GS3 Emzoom");
   const modelSlot = MODELS.map(() => 0);
   cars.forEach((car, i) => {
     const k = carModels[i % carModels.length], model = MODELS[k];
@@ -550,7 +553,7 @@ export async function initCity(host, options = {}) {
       car.loop=best;car.s=best.cum[bestIndex];journeyLoads.set(best,(journeyLoads.get(best)||0)+1);
     }
     car.distanceTravelled=0;
-    car.drigoName = ["Geely Emgrand", "Geely GX3 Pro", "Geely Coolray", "GAC GS3 Emzoom"][Math.floor(i / 4) % 4];
+    car.drigoName = fleetNames[Math.floor(i / 4) % fleetNames.length];
     car.scale=.22;
     car.vmax=.72+seededRandom(i)*.32;
     car.v=0;
@@ -643,7 +646,8 @@ export async function initCity(host, options = {}) {
           if (state === 2 || (state === 1 && d > .9)) target = Math.min(target, car.vmax * Math.max(0, (d - .04) / 2.6));
         }
         car.pull = Math.max(0, Math.min(1, (car.pull || 0) + (car.hold && car.v < .4 ? dt * 1.5 : car.hold ? 0 : -dt)));
-        if (car.hold) target = 0;
+        // A held car pulls over to the kerb; a car whose Drigo card is open just stops in its lane.
+        if (car.hold || car.paused) target = 0;
         const accel = target > car.v ? .35 : .9;
         car.v += Math.max(-accel * dt, Math.min(accel * dt, target - car.v));
         car.brake = car.v > target + .05 || target < .2 ? 1 : Math.max(0, car.brake - dt * 2);
@@ -1136,13 +1140,56 @@ export async function initCity(host, options = {}) {
     out.lerpVectors(loop.pts[k], loop.pts[k2], f); const h = loop.head[k];
     const pull = car.pull || 0; out.x -= Math.cos(h) * pull * .2; out.z += Math.sin(h) * pull * .2; out.y = .12; return out;
   };
-  // Mark a small visible sample of the illustrative Drigo fleet, following real traffic paths.
+  // Mark a visible share of the illustrative Drigo fleet, following real traffic paths: never fewer
+  // than 10 cars (app.js asks for 1.5 times what the app shows), with one price card per published model.
   const drigoCars = cars.filter(car => car.isDrigo);
-  const fleetPins = Array.from({ length: 4 }, () => {
+  const fleetPins = fleetNames.slice(0, 6).map(name => {
     const el = makeTag('is-drigo');
     el.innerHTML = "<img src=\"data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTgiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA5OCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGcgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwXzUwN18xNTY2KSI+CjxwYXRoIGQ9Ik0xNi40ODY2IDEyLjc1ODhWMEgyMS40MzgyVjIwLjcyNTZIMTYuNDI1N0MxNi40NDc0IDIwLjYyODggMTYuNDU2MSAyMC41MzE5IDE2LjQ1NjEgMjAuNDM1MUMxNi40NTYxIDIwLjM3NjEgMTYuNDY0OCAyMC4zMDg4IDE2LjQ4NjYgMjAuMjMzQzE2LjQ4NjYgMjAuMTk1MSAxNi40ODY2IDIwLjE2NTYgMTYuNDg2NiAyMC4xNDQ1QzE2LjQ4NjYgMjAuMDY4NyAxNi40ODY2IDIwLjAwMTQgMTYuNDg2NiAxOS45NDI0QzE2LjQ4NjYgMTkuODY2NiAxNi40ODY2IDE5Ljc5OTIgMTYuNDg2NiAxOS43NDAzQzE2LjQ4NjYgMTkuNzAyNCAxNi40ODY2IDE5LjY2NDUgMTYuNDg2NiAxOS42MjY2QzE2LjQ2NDggMTkuNTY3NiAxNi40NTYxIDE5LjUwMDMgMTYuNDU2MSAxOS40MjQ1QzE2LjQ1NjEgMTkuMzI3NiAxNi40NDc0IDE5LjIzMDggMTYuNDI1NyAxOS4xMzM5QzE2LjIyNTUgMTcuODgzMyAxNS42ODE2IDE2LjgzNDggMTQuNzg1MyAxNS45ODg1QzEzLjY0OTYgMTQuODg5NCAxMi4yODc3IDE0LjM0MiAxMC42OTk1IDE0LjM0MkM5LjI0NjI1IDE0LjM0MiA3Ljk4ODc2IDE0Ljc5MjYgNi45MjcwNyAxNS42OTc5QzUuODYxMDMgMTYuNjAzMiA1LjIyMTQxIDE3Ljc0ODYgNS4wMDM4NSAxOS4xMzM5QzQuOTI1NTMgMTkuNjcyOSA0LjkyNTUzIDIwLjIwMzUgNS4wMDM4NSAyMC43MjE0QzUuMjIxNDEgMjIuMTA2OCA1Ljg2NTM4IDIzLjI1MjEgNi45MjcwNyAyNC4xNTc0QzcuOTkzMTEgMjUuMDYyOCA5LjI1MDYgMjUuNTEzMyAxMC42OTk1IDI1LjUxMzNDMTAuNzM4NyAyNS41MTMzIDEwLjc3NzkgMjUuNTEzMyAxMC44MTcgMjUuNTEzM0MxMC44NTYyIDI1LjUxMzMgMTAuODg2NiAyNS41MTMzIDEwLjkwODQgMjUuNTEzM0MxMC45NDc2IDI1LjUxMzMgMTAuOTg2NyAyNS41MTMzIDExLjAyNTkgMjUuNTEzM0MxMS4wNjUgMjUuNTEzMyAxMS4wOTU1IDI1LjUxMzMgMTEuMTE3MiAyNS41MTMzQzExLjEzOSAyNS41MTMzIDExLjE1NjQgMjUuNTEzMyAxMS4xNzgyIDI1LjUxMzNDMTEuMTk5OSAyNS40OTIzIDExLjIxNzMgMjUuNDgzOCAxMS4yMzkxIDI1LjQ4MzhDMTEuMzc4MyAyNS40ODM4IDExLjUwODkgMjUuNDc1NCAxMS42MjYzIDI1LjQ1NDRDMTEuNjY1NSAyNS40MzMzIDExLjcwNDcgMjUuNDI0OSAxMS43NDM4IDI1LjQyNDlDMTEuNzY1NiAyNS40MjQ5IDExLjc5MTcgMjUuNDI0OSAxMS44MzUyIDI1LjQyNDlDMTEuODM1MiAyNS40MDM4IDExLjg0MzkgMjUuMzk1NCAxMS44NjU3IDI1LjM5NTRDMTEuODg3NCAyNS4zOTU0IDExLjkwNDggMjUuMzk1NCAxMS45MjY2IDI1LjM5NTRDMTEuOTY1NyAyNS4zNzQ0IDEyLjAwNDkgMjUuMzY1OSAxMi4wNDQxIDI1LjM2NTlDMTIuMTA1IDI1LjM0NDkgMTIuMTYxNSAyNS4zMjggMTIuMjIyNCAyNS4zMDdDMTIuMjYxNiAyNS4zMDcgMTIuMzAwOCAyNS4yOTg2IDEyLjMzOTkgMjUuMjc3NUMxMi44NTc3IDI1LjE0MjggMTMuMzUzOCAyNC45MzIyIDEzLjgzMjQgMjQuNjQxN0MxNC42Mjg2IDI0LjE2MTYgMTUuNDgxNSAyMy45MjE2IDE2LjM5OTYgMjMuOTIxNkgxNi41NzhDMTcuOTMxMiAyMy45MjE2IDE5LjA3OTkgMjQuMzgwNiAyMC4wMjQxIDI1LjI5NDRDMjAuOTY4MyAyNi4yMDgxIDIxLjQ0MjYgMjcuMzExMyAyMS40NDI2IDI4LjU5OThWMzAuMzAxSDE2LjQ5MDlWMjcuMDk2NkMxNi4zMTI2IDI3LjM4NzEgMTYuMTEyNCAyNy42NTY2IDE1Ljg5NDggMjcuOTA1MUMxNS44MzM5IDI3Ljk2NCAxNS43Nzc0IDI4LjAxODggMTUuNzE2NCAyOC4wNzc3QzE1LjY3NzMgMjguMTM2NyAxNS42MjUxIDI4LjE5MTQgMTUuNTY4NSAyOC4yNTAzQzE1LjU0NjcgMjguMjcxNCAxNS41MjkzIDI4LjI4ODIgMTUuNTA3NiAyOC4zMDkzQzE0LjgzMzIgMjguOTYyIDE0LjA3MTcgMjkuNDU4OSAxMy4yMjc2IDI5Ljc5NTdDMTIuMzgzNCAzMC4xMzI2IDExLjU0MzcgMzAuMzAxIDEwLjcwODIgMzAuMzAxQzcuODg0MzMgMzAuMzAxIDUuNDY5NDMgMjkuMzkxNSAzLjQ1OTE4IDI3LjU3MjRDMS40NDg5NCAyNS43NTMzIDAuMzA4OTMzIDIzLjQ2NjkgMC4wMzA0NTgyIDIwLjcxNzJDMC4wMzA0NTgyIDIwLjY1ODMgMC4wMzA0NTgyIDIwLjYwMzUgMC4wMzA0NTgyIDIwLjU0NDZDMC4wMDg3MDIzNSAyMC40Njg4IDAgMjAuNDAxNCAwIDIwLjM0MjRDMCAyMC4zMjE0IDAgMjAuMzA0NSAwIDIwLjI4MzVDMCAyMC4yNDU2IDAgMjAuMjA3NyAwIDIwLjE2OThDMCAyMC4xMzE5IDAgMjAuMTAyNCAwIDIwLjA4MTRDMCAyMC4wNjAzIDAgMjAuMDUxOSAwIDIwLjA1MTlDMCAxOS44NzkyIDAgMTkuNzA2NiAwIDE5LjUzNEMwIDE5LjQ1ODIgMC4wMDg3MDIzNSAxOS4zOTA4IDAuMDMwNDU4MiAxOS4zMzE4QzAuMDMwNDU4MiAxOS4yNTYxIDAuMDMwNDU4MiAxOS4xODg3IDAuMDMwNDU4MiAxOS4xMjk3QzAuMzA4OTMzIDE2LjM5NjkgMS40NTMyOSAxNC4xMTQ2IDMuNDU5MTggMTIuMjg3MkM1LjQ2OTQzIDEwLjQ1OTcgNy44ODQzMyA5LjU0NTkxIDEwLjcwODIgOS41NDU5MUMxMS41NDM3IDkuNTQ1OTEgMTIuMzgzNCA5LjcxODU2IDEzLjIyNzYgMTAuMDYzOEMxNC4wNzE3IDEwLjQwOTEgMTQuODMzMiAxMC45MDE4IDE1LjUwNzYgMTEuNTM3NkMxNS41MjkzIDExLjU1ODcgMTUuNTQ2NyAxMS41ODM5IDE1LjU2ODUgMTEuNjI2MUMxNS42Mjk0IDExLjY4NSAxNS42NzczIDExLjczMTMgMTUuNzE2NCAxMS43NjkyQzE1Ljc3NzQgMTEuODI4MiAxNS44MzM5IDExLjg4MjkgMTUuODk0OCAxMS45NDE5QzE2LjExMjQgMTIuMTkwMyAxNi4zMTI2IDEyLjQ1OTggMTYuNDkwOSAxMi43NTAzTDE2LjQ4NjYgMTIuNzU4OFpNMjkuMzc0OCAxMy4xMDQxQzMwLjM4ODYgMTIuMDA1IDMxLjYxMTMgMTEuMTQxOCAzMy4wNDI4IDEwLjUwNkMzNC40NzQ0IDkuODcwMTUgMzUuOTk3MyA5LjU1NDM0IDM3LjYwNzIgOS41NTQzNEMzOS4zNTY0IDkuNTU0MzQgNDAuNzcwNSA5Ljg0NDg4IDQxLjg0MDkgMTAuNDIxOEwzOS4yNDc2IDE0Ljc4QzM4LjgyOTkgMTQuNDg5NCAzOC4yODE2IDE0LjM0NjIgMzcuNjA3MiAxNC4zNDYySDM3LjU0NjNDMzUuMjQwMiAxNC40MDUyIDMzLjI5OTUgMTUuMTkyNiAzMS43Mjg4IDE2LjcxMjdDMzAuMTU4IDE4LjIzMjggMjkuMzcwNCAyMC4wODE0IDI5LjM3MDQgMjIuMjU0MVYzMC4zMDk0SDI0LjQxODhWOS41NTQzNEgyOS4zNzA0VjEzLjEwNDFIMjkuMzc0OFpNNDQuNDk5NSAzMC4zMDk0VjkuNTU0MzRINDkuNDUxMVYzMC4zMDk0SDQ0LjQ5OTVaTTQ2Ljk3NTMgMEM0Ny44ODkgMCA0OC42NzY2IDAuMzExNiA0OS4zMzM2IDAuOTM5MDExQzQ5Ljk5MDYgMS41NjY0MiA1MC4zMTcgMi4zMjg1OCA1MC4zMTcgMy4yMzM5QzUwLjMxNyA0LjExODE4IDQ5Ljk5MDYgNC44ODAzMyA0OS4zMzM2IDUuNTE2MTdDNDguNjc2NiA2LjE1MiA0Ny44OTM0IDYuNDY3ODEgNDYuOTc1MyA2LjQ2NzgxQzQ2LjA2MTUgNi40Njc4MSA0NS4yNzQgNi4xNTIgNDQuNjE2OSA1LjUxNjE3QzQzLjk1OTkgNC44ODAzMyA0My42MzM2IDQuMTIyMzkgNDMuNjMzNiAzLjIzMzlDNDMuNjMzNiAyLjMyODU4IDQzLjk1OTkgMS41NjY0MiA0NC42MTY5IDAuOTM5MDExQzQ1LjI3NCAwLjMxMTYgNDYuMDU3MiAwIDQ2Ljk3NTMgMFpNNjkuMTk2NyAxMi43MjkzVjkuNTU0MzRINzQuMTQ4NFYxMS4yNTU1Qzc0LjE0ODQgMTIuNTQ0IDczLjY3NDEgMTMuNjQ3MiA3Mi43Mjk5IDE0LjU2MUM3MS43ODU3IDE1LjQ3NDcgNzAuNjQ1NyAxNS45MzM3IDY5LjMxNDIgMTUuOTMzN0M2OC40NTcgMTUuOTcxNiA2Ny43MDQzIDE1LjgxMTYgNjcuMDQ3MiAxNS40NTc5QzY2LjM5MDIgMTUuMSA2NS42OTQgMTQuNzg4NCA2NC45NTg3IDE0LjUxODlDNjMuNzI3MyAxNC4yMTE1IDYyLjUyMiAxNC4yNzg5IDYxLjM0NzIgMTQuNzIxQzYwLjE3MjQgMTUuMTYzMSA1OS4yNDk5IDE1Ljg5NTggNTguNTcxMiAxNi45MTQ4QzU4LjExNDMgMTcuNTg4NiA1Ny44MjcxIDE4LjMyMTIgNTcuNzA1MyAxOS4xMDg3QzU3LjUyNjkgMjAuMzU5MyA1Ny43NTMxIDIxLjUzNDEgNTguMzkyOCAyMi42Mjg5QzU5LjExMDcgMjMuODU4NSA2MC4wOTg0IDI0LjY5MjIgNjEuMzYwMyAyNS4xMjU5QzYyLjYyMjEgMjUuNTU5NiA2My44OTcgMjUuNTkzMyA2NS4xNzYyIDI1LjIyN0M2Ni40NTk4IDI0Ljg2MDYgNjcuNDk5OCAyNC4wOTAxIDY4LjI5MTcgMjIuOTE5NUM2OS4wNDg4IDIxLjc0NDYgNjkuMzI3MyAyMC40NzcyIDY5LjEyNzEgMTkuMTA4N0g3NC4xMzk3VjI5LjUwMUM3NC4xMzk3IDI5Ljc3MDQgNzQuMTMxIDMwLjAzMTUgNzQuMTA5MiAzMC4yOEM3My43MTMyIDMzLjc0NTUgNzIuMDcyOCAzNi4zOTgzIDY5LjE4OCAzOC4yNDY4QzY3LjQ3OCAzOS4zMjQ4IDY1LjU1OTEgMzkuODYzOCA2My40MzE0IDM5Ljg2MzhDNjAuNzQ2NyAzOS44NjM4IDU4LjQxODkgMzkuMDM0MiA1Ni40NTIxIDM3LjM3OTRDNTQuNDg1NCAzNS43MjQ1IDUzLjI4MDEgMzMuNjI3NiA1Mi44NDA3IDMxLjA4ODRINTcuODgzN0M1OC4yNjIyIDMyLjI2MzMgNTguOTU0MSAzMy4yMTkxIDU5Ljk1NDggMzMuOTYwMkM2MC45NTk5IDM0LjcwMTMgNjIuMTE3NCAzNS4wNzE5IDYzLjQzMTQgMzUuMDcxOUM2NS4wMjM5IDM1LjA3MTkgNjYuMzgxNSAzNC41Mjg3IDY3LjUwNDEgMzMuNDQyM0M2OC42MjY3IDMyLjM1NTkgNjkuMTg4IDMxLjA0MjEgNjkuMTg4IDI5LjUwMVYyNy4xMDVDNjkuMDA5NiAyNy4zOTU2IDY4LjgwOTUgMjcuNjY1IDY4LjU5MTkgMjcuOTEzNUM2Ny44MTc0IDI4Ljc4MDkgNjYuODczMiAyOS40MjUyIDY1Ljc1OTMgMjkuODQ2MkM2NS42MjAxIDI5LjkwNTIgNjUuNDg5NSAyOS45NTE1IDY1LjM3MiAyOS45ODk0QzY1LjMzMjkgMjkuOTg5NCA2NS4zMDI0IDI5Ljk5NzggNjUuMjgwNyAzMC4wMTg5QzY1LjI0MTUgMzAuMDE4OSA2NS4yMTEgMzAuMDI3MyA2NS4xODkzIDMwLjA0ODRDNjUuMTUwMSAzMC4wNDg0IDY1LjExOTcgMzAuMDU2OCA2NS4wOTc5IDMwLjA3NzhDNjUuMDU4OCAzMC4wNzc4IDY1LjAxOTYgMzAuMDc3OCA2NC45ODA0IDMwLjA3NzhDNjQuOTU4NyAzMC4wOTg5IDY0LjkzMjYgMzAuMTA3MyA2NC44ODkxIDMwLjEwNzNDNjQuODQ5OSAzMC4xMjg0IDY0LjgxMDcgMzAuMTM2OCA2NC43NzE2IDMwLjEzNjhDNjQuNzQ5OCAzMC4xMzY4IDY0LjczMjQgMzAuMTQ1MiA2NC43MTA3IDMwLjE2NjNDNjQuNjQ5NyAzMC4xNjYzIDY0LjU5MzIgMzAuMTc0NyA2NC41MzIzIDMwLjE5NTdDNjQuNDMyMiAzMC4yMTY4IDY0LjMzMjEgMzAuMjI1MiA2NC4yMzIgMzAuMjI1MkM2NC4yMTAzIDMwLjI0NjMgNjQuMTkyOSAzMC4yNTQ3IDY0LjE3MTEgMzAuMjU0N0M2NC4xNDk0IDMwLjI1NDcgNjQuMTMyIDMwLjI1NDcgNjQuMTEwMiAzMC4yNTQ3QzY0LjA4ODQgMzAuMjU0NyA2NC4wNjIzIDMwLjI1NDcgNjQuMDE4OCAzMC4yNTQ3QzYzLjk1NzkgMzAuMjc1NyA2My45MSAzMC4yODQyIDYzLjg3MDkgMzAuMjg0MkM2My44NDkxIDMwLjI4NDIgNjMuODIzIDMwLjI4NDIgNjMuNzc5NSAzMC4yODQyQzYzLjY2MiAzMC4yODQyIDYzLjU0MDIgMzAuMjg0MiA2My40MjI3IDMwLjI4NDJDNjMuMzIyNiAzMC4yODQyIDYzLjIzNTYgMzAuMjg0MiA2My4xNTI5IDMwLjI4NDJDNjMuMTEzOCAzMC4yODQyIDYzLjA2MTYgMzAuMjg0MiA2My4wMDUgMzAuMjg0MkM2Mi45NjU4IDMwLjI4NDIgNjIuOTM1NCAzMC4yODQyIDYyLjkxMzYgMzAuMjg0MkM2Mi44NzQ1IDMwLjI4NDIgNjIuODM1MyAzMC4yODQyIDYyLjc5NjEgMzAuMjg0MkM2Mi43NTcgMzAuMjg0MiA2Mi43MTc4IDMwLjI4NDIgNjIuNjc4NyAzMC4yODQyQzYyLjUwMDMgMzAuMjYzMSA2Mi4zMDg4IDMwLjI0NjMgNjIuMTEzIDMwLjIyNTJDNjIuMDczOSAzMC4yMjUyIDYyLjAzNDcgMzAuMjE2OCA2MS45OTU1IDMwLjE5NTdDNjEuODU2MyAzMC4xNzQ3IDYxLjcyNTggMzAuMTU3OCA2MS42MDgzIDMwLjEzNjhDNjEuNTMgMzAuMTM2OCA2MS40NjAzIDMwLjEyODQgNjEuMzk5NCAzMC4xMDczQzYxLjMyMTEgMzAuMDg2MyA2MS4yNTE1IDMwLjA3NzggNjEuMTkwNiAzMC4wNzc4QzYxLjA1MTMgMzAuMDM5OSA2MC45MjA4IDMwLjAxMDUgNjAuODAzMyAyOS45ODk0QzYwLjc4MTUgMjkuOTY4NCA2MC43NTU0IDI5Ljk1OTkgNjAuNzExOSAyOS45NTk5QzYwLjQ1NTIgMjkuODg0MSA2MC4xOTQxIDI5LjgwNDEgNTkuOTM3NCAyOS43MjgzQzU3LjYzMTMgMjguOTQwOSA1NS44MTI1IDI3LjU2NCA1NC40NzY3IDI1LjYwMTdDNTMuMTQ1MiAyMy42Mzk1IDUyLjU1NzggMjEuNDc1MSA1Mi43MTg4IDE5LjEwODdDNTIuOTk3MyAxNi4zNzU5IDU0LjE0NiAxNC4xMDIgNTYuMTY1IDEyLjI4MjlDNTguMTgzOSAxMC40NjM5IDYwLjYwMzEgOS41NTQzNCA2My40MjcxIDkuNTU0MzRDNjQuNDggOS41NTQzNCA2NS41MzMgOS44MjgwNCA2Ni41OTA0IDEwLjM3NTRDNjcuNjQzMyAxMC45MjI4IDY4LjUwOTIgMTEuNzA2MSA2OS4xODM3IDEyLjcyOTNINjkuMTk2N1pNODcuMjQ1NCA5LjU1NDM0Qzg5LjIzMzkgOS41NTQzNCA5MS4wMzk2IDEwLjAyMTcgOTIuNjU4MyAxMC45NTIzQzk0LjI3NjkgMTEuODg3MSA5NS41NzM1IDEzLjEzNzcgOTYuNTM1MSAxNC43MDQyQzk3LjUwMTEgMTYuMjcwNiA5Ny45Nzk3IDE4LjAxODEgOTcuOTc5NyAxOS45NDI0Qzk3Ljk3OTcgMjEuODQ1NyA5Ny40OTY4IDIzLjU4NDggOTYuNTM1MSAyNS4xNTEyQzk1LjU2OTIgMjYuNzE3NiA5NC4yNzY5IDI3Ljk3MjQgOTIuNjU4MyAyOC45MDNDOTEuMDM5NiAyOS44Mzc4IDg5LjIzMzkgMzAuMzAxIDg3LjI0NTQgMzAuMzAxQzg1LjI3ODcgMzAuMzAxIDgzLjQ4MTYgMjkuODMzNiA4MS44NjMgMjguOTAzQzgwLjI0NDQgMjcuOTY4MiA3OC45NDc3IDI2LjcxNzYgNzcuOTg2MSAyNS4xNTEyQzc3LjAyMDEgMjMuNTg0OCA3Ni41NDE1IDIxLjg0NTcgNzYuNTQxNSAxOS45NDI0Qzc2LjU0MTUgMTguMDE4MSA3Ny4wMjQ1IDE2LjI3MDYgNzcuOTg2MSAxNC43MDQyQzc4Ljk1MjEgMTMuMTM3NyA4MC4yNDQ0IDExLjg4MjkgODEuODYzIDEwLjk1MjNDODMuNDgxNiAxMC4wMTc1IDg1LjI3ODcgOS41NTQzNCA4Ny4yNDU0IDkuNTU0MzRaTTg3LjI0NTQgMjUuNTE3NUM4OC44Mzc5IDI1LjUxNzUgOTAuMTk5OCAyNC45NzQzIDkxLjMzMTEgMjMuODg3OUM5Mi40NjY4IDIyLjgwMTYgOTMuMDMyNSAyMS40ODc4IDkzLjAzMjUgMTkuOTQ2NkM5My4wMzI1IDE4LjQwNTUgOTIuNDY2OCAxNy4wODc1IDkxLjMzMTEgMTUuOTkyN0M5MC4xOTU1IDE0Ljg5MzYgODguODMzNiAxNC4zNDYyIDg3LjI0NTQgMTQuMzQ2MkM4NS42NTI5IDE0LjM0NjIgODQuMjk1MyAxNC44OTM2IDgzLjE3MjcgMTUuOTkyN0M4Mi4wNTAxIDE3LjA5MTcgODEuNDg4OCAxOC40MDk3IDgxLjQ4ODggMTkuOTQ2NkM4MS40ODg4IDIxLjQ4NzggODIuMDUwMSAyMi44MDE2IDgzLjE3MjcgMjMuODg3OUM4NC4yOTUzIDI0Ljk3NDMgODUuNjUyOSAyNS41MTc1IDg3LjI0NTQgMjUuNTE3NVoiIGZpbGw9IiNmZmZmZmYiLz4KPC9nPgo8ZGVmcz4KPGNsaXBQYXRoIGlkPSJjbGlwMF81MDdfMTU2NiI+CjxyZWN0IHdpZHRoPSI5OCIgaGVpZ2h0PSI0MCIgZmlsbD0id2hpdGUiLz4KPC9jbGlwUGF0aD4KPC9kZWZzPgo8L3N2Zz4K\" alt=\"Drigo\"><small></small>";
-    return { el, car: null };
+    const copy = el.querySelector('small'); copy.textContent = name;
+    const price = document.createElement('span'); price.className = 'car-pin-price'; price.textContent = fleetPrices.get(name) || ''; copy.appendChild(price);
+    // Shown but faded: a phone stylesheet that hides the cards then reads as zero width.
+    el.hidden = false; el.classList.add('is-off');
+    return { el, car: null, name };
   });
+  // Hovering a marker (or tapping it on a phone) opens that car's card: model, year and body, and
+  // today's price. A click keeps a hovered card open; a second click closes it.
+  const fleetInfo = new Map(Array.from(document.querySelectorAll('.plan')).map(plan => [
+    plan.querySelector('.plan-name')?.textContent.trim(), plan.querySelector('.plan-n')?.textContent.split(' · ').slice(1).join(' · ')
+  ]));
+  const pickedPin = { el: makeTag('is-drigo is-picked'), car: null, hover: false };
+  pickedPin.el.innerHTML = fleetPins[0].el.querySelector('img').outerHTML + '<small></small>';
+  // The car stops while its card is open, so the card stays under the pointer.
+  function openPicked(car, hover = false) {
+    if (pickedPin.car) pickedPin.car.paused = false;
+    pickedPin.car = car; pickedPin.hover = hover; car.paused = true; car.v = 0;
+    const copy = pickedPin.el.querySelector('small'); copy.textContent = car.drigoName;
+    [['car-pin-meta', fleetInfo.get(car.drigoName)], ['car-pin-price', fleetPrices.get(car.drigoName)]].forEach(([cls, text]) => {
+      if (!text) return; const line = document.createElement('span'); line.className = cls; line.textContent = text; copy.appendChild(line);
+    });
+    pickedPin.el.hidden = false; status(`${car.drigoName}. ${fleetPrices.get(car.drigoName) || ''}`.trim()); refreshView();
+  }
+  function closePicked() { if (pickedPin.car) pickedPin.car.paused = false; pickedPin.car = null; pickedPin.el.hidden = true; }
+  const fleetChips = Array.from({ length: Math.max(10, Math.round(Number(options.fleetSize) || 0)) }, (_, k) => {
+    const el = makeTag('is-drigo-chip');
+    el.innerHTML = fleetPins[0].el.querySelector('img').outerHTML;
+    // A map control, so a tap opens the card instead of starting a drag.
+    el.dataset.mapControl = '';
+    const chip = { el, car: null, name: fleetNames[k % fleetNames.length] };
+    el.addEventListener('click', event => { event.stopPropagation(); if (!chip.car) return; if (pickedPin.car === chip.car && !pickedPin.hover) closePicked(); else openPicked(chip.car); });
+    el.addEventListener('pointerenter', event => { if (event.pointerType === 'mouse' && chip.car && (!pickedPin.car || pickedPin.hover)) openPicked(chip.car, true); });
+    return chip;
+  });
+  // The camera keeps drifting, so a still mouse can slip off a marker: a hovered card closes only
+  // once the mouse moves well away from its marker, or leaves the map.
+  host.addEventListener('pointermove', event => {
+    if (event.pointerType !== 'mouse' || !pickedPin.hover || !pickedPin.car) return;
+    const chip = fleetChips.find(c => c.car === pickedPin.car);
+    const r = chip?.el.getBoundingClientRect();
+    if (!r || Math.hypot(event.clientX - (r.left + r.width / 2), event.clientY - (r.top + r.height / 2)) > 64) closePicked();
+  });
+  host.addEventListener('pointerleave', event => { if (event.pointerType === 'mouse' && pickedPin.hover) closePicked(); });
+  let fleetPickAt = -1, fleetBlocked = [], fleetCovered = [];
   const tags = fabric.tags || [];
   function pick(px, py) {
     if (!rooftopActive) {
@@ -1284,7 +1331,7 @@ export async function initCity(host, options = {}) {
   function dismissHint() { hint.classList.add('is-gone'); }
   function handleTap(px, py) {
     if(rooftopActive)return;
-    dismissHint();
+    dismissHint(); closePicked();
     const hit = pick(px, py);
     if(hit?.kind==='rooftop'){openRooftop(hit.roof);return;}
     landmarkShown = null; landmarkTag.hidden = true;
@@ -1343,42 +1390,77 @@ export async function initCity(host, options = {}) {
     if (live || shells.length) { sparkGeometry.attributes.position.needsUpdate = true; sparkGeometry.attributes.color.needsUpdate = true; }
     // Labels follow their subject on screen.
     const place = (el, v, lift, clamp = false) => { projectTo(v, screen); let y = screen.y - lift; if (clamp) y = Math.max(150, Math.min(height - 90, y)); el.style.transform = `translate(${screen.x}px, ${y}px)`; el.classList.toggle('is-off', !screen.visible || screen.x < 0 || screen.x > width || (!clamp && (screen.y < 0 || screen.y > height))); };
-    // Select geographically separated cars, not the four nearest one screen point.
-    if (!fleetPins[0].car && drigoCars.length) {
-      const candidates=drigoCars.map(car=>({car,point:projectTo(carWorld(car,probe),{x:0,y:0,visible:false})}));
-      const visible=candidates.filter(({point:p})=>p.visible&&p.x>90&&p.x<width-90&&p.y>210&&p.y<height-110);
-      const pool=visible.length?visible:candidates,chosen=[];
-      for(const marker of fleetPins){
+    // Keep the whole marked fleet in view: a car that drives off screen or under the hero copy hands
+    // its marker to another Drigo car in view, preferring the marker's own model so each model shows.
+    const fleetAt=car=>projectTo(carWorld(car,probe),{x:0,y:0,visible:false});
+    const inView=p=>p.visible&&p.x>24&&p.x<width-24&&p.y>110&&p.y<height-80&&!fleetBlocked.some(r=>p.x>r.left&&p.x<r.right&&p.y>r.top&&p.y<r.bottom);
+    const points=new Map();
+    for(const chip of fleetChips){if(!chip.car)continue;const p=fleetAt(chip.car);if(inView(p))points.set(chip,p);else chip.car=null;}
+    if(points.size<fleetChips.length&&clock>=fleetPickAt&&drigoCars.length){
+      fleetPickAt=clock;
+      const box=host.getBoundingClientRect();
+      fleetBlocked=[...(heroElement?.querySelectorAll('.hero-heading, .district-nav')||[])].map(el=>el.getBoundingClientRect()).filter(r=>r.width)
+        .map(r=>({left:r.left-box.left-16,right:r.right-box.left+16,top:r.top-box.top-16,bottom:r.bottom-box.top+16}));
+      const taken=new Set(fleetChips.map(chip=>chip.car).filter(Boolean));
+      const covered=p=>fleetCovered.some(r=>p.x>r.left-24&&p.x<r.right+24&&p.y>r.top&&p.y<r.bottom+34);
+      const pool=drigoCars.filter(car=>!taken.has(car)).map(car=>({car,p:fleetAt(car)})).filter(({p})=>inView(p)&&!covered(p));
+      for(const chip of fleetChips){
+        if(chip.car)continue;
         let best=null,bestScore=-Infinity;
-        for(const candidate of pool){
-          if(chosen.includes(candidate))continue;
-          const p=candidate.point;
-          const separation=chosen.length?Math.min(...chosen.map(c=>Math.hypot(p.x-c.point.x,p.y-c.point.y))): -Math.hypot(p.x-width*.72,p.y-height*.32);
-          const routeBonus=chosen.some(c=>c.car.loop===candidate.car.loop)?0:70;
-          if(separation+routeBonus>bestScore){best=candidate;bestScore=separation+routeBonus;}
+        for(const c of pool){
+          if(taken.has(c.car))continue;
+          let near=400;for(const q of points.values())near=Math.min(near,Math.hypot(c.p.x-q.x,c.p.y-q.y));
+          const score=near+(c.car.drigoName===chip.name?400:0);
+          if(score>bestScore){best=c;bestScore=score;}
         }
-        if(!best)break;chosen.push(best);marker.car=best.car;marker.lift=20;
-        const copy=marker.el.querySelector('small');copy.textContent=marker.car.drigoName;
-        const price=document.createElement('span');price.className='car-pin-price';price.textContent=fleetPrices.get(marker.car.drigoName)||'';copy.appendChild(price);
-        marker.el.dataset.carId=String(cars.indexOf(marker.car));marker.el.hidden=false;
+        if(!best){fleetPickAt=clock+.25;break;}
+        chip.car=best.car;taken.add(best.car);points.set(chip,best.p);
       }
     }
     // Reserve each card's real screen rectangle; lift converging pins with a leader.
-    const pinRects=[];
-    for(const marker of fleetPins){
-      if(!marker.car)continue;
-      const p=projectTo(carWorld(marker.car,probe),{x:0,y:0,visible:false});
-      const w=marker.el.offsetWidth||140,h=marker.el.offsetHeight||85;
-      let layout=null;
-      for(const lift of [...new Set([marker.lift||20,20,20+h+16,20+(h+16)*2,20+(h+16)*3])]){
-        const box={left:p.x-w/2-8,right:p.x+w/2+8,top:p.y-lift-h-8,bottom:p.y-lift+8};
-        if(box.left<8||box.right>width-8||box.top<100||box.bottom>height-70)continue;
-        if(pinRects.some(r=>box.left<r.right&&box.right>r.left&&box.top<r.bottom&&box.bottom>r.top))continue;
-        layout={box,lift};break;
+    const pinRects=[],carded=new Set();
+    // The opened card sits above its car's marker, so the pointer stays on the marker.
+    if(pickedPin.car){
+      const p=fleetAt(pickedPin.car),w=pickedPin.el.offsetWidth,h=pickedPin.el.offsetHeight,lift=18+(fleetChips[0].el.offsetHeight||22);
+      if(!p.visible||p.x<0||p.x>width||p.y<0||p.y>height||(pickedPin.hover&&!fleetChips.some(chip=>chip.car===pickedPin.car)))closePicked();
+      else{
+        // Kept inside the map near its edges, and hung below the car under the header or the hero copy.
+        const x=Math.min(Math.max(p.x,w/2+8),width-w/2-8);
+        const fits=y=>y-h>=100&&y<=height-8&&!fleetBlocked.some(r=>x-w/2<r.right&&x+w/2>r.left&&y-h<r.bottom&&y>r.top);
+        const below=!fits(p.y-lift)&&fits(p.y+14+h),y=below?p.y+14+h:p.y-lift;
+        pickedPin.el.classList.toggle('is-below',below);
+        pinRects.push({left:x-w/2-8,right:x+w/2+8,top:y-h-8,bottom:y+8});pickedPin.el.style.transform=`translate(${x}px,${y}px)`;
       }
-      const off=!p.visible||!layout;
-      marker.el.classList.toggle('is-off',off);
-      if(layout){pinRects.push(layout.box);marker.lift=layout.lift;marker.el.style.setProperty('--pin-leader',`${Math.max(0,layout.lift-20)}px`);marker.el.style.transform=`translate(${p.x}px,${p.y-layout.lift}px)`;}
+    }
+    for(const marker of fleetPins){
+      const w=marker.el.offsetWidth,h=marker.el.offsetHeight;
+      let layout=null;
+      if(w){
+        const own=[...points].filter(([chip])=>chip.car.drigoName===marker.name&&chip.car!==pickedPin.car).sort(([a],[b])=>(b.car===marker.car)-(a.car===marker.car));
+        for(const [chip,p] of own){
+          for(const lift of [...new Set([chip.car===marker.car&&marker.lift||20,20,20+h+16,20+(h+16)*2,20+(h+16)*3])]){
+            const box={left:p.x-w/2-8,right:p.x+w/2+8,top:p.y-lift-h-8,bottom:p.y-lift+8};
+            if(box.left<8||box.right>width-8||box.top<100||box.bottom>height-70)continue;
+            if([...pinRects,...fleetBlocked].some(r=>box.left<r.right&&box.right>r.left&&box.top<r.bottom&&box.bottom>r.top))continue;
+            layout={car:chip.car,p,box,lift};break;
+          }
+          if(layout)break;
+        }
+      }
+      marker.el.classList.toggle('is-off',!layout);
+      if(!layout)continue;
+      pinRects.push(layout.box);carded.add(layout.car);marker.car=layout.car;marker.lift=layout.lift;
+      marker.el.dataset.carId=String(cars.indexOf(marker.car));
+      marker.el.style.setProperty('--pin-leader',`${Math.max(0,layout.lift-20)}px`);marker.el.style.transform=`translate(${layout.p.x}px,${layout.p.y-layout.lift}px)`;
+    }
+    // A card marks its own car; a marker that a card covers moves to another car.
+    fleetCovered=pinRects;
+    for(const chip of fleetChips){
+      const p=points.get(chip),box=p&&{left:p.x-24,right:p.x+24,top:p.y-34,bottom:p.y};
+      if(p&&!carded.has(chip.car)&&chip.car!==pickedPin.car&&pinRects.some(r=>box.left<r.right&&box.right>r.left&&box.top<r.bottom&&box.bottom>r.top))chip.car=null;
+      chip.el.hidden=!chip.car;if(!chip.car)continue;
+      chip.el.classList.toggle('is-off',carded.has(chip.car));chip.el.classList.toggle('is-open',chip.car===pickedPin.car);
+      chip.el.style.transform=`translate(${p.x}px,${p.y-8}px)`;
     }
     if (!carTag.hidden && ringCar) place(carTag, carWorld(ringCar, probe), 34);
     if (!landmarkTag.hidden && landmarkShown) place(landmarkTag, probe.set(landmarkShown.at[0], landmarkShown.h * world.scale.y, landmarkShown.at[1]), 18, true);
@@ -1393,7 +1475,7 @@ export async function initCity(host, options = {}) {
   }
   host.addEventListener('pointermove', onHover);
   host.addEventListener('pointerleave', () => { hovered = null; delete host.dataset.hot; });
-  window.addEventListener('keydown', event => { if (event.key === 'Escape' && (following || selectedCar)) { stopFollow(); release(); } });
+  window.addEventListener('keydown', event => { if (event.key === 'Escape') closePicked(); if (event.key === 'Escape' && (following || selectedCar)) { stopFollow(); release(); } });
 
   host.addEventListener('pointerdown', onPointerDown);
   host.addEventListener('pointermove', onPointerMove, { passive: false });
@@ -1439,7 +1521,8 @@ export async function initCity(host, options = {}) {
       closeRooftop();
       roofAccess.hidden=Number(index)!==1;
       stopFollow();
-      fleetPins.forEach(marker=>{marker.car=null;marker.el.hidden=true;});
+      fleetPins.forEach(marker=>{marker.car=null;marker.el.classList.add('is-off');});
+      fleetChips.forEach(chip=>{chip.car=null;chip.el.hidden=true;});fleetPickAt=-1;closePicked();
       destination = THREE.MathUtils.clamp(Math.round(Number(index) || 0), 0, destinations.length - 1);
       focused = true;
       rings.forEach((ring, i) => { ring.material.color.set(i === destination ? '#c5b5ff' : '#75648e'); ring.material.opacity = i === destination ? 0.95 : 0.4; });

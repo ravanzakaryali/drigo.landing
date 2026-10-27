@@ -341,12 +341,16 @@ main h2 em, .foot em { font-style: normal; font-weight: 300; color: var(--violet
 .tile-unlock:hover .shackle, .tile-unlock.is-in .shackle { transform: translateY(-3px) rotate(-28deg); }
 .tile-unlock:hover .lock { animation: nudge .5s var(--ease); }
 @keyframes nudge { 30% { rotate: -6deg; } 60% { rotate: 5deg; } }
-.cities svg { width: 100%; max-width: 250px; height: auto; overflow: visible; }
-.cities-road { fill: none; stroke: var(--violet); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 6 8; }
-.cities-a, .cities-b { fill: #fff; stroke: var(--violet); stroke-width: 3; }
-.cities-b { fill: var(--violet); }
+.cities svg { width: 100%; max-width: 250px; height: auto; overflow: hidden; stroke: none; }
+/* A tour of the emirates that always ends back at the start city. */
+.uae-land { fill: var(--lilac-soft); stroke: var(--lilac); stroke-width: 1; stroke-linejoin: round; }
+.cities-road { fill: none; stroke: var(--violet); stroke-opacity: .3; stroke-width: 2; stroke-linecap: round; stroke-dasharray: 6 8; }
+.uae-trail { fill: none; stroke: var(--violet); stroke-width: 2.5; stroke-linecap: round; stroke-dasharray: 1 1; stroke-dashoffset: 1; }
+.uae-stops circle { fill: #b3abc9; }
+.uae-home { fill: var(--violet); }
+.uae-home-ring { fill: none; stroke: var(--violet); stroke-width: 2; opacity: 0; }
 .cities .car-dot { fill: var(--ink); }
-.cities text { font: 700 11px var(--body); fill: var(--muted); stroke: none; letter-spacing: .02em; }
+.cities text { font: 700 11px var(--body); fill: var(--ink); stroke: none; letter-spacing: .02em; }
 .tile-cities:hover .cities-road { animation: road 1s linear infinite; }
 @keyframes road { to { stroke-dashoffset: -28; } }
 
@@ -1122,3 +1126,17 @@ input[name="company"]::-webkit-contacts-auto-fill-button { visibility: hidden; d
 .city-tag.is-drigo .car-pin-price { color:#171120; font-size:11px; font-weight:750; margin-top:3px; }
 
 .city-tag.is-drigo::before { display:block; position:absolute; left:50%; top:100%; width:1px; height:var(--pin-leader,0px); border-radius:0; background:#c7b9ffb3; pointer-events:none; }
+/* The rest of the marked Drigo fleet: a small logo marker riding above each car. */
+.city-tag.is-drigo-chip { display:block; padding:4px 6px; border-radius:7px; background:#5424ff; border:1px solid #ffffffb3; box-shadow:0 6px 14px -6px #060210cc; }
+.city-tag.is-drigo-chip::after { bottom:-4px; width:7px; height:7px; margin-left:-3.5px; }
+.city-tag.is-drigo-chip img { display:block; width:26px; height:11px; }
+.city-tag.is-drigo-chip[hidden] { display:none; }
+.city-tag.is-drigo-chip { pointer-events:auto; cursor:pointer; transition:opacity .25s, background-color .2s, border-color .2s; }
+/* Colour only: scaling would also scale the marker's position transform and make it jump. */
+.city-tag.is-drigo-chip:hover, .city-tag.is-drigo-chip.is-open { background:#7a52ff; border-color:#fff; }
+.city-tag.is-drigo-chip::before { content:''; position:absolute; inset:-12px; }
+.city-tag.is-drigo-chip.is-off { pointer-events:none; }
+/* The card a tapped marker opens; phones show it too (they hide the floating price cards). */
+.city-tag.is-drigo .car-pin-meta { display:block; margin-top:2px; font-size:10px; font-weight:500; color:#716b80; white-space:nowrap; }
+.city-tags .city-tag.is-drigo.is-picked:not([hidden]) { display:flex !important; }
+.city-tag.is-drigo.is-below::after { top:-5px; bottom:auto; }
