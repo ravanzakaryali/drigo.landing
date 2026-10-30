@@ -22,12 +22,10 @@
     <link rel="stylesheet" href="/css/site.css?v=2">
 
     <style>
-        /* Laid out like the credential pages of Credly (Microsoft, AWS, the Linux Foundation),
-           Coursera and Microsoft Learn: who it was issued to and when in a strip on top with a
-           Verify check, the certificate itself large beside its title, issuer and description,
-           Download and Add to LinkedIn, the certificate number as evidence, and a box to check
-           another number. */
-        :root { --cv-band: #f4f2fa; --cv-mono: ui-monospace, SFMono-Regular, Menlo, monospace; }
+        /* Anyone who scans the QR code lands here, so the page only answers one question: is
+           this certificate genuine? The result and the facts it was checked against, nothing to
+           download or share. */
+        :root { --cv-band: #f4f2fa; --cv-mono: ui-monospace, SFMono-Regular, Menlo, monospace; --cv-red: #b4232f; }
         body { background: #fff; font-family: var(--body); color: var(--ink); }
         .cv-mono { font-family: var(--cv-mono); letter-spacing: .02em; }
         .cv-inner { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
@@ -38,77 +36,32 @@
         .cv-logo { height: 30px; width: auto; display: block; }
         .cv-nav-label { font-size: 14px; font-weight: 600; color: var(--muted); }
 
-        /* Recipient strip */
-        .cv-strip { background: var(--cv-band); border-bottom: 1px solid var(--line); }
-        .cv-strip .cv-inner { display: flex; align-items: center; gap: 18px; padding-top: 22px; padding-bottom: 22px; }
-        .cv-avatar {
-            flex-shrink: 0; width: 60px; height: 60px; border-radius: 50%; display: grid; place-items: center;
-            background: var(--violet); color: #fff; font: 700 21px/1 var(--body); letter-spacing: .02em;
-        }
-        .cv-strip-text { flex: 1; min-width: 0; font-size: 15px; line-height: 1.6; }
-        .cv-strip-text strong { font-weight: 700; }
-        .cv-strip-text .cv-sub { color: var(--muted); font-size: 14px; }
-        .cv-strip.is-revoked .cv-avatar { background: #b4232f; }
-        .cv-strip.is-revoked .cv-strip-text strong.cv-alert { color: #b4232f; }
-        .cv-strip-actions { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
-        .cv-verify {
-            display: inline-flex; align-items: center; gap: 8px; padding: 10px 4px; border: 0; background: none; cursor: pointer;
-            color: var(--violet-deep); font: 700 15px/1 var(--body); text-decoration: underline; text-underline-offset: 4px;
-        }
-        .cv-verify svg { width: 20px; height: 20px; color: var(--violet); }
-        .cv-strip.is-revoked .cv-verify, .cv-strip.is-revoked .cv-verify svg { color: #b4232f; }
-
-        .btn-primary, .btn-outline {
+        .btn-primary {
             display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 22px;
-            border-radius: 999px; font: 600 15px/1 var(--body); text-decoration: none; cursor: pointer; white-space: nowrap;
-            transition: background .3s var(--ease), border-color .3s var(--ease), color .3s var(--ease);
+            border: 0; border-radius: 999px; background: var(--violet); color: #fff; font: 600 15px/1 var(--body);
+            cursor: pointer; white-space: nowrap; transition: background .3s var(--ease);
         }
-        .btn-primary { border: 0; background: var(--violet); color: #fff; }
         .btn-primary:hover { background: var(--violet-deep); }
-        .btn-outline { border: 1.5px solid var(--violet); background: #fff; color: var(--violet-deep); }
-        .btn-outline:hover { background: var(--lilac-soft); }
-        .btn-primary svg, .btn-outline svg { width: 18px; height: 18px; flex-shrink: 0; }
 
-        /* The credential */
-        .cv-body .cv-inner { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 56px; padding-top: 48px; padding-bottom: 56px; align-items: start; }
-        .cv-body.is-revoked .cv-inner { grid-template-columns: minmax(0, 760px); }
-        .cv-figure a {
-            display: block; border-radius: 6px; overflow: hidden; background: #fff; aspect-ratio: 841.89 / 595.28;
-            box-shadow: 0 1px 2px rgba(14, 12, 22, .06), 0 22px 48px -22px rgba(35, 18, 113, .38);
-            transition: transform .3s var(--ease), box-shadow .3s var(--ease);
+        /* The result */
+        .cv-result .cv-inner { max-width: 600px; padding-top: 64px; padding-bottom: 88px; text-align: center; }
+        .cv-badge {
+            width: 76px; height: 76px; margin: 0 auto 24px; border-radius: 50%; display: grid; place-items: center;
+            background: var(--violet); color: #fff; box-shadow: 0 0 0 10px var(--lilac-soft);
         }
-        .cv-figure a:hover { transform: translateY(-2px); box-shadow: 0 1px 2px rgba(14, 12, 22, .06), 0 28px 56px -22px rgba(35, 18, 113, .45); }
-        .cv-figure img { display: block; width: 100%; height: 100%; object-fit: contain; }
-        .cv-figure-note { margin: 12px 0 0; font-size: 13px; color: var(--muted); text-align: center; }
-        .cv-title { font-family: var(--body); font-weight: 700; font-size: 34px; line-height: 1.15; letter-spacing: -.02em; margin: 0; }
-        .cv-issuer { margin-top: 12px; font-size: 15px; color: var(--ink); }
-        .cv-issuer a { color: var(--violet-deep); font-weight: 600; text-underline-offset: 3px; }
-        .cv-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
-        .cv-tag { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 8px; background: var(--cv-band); font-size: 13px; font-weight: 600; color: #3b3650; }
-        .cv-tag svg { width: 15px; height: 15px; color: var(--violet); }
-        .cv-desc { margin: 22px 0 0; font-size: 16px; line-height: 1.7; color: #3b3650; }
-        .cv-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
-        .cv-section { margin-top: 36px; padding-top: 24px; border-top: 1px solid var(--line); }
-        .cv-section h2 { margin: 0 0 10px; font: 700 15px/1.4 var(--body); }
-        .cv-evidence { font-size: 14px; color: var(--muted); }
-        .cv-evidence div + div { margin-top: 2px; }
-        .cv-evidence .cv-mono { color: var(--ink); font-size: 15px; font-weight: 600; }
-        .cv-copy { margin-left: 10px; padding: 3px 10px; border: 1px solid var(--line); border-radius: 999px; background: #fff; color: var(--muted); font: 600 12px/1.6 var(--body); cursor: pointer; }
-        .cv-copy:hover { border-color: var(--lilac); color: var(--violet); }
-        .cv-revoked-note { margin-top: 24px; padding: 16px 18px; border-radius: 12px; background: #fdecee; color: #8f1c26; font-size: 15px; line-height: 1.6; }
-
-        /* Check a number */
-        .cv-search-band { border-top: 1px solid var(--line); background: var(--cv-band); }
-        .cv-search-band .cv-inner { display: flex; align-items: center; gap: 32px; padding-top: 32px; padding-bottom: 32px; }
-        .cv-search-band h2 { margin: 0 0 4px; font: 700 18px/1.3 var(--body); }
-        .cv-search-band p { margin: 0; font-size: 14px; color: var(--muted); }
-        .cv-search { display: flex; gap: 10px; flex: 1; max-width: 480px; margin-left: auto; }
-        .cv-search input {
-            flex: 1; min-width: 0; min-height: 48px; padding: 0 18px; border: 1px solid var(--line); border-radius: 999px;
-            background: #fff; color: var(--ink); font: 500 15px/1 var(--cv-mono); letter-spacing: .04em; text-transform: uppercase; outline: none;
-        }
-        .cv-search input::placeholder { color: #b5b0c4; }
-        .cv-search input:focus { border-color: var(--violet); }
+        .cv-badge svg { width: 36px; height: 36px; }
+        .cv-result.is-revoked .cv-badge { background: var(--cv-red); box-shadow: 0 0 0 10px #fdecee; }
+        .cv-result h1 { font-family: var(--body); font-weight: 700; font-size: 40px; line-height: 1.1; letter-spacing: -.02em; margin: 0 0 12px; }
+        .cv-result.is-revoked h1 { color: var(--cv-red); }
+        .cv-lead { margin: 0 auto; max-width: 440px; font-size: 16px; line-height: 1.6; color: var(--muted); text-wrap: balance; }
+        .cv-details { margin: 36px 0 0; padding: 4px 24px; border: 1px solid var(--line); border-radius: 16px; text-align: left; }
+        .cv-details > div { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 16px; padding: 16px 0; }
+        .cv-details > div + div { border-top: 1px solid var(--line); }
+        .cv-details dt { font-size: 14px; line-height: 1.5; color: var(--muted); }
+        .cv-details dd { margin: 0; font-size: 15px; line-height: 1.5; font-weight: 600; overflow-wrap: anywhere; }
+        .cv-details dd span { display: block; font-weight: 400; color: var(--muted); }
+        .cv-checked { margin: 16px 0 0; font-size: 13px; color: var(--muted); }
+        .cv-again { display: inline-block; margin-top: 28px; font-size: 15px; font-weight: 600; color: var(--violet-deep); text-underline-offset: 4px; }
 
         /* Only the search: no number given, or the number was not found */
         .cv-start .cv-inner { max-width: 640px; padding-top: 72px; padding-bottom: 96px; text-align: center; }
@@ -116,11 +69,16 @@
         .cv-start-icon svg { width: 32px; height: 32px; }
         .cv-start h1 { font-family: var(--body); font-weight: 700; font-size: 38px; line-height: 1.12; letter-spacing: -.02em; margin: 0 0 12px; }
         .cv-start p { margin: 0 auto; max-width: 460px; font-size: 16px; line-height: 1.6; color: var(--muted); }
-        .cv-start .cv-search { max-width: none; margin: 32px 0 0; }
-        .cv-start .cv-search input { min-height: 56px; font-size: 16px; }
-        .cv-start .btn-primary { min-height: 56px; padding: 0 28px; }
+        .cv-search { display: flex; gap: 10px; margin: 32px 0 0; }
+        .cv-search input {
+            flex: 1; min-width: 0; min-height: 56px; padding: 0 18px; border: 1px solid var(--line); border-radius: 999px;
+            background: #fff; color: var(--ink); font: 500 16px/1 var(--cv-mono); letter-spacing: .04em; text-transform: uppercase; outline: none;
+        }
+        .cv-search input::placeholder { color: #b5b0c4; }
+        .cv-search input:focus { border-color: var(--violet); }
+        .cv-search .btn-primary { min-height: 56px; padding: 0 28px; }
         .cv-notice { margin: 24px 0 0; padding: 14px 18px; border-radius: 12px; background: var(--cv-band); font-size: 15px; line-height: 1.5; text-align: left; }
-        .cv-notice strong { color: #b4232f; }
+        .cv-notice strong { color: var(--cv-red); }
 
         .cv-footer { border-top: 1px solid var(--line); }
         .cv-footer .cv-inner { padding-top: 22px; padding-bottom: 28px; font-size: 13px; color: var(--muted); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
@@ -130,40 +88,14 @@
         .cv-spinner { width: 34px; height: 34px; border-radius: 50%; border: 3px solid var(--line); border-top-color: var(--violet); animation: cv-spin .8s linear infinite; }
         @keyframes cv-spin { to { transform: rotate(360deg); } }
 
-        /* Verification dialog: each check ticks in turn, as Credly's does */
-        .cv-dialog { width: min(440px, calc(100vw - 32px)); padding: 0; border: 0; border-radius: 16px; box-shadow: 0 30px 80px -20px rgba(14, 12, 22, .45); color: var(--ink); }
-        .cv-dialog::backdrop { background: rgba(14, 12, 22, .45); }
-        .cv-dialog-head { display: flex; align-items: center; justify-content: space-between; padding: 26px 28px 8px; }
-        .cv-dialog-head h2 { margin: 0; font-family: var(--body); font-weight: 700; font-size: 24px; letter-spacing: -.01em; }
-        .cv-dialog-close { width: 36px; height: 36px; border: 0; border-radius: 50%; background: none; cursor: pointer; color: var(--muted); display: grid; place-items: center; }
-        .cv-dialog-close:hover { background: var(--cv-band); color: var(--ink); }
-        .cv-checks { list-style: none; margin: 0; padding: 4px 28px 26px; }
-        .cv-checks li {
-            display: flex; gap: 14px; align-items: flex-start; padding: 14px 0; font-size: 15px; line-height: 1.45;
-            opacity: 0; transform: translateY(4px); transition: opacity .35s var(--ease), transform .35s var(--ease);
-        }
-        .cv-checks li + li { border-top: 1px solid var(--line); }
-        .cv-checks li.is-shown { opacity: 1; transform: none; }
-        .cv-checks svg { flex-shrink: 0; width: 18px; height: 18px; margin-top: 2px; color: var(--violet); }
-        .cv-checks li.is-bad, .cv-checks li.is-bad svg { color: #b4232f; }
-        .cv-checks li.is-final { font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
-
-        @media (max-width: 900px) {
-            .cv-body .cv-inner { grid-template-columns: 1fr; gap: 32px; padding-top: 28px; }
-            .cv-title { font-size: 30px; }
-            .cv-search-band .cv-inner { flex-direction: column; align-items: stretch; gap: 16px; }
-            .cv-search-band .cv-search { max-width: none; margin: 0; }
-        }
         @media (max-width: 600px) {
             .cv-inner { padding: 0 16px; }
             .cv-nav .cv-inner { height: 60px; }
             .cv-nav-label { font-size: 13px; }
-            .cv-strip .cv-inner { flex-wrap: wrap; gap: 14px; padding-top: 18px; padding-bottom: 18px; }
-            .cv-avatar { width: 48px; height: 48px; font-size: 17px; }
-            .cv-strip-text { flex-basis: calc(100% - 62px); }
-            .cv-strip-actions { width: 100%; justify-content: space-between; }
-            .cv-title { font-size: 26px; }
-            .cv-actions > * { flex: 1 1 100%; }
+            .cv-result .cv-inner { padding-top: 44px; padding-bottom: 64px; }
+            .cv-result h1 { font-size: 34px; }
+            .cv-details { padding: 4px 18px; }
+            .cv-details > div { grid-template-columns: 1fr; gap: 2px; padding: 14px 0; }
             .cv-search { flex-direction: column; }
             .cv-start .cv-inner { padding-top: 44px; padding-bottom: 64px; }
             .cv-start h1 { font-size: 30px; }
@@ -189,40 +121,18 @@
         </div>
     </footer>
 
-    <dialog class="cv-dialog" id="cv-dialog" aria-labelledby="cv-dialog-title">
-        <div class="cv-dialog-head">
-            <h2 id="cv-dialog-title">Verification</h2>
-            <button class="cv-dialog-close" type="button" aria-label="Close" id="cv-dialog-close">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </button>
-        </div>
-        <ul class="cv-checks" id="cv-checks"></ul>
-    </dialog>
-
     <script>
     (function () {
         // The local preview runs against a mock of the API; drigo.com always uses the real one.
         var LOCAL = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
         var API = (LOCAL ? 'http://127.0.0.1:5191' : 'https://api.drigo.com') + '/api/landing/certificates/';
-        var PAGE = 'https://drigo.com/certificate/';
-        // linkedin.com/company/getdrigo: with the id, LinkedIn shows Drigo's page and logo as the issuer.
-        var LINKEDIN_ORGANIZATION_ID = '110155571';
 
         var page = document.getElementById('cv-page');
-        var dialog = document.getElementById('cv-dialog');
-        var checks = document.getElementById('cv-checks');
 
         var ICONS = {
             check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
             cross: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
-            shield: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.5 3.5 5v6.2c0 5.3 3.6 10 8.5 11.3 4.9-1.3 8.5-6 8.5-11.3V5L12 1.5zm-1.2 14.6-3.9-3.9 1.4-1.4 2.5 2.5 5-5 1.4 1.4-6.4 6.4z"/></svg>',
-            alert: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>',
-            download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
-            linkedin: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg>',
-            share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
-            award: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="6"/><path d="M8.5 13.9 7 22l5-3 5 3-1.5-8.1"/></svg>',
-            calendar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
-            pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>'
+            award: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="6"/><path d="M8.5 13.9 7 22l5-3 5 3-1.5-8.1"/></svg>'
         };
 
         // Case, spaces and dashes do not matter, and DRG may be left out: "fe 2026 004" → DRG-FE-2026-004.
@@ -238,10 +148,6 @@
                 .toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
         }
 
-        function initials(name) {
-            return name.split(/\s+/).filter(Boolean).slice(0, 2).map(function (w) { return w[0]; }).join('').toUpperCase();
-        }
-
         function el(tag, className, text) {
             var node = document.createElement(tag);
             if (className) node.className = className;
@@ -254,28 +160,9 @@
             return node;
         }
 
-        function copy(text, node, done, label) {
-            navigator.clipboard.writeText(text).then(function () {
-                node.lastChild.textContent = done;
-                setTimeout(function () { node.lastChild.textContent = label; }, 1600);
-            });
-        }
-
-        function linkedInUrl(c) {
-            return 'https://www.linkedin.com/profile/add?' + new URLSearchParams({
-                startTask: 'CERTIFICATION_NAME',
-                name: c.programName,
-                organizationId: LINKEDIN_ORGANIZATION_ID,
-                issueYear: c.issuedOn.slice(0, 4),
-                issueMonth: String(+c.issuedOn.slice(5, 7)),
-                certUrl: PAGE + c.number,
-                certId: c.number
-            }).toString();
-        }
-
         // ── Search ──────────────────────────────────────────────────────────────────────
 
-        function searchForm(focus) {
+        function searchForm() {
             var form = el('form', 'cv-search');
             form.noValidate = true;
             var input = el('input');
@@ -297,7 +184,7 @@
                 history.pushState(null, '', '/certificate/' + encodeURIComponent(number));
                 load(number);
             });
-            if (focus) setTimeout(function () { input.focus(); }, 0);
+            setTimeout(function () { input.focus(); }, 0);
             return form;
         }
 
@@ -308,7 +195,7 @@
             inner.appendChild(icon('award', el('div', 'cv-start-icon')));
             inner.appendChild(el('h1', null, 'Verify a Drigo certificate'));
             inner.appendChild(el('p', null, 'Enter the number printed at the bottom of the certificate, or scan its QR code with your phone camera.'));
-            inner.appendChild(searchForm(true));
+            inner.appendChild(searchForm());
             if (problem) {
                 var note = el('div', 'cv-notice');
                 note.appendChild(el('strong', null, problem.title + ' '));
@@ -319,152 +206,47 @@
             page.replaceChildren(section);
         }
 
-        // ── Credential ──────────────────────────────────────────────────────────────────
+        // ── Result ──────────────────────────────────────────────────────────────────────
 
-        function showCertificate(c) {
-            var valid = c.status !== 'revoked';
-            var file = API + encodeURIComponent(c.number);
-            document.title = c.fullName + ' · ' + c.programName + ' | DRIGO';
-
-            // Strip: who it was issued to, when, and the Verify check.
-            var strip = el('section', 'cv-strip' + (valid ? '' : ' is-revoked'));
-            var stripInner = el('div', 'cv-inner');
-            stripInner.appendChild(el('div', 'cv-avatar', initials(c.fullName)));
-            var who = el('div', 'cv-strip-text');
-            var line = el('div');
-            if (valid) {
-                line.appendChild(document.createTextNode('This certificate was issued to '));
-                line.appendChild(el('strong', null, c.fullName));
-            } else {
-                line.appendChild(el('strong', 'cv-alert', 'This certificate was revoked'));
-                line.appendChild(document.createTextNode(' and is no longer valid'));
-            }
-            who.appendChild(line);
-            who.appendChild(el('div', 'cv-sub', valid
-                ? 'Date issued: ' + longDate(c.issuedOn) + ' · ' + c.city
-                : 'Issued to ' + c.fullName + ' on ' + longDate(c.issuedOn) + ' · revoked on ' + longDate(c.revokedOn)));
-            stripInner.appendChild(who);
-            var stripActions = el('div', 'cv-strip-actions');
-            var verify = icon(valid ? 'shield' : 'alert', el('button', 'cv-verify', valid ? 'Verified' : 'Revoked'));
-            verify.type = 'button';
-            verify.addEventListener('click', function () { openVerification(c); });
-            stripActions.appendChild(verify);
-            if (valid) {
-                var share = icon('share', el('button', 'btn-outline'));
-                share.appendChild(document.createTextNode('Copy link'));
-                share.type = 'button';
-                share.addEventListener('click', function () { copy(PAGE + c.number, share, 'Link copied', 'Copy link'); });
-                stripActions.appendChild(share);
-            }
-            stripInner.appendChild(stripActions);
-            strip.appendChild(stripInner);
-
-            // Body: the certificate beside what it certifies.
-            var body = el('section', 'cv-body' + (valid ? '' : ' is-revoked'));
-            var bodyInner = el('div', 'cv-inner');
-            // A revoked certificate is not shown or offered; the details stand alone.
-            if (valid) {
-                var figure = el('div', 'cv-figure');
-                var link = el('a');
-                link.href = file + '/pdf';
-                link.title = 'Download the certificate (PDF)';
-                var img = el('img');
-                img.src = file + '/image';
-                img.alt = 'The certificate issued to ' + c.fullName;
-                link.appendChild(img);
-                figure.appendChild(link);
-                figure.appendChild(el('p', 'cv-figure-note', 'The certificate exactly as issued. Select it to download the PDF.'));
-                bodyInner.appendChild(figure);
-            }
-
-            var info = el('div', 'cv-info');
-            info.appendChild(el('h1', 'cv-title', c.programName));
-            var issuer = el('div', 'cv-issuer', 'Issued by ');
-            var drigo = el('a', null, 'Drigo Car Rental LLC');
-            drigo.href = '/';
-            issuer.appendChild(drigo);
-            info.appendChild(issuer);
-
-            var tags = el('div', 'cv-tags');
-            tags.appendChild(icon('award', el('span', 'cv-tag', 'Certificate ' + c.subtitle.toLowerCase())));
-            tags.appendChild(icon('calendar', el('span', 'cv-tag', longDate(c.issuedOn))));
-            tags.appendChild(icon('pin', el('span', 'cv-tag', c.city)));
-            info.appendChild(tags);
-
-            info.appendChild(el('p', 'cv-desc', c.statement));
-
-            if (valid) {
-                var actions = el('div', 'cv-actions');
-                var download = icon('download', el('a', 'btn-primary', 'Download PDF'));
-                download.href = file + '/pdf';
-                var linkedIn = icon('linkedin', el('a', 'btn-outline', 'Add to LinkedIn'));
-                linkedIn.href = linkedInUrl(c);
-                linkedIn.target = '_blank';
-                linkedIn.rel = 'noopener';
-                actions.appendChild(download);
-                actions.appendChild(linkedIn);
-                info.appendChild(actions);
-            } else {
-                info.appendChild(el('div', 'cv-revoked-note',
-                    'Drigo withdrew this certificate on ' + longDate(c.revokedOn) + '. A printed copy of it no longer proves anything.'));
-            }
-
-            var evidence = el('div', 'cv-section');
-            evidence.appendChild(el('h2', null, 'Evidence'));
-            var ev = el('div', 'cv-evidence');
-            ev.appendChild(el('div', null, 'Certificate number'));
+        function detail(list, label, value, note) {
             var row = el('div');
-            row.appendChild(el('span', 'cv-mono', c.number));
-            var copyNumber = el('button', 'cv-copy');
-            copyNumber.type = 'button';
-            copyNumber.appendChild(document.createTextNode('Copy'));
-            copyNumber.addEventListener('click', function () { copy(c.number, copyNumber, 'Copied', 'Copy'); });
-            row.appendChild(copyNumber);
-            ev.appendChild(row);
-            evidence.appendChild(ev);
-            info.appendChild(evidence);
-
-            bodyInner.appendChild(info);
-            body.appendChild(bodyInner);
-
-            // Bottom: check another number.
-            var band = el('section', 'cv-search-band');
-            var bandInner = el('div', 'cv-inner');
-            var words = el('div');
-            words.appendChild(el('h2', null, 'Verify another certificate'));
-            words.appendChild(el('p', null, 'Enter the number printed on it, or scan its QR code.'));
-            bandInner.appendChild(words);
-            bandInner.appendChild(searchForm(false));
-            band.appendChild(bandInner);
-
-            page.replaceChildren(strip, body, band);
+            row.appendChild(el('dt', null, label));
+            var dd = el('dd', null, value);
+            if (note) dd.appendChild(el('span', null, note));
+            row.appendChild(dd);
+            list.appendChild(row);
+            return dd;
         }
 
-        // The checks Credly's Verify shows, ticked in turn.
-        function openVerification(c) {
+        function showResult(c) {
             var valid = c.status !== 'revoked';
-            var rows = [
-                [true, 'Issued on ' + longDate(c.issuedOn)],
-                [true, 'Issued by Drigo Car Rental LLC, ' + c.city],
-                [true, 'Issued to ' + c.fullName],
-                [true, 'Certificate number ' + c.number],
-                [valid, valid ? 'Checked against Drigo\'s records just now' : 'Revoked on ' + longDate(c.revokedOn)],
-                [valid, valid ? 'Verified' : 'Not valid', true]
-            ];
-            checks.replaceChildren.apply(checks, rows.map(function (r) {
-                var li = el('li', (r[0] ? '' : 'is-bad') + (r[2] ? ' is-final' : ''));
-                li.insertAdjacentHTML('afterbegin', r[0] ? ICONS.check : ICONS.cross);
-                li.appendChild(el('span', null, r[1]));
-                return li;
-            }));
-            dialog.showModal();
-            Array.prototype.forEach.call(checks.children, function (li, i) {
-                setTimeout(function () { li.classList.add('is-shown'); }, 140 + i * 260);
-            });
-        }
+            document.title = (valid ? 'Verified' : 'Not valid') + ' · ' + c.number + ' | DRIGO';
 
-        document.getElementById('cv-dialog-close').addEventListener('click', function () { dialog.close(); });
-        dialog.addEventListener('click', function (e) { if (e.target === dialog) dialog.close(); });
+            var section = el('section', 'cv-result' + (valid ? '' : ' is-revoked'));
+            var inner = el('div', 'cv-inner');
+            inner.appendChild(icon(valid ? 'check' : 'cross', el('div', 'cv-badge')));
+            inner.appendChild(el('h1', null, valid ? 'Verified' : 'Not valid'));
+            inner.appendChild(el('p', 'cv-lead', valid
+                ? 'This is a genuine certificate issued by Drigo Car Rental LLC.'
+                : 'Drigo revoked this certificate on ' + longDate(c.revokedOn) + '. A printed copy of it no longer proves anything.'));
+
+            var list = el('dl', 'cv-details');
+            detail(list, 'Issued to', c.fullName);
+            detail(list, 'Programme', c.programName, 'Certificate ' + c.subtitle.toLowerCase());
+            detail(list, 'Issued on', longDate(c.issuedOn));
+            if (!valid) detail(list, 'Revoked on', longDate(c.revokedOn));
+            detail(list, 'Issued by', 'Drigo Car Rental LLC', c.city + ', United Arab Emirates');
+            detail(list, 'Certificate number', c.number).className = 'cv-mono';
+            inner.appendChild(list);
+
+            inner.appendChild(el('p', 'cv-checked', 'Checked against Drigo’s records just now.'));
+            var again = el('a', 'cv-again', 'Verify another certificate');
+            again.href = '/certificate';
+            inner.appendChild(again);
+
+            section.appendChild(inner);
+            page.replaceChildren(section);
+        }
 
         // ── Loading ─────────────────────────────────────────────────────────────────────
 
@@ -479,7 +261,7 @@
                     return res.json();
                 })
                 .then(function (c) {
-                    if (c) showCertificate(c);
+                    if (c) showResult(c);
                     else showStart({ title: 'Not found.', text: 'No Drigo certificate has the number ' + number + '. Check it against the certificate.' });
                 })
                 .catch(function () {
