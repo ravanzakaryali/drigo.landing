@@ -3,9 +3,9 @@ import { roll } from './roll.js?v=2';
 import { landing, getJSON } from './landing-data.js?v=2';
 
 // Start fetching the map before waiting for the document.
-const cityModule = import('./city.js?v=20261027-calm');
+const cityModule = import('./city.js?v=20261104-smooth');
 cityModule.catch(() => {}); // The initialization block below handles fallback.
-// How many cars the app shows right now: the city marks one and a half times as many Drigo cars (never fewer than 10).
+// How many cars the app shows right now: the city marks three quarters as many Drigo cars (never fewer than 6).
 const appCars = getJSON('/cars/v2?pageSize=1').then(page => Number(page?.total) || 0).catch(() => 0);
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
 if (document.readyState === 'loading') await new Promise(resolve => document.addEventListener('DOMContentLoaded', resolve, { once: true }));
@@ -105,6 +105,26 @@ mapHost.addEventListener('keydown', event => {
   if (!action) return;
   event.preventDefault(); mapAction(action);
 });
+// The page layout the district pins need, read on resize and scroll instead of in every frame.
+// onPins runs inside the city's frame, after the city has moved its own markers, so a layout read
+// there forced a full style recalculation each frame (about 20 ms on a fast computer): the hero
+// map stuttered.
+let pinLayout = null;
+function readPinLayout() {
+  const host = mapHost.getBoundingClientRect();
+  pinLayout = {
+    width: mapHost.clientWidth, height: mapHost.clientHeight,
+    safeTop: parseFloat(getComputedStyle(mapHost).getPropertyValue('--map-safe-top')) || 310,
+    // Pins stay clear of the hero copy and the app preview, not only the top band.
+    blocked: [...document.querySelectorAll('.hero-heading, .district-nav')].map(element => element.getBoundingClientRect()).filter(box => box.width > 0)
+      .map(box => ({ left: box.left - host.left - 24, right: box.right - host.left + 24, top: box.top - host.top - 40, bottom: box.bottom - host.top + 12 }))
+  };
+  return pinLayout;
+}
+const pinLayoutObserver = new ResizeObserver(readPinLayout);
+[mapHost, ...document.querySelectorAll('.hero-heading, .district-nav')].forEach(element => pinLayoutObserver.observe(element));
+window.addEventListener('scroll', readPinLayout, { passive: true });
+
 async function startMap() {
 try {
   const { initCity } = await cityModule;
@@ -127,23 +147,22 @@ try {
   window.drigoLoading?.progress?.(94, 4.5);
   city = await initCity(mapHost, {
     theme: 'night',
-    fleetSize: Math.max(10, Math.round(carsInApp * 1.5)),
+    fleetSize: Math.max(6, Math.round(carsInApp * .75)),
     onReady: () => { document.body.classList.add('city-ready'); window.drigoLoading?.finish(); },
     onInteract: interacted,
     onStatus: text => { mapStatus.textContent = text; },
     onPins: positions => {
-      const safeTop = parseFloat(getComputedStyle(mapHost).getPropertyValue('--map-safe-top')) || 310;
-      const mapHeight = mapHost.clientHeight;
+      const { width, height, safeTop, blocked } = pinLayout || readPinLayout();
       positions.forEach((position, i) => {
       const pin = pins[i];
       if (!pin) return;
-      // Pins stay clear of the hero copy and the app preview, not only the top band.
-      const px = position.x * mapHost.clientWidth, py = position.y * mapHeight;
-      const host = mapHost.getBoundingClientRect();
-      const covered = [...document.querySelectorAll('.hero-heading, .district-nav')].some(element => { const box = element.getBoundingClientRect(); return box.width > 0 && px >= box.left - host.left - 24 && px <= box.right - host.left + 24 && py >= box.top - host.top - 40 && py <= box.bottom - host.top + 12; });
-      const visible = position.visible && !covered && position.x > .035 && position.x < .965 && position.y * mapHeight > safeTop && position.y < .86;
+      const px = position.x * width, py = position.y * height;
+      const covered = blocked.some(box => px >= box.left && px <= box.right && py >= box.top && py <= box.bottom);
+      const visible = position.visible && !covered && position.x > .035 && position.x < .965 && py > safeTop && position.y < .86;
       if (!visible && document.activeElement === pin) mapHost.focus({ preventScroll: true });
-      pin.hidden = !visible;
+      // Written only when it changes: re-setting `hidden` re-styles the pin every frame.
+      if (pin.hidden === visible) pin.hidden = !visible;
+      if (!visible) return;
       pin.style.left = `${position.x * 100}%`;
       pin.style.top = `${position.y * 100}%`;
       });
