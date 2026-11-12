@@ -788,14 +788,16 @@ html.cursor-text .cursor-dot, html.cursor-text .cursor-ring { opacity: 0; }
 
 /* ==== Interactive city: labels, toast and first-use hint ================================ */
 .city-tags { position: absolute; inset: 0; z-index: 2; pointer-events: none; overflow: hidden; }
-.city-tag { position: absolute; left: 0; top: 0; display: grid; gap: 2px; padding: 9px 13px 10px; border-radius: 14px; background: #ffffff; color: var(--ink); box-shadow: 0 18px 40px -16px #03020ccc; white-space: nowrap; translate: -50% -100%; transition: opacity .25s; will-change: transform; }
-.city-tag::after { content: ''; position: absolute; left: 50%; bottom: -5px; width: 10px; height: 10px; margin-left: -5px; background: inherit; transform: rotate(45deg); border-radius: 2px; }
+.city-tag { position: absolute; left: 0; top: 0; display: grid; gap: 2px; padding: 9px 13px 10px; border-radius: 14px; --tag-bg: #ffffff; background: var(--tag-bg); color: var(--ink); box-shadow: 0 18px 40px -16px #03020ccc; white-space: nowrap; translate: -50% -100%; transition: opacity .25s; will-change: transform; }
+/* The arrow takes the tag's colour from --tag-bg, not `background: inherit`: on a tag that moves every
+   frame, Chrome's style work for an inheriting pseudo-element keeps growing until the map stutters. */
+.city-tag::after { content: ''; position: absolute; left: 50%; bottom: -5px; width: 10px; height: 10px; margin-left: -5px; background: var(--tag-bg); transform: rotate(45deg); border-radius: 2px; }
 .city-tag b { font: 600 13px/1.2 var(--display); letter-spacing: -.01em; }
 .city-tag small { font-size: 11px; color: var(--muted); }
 .city-tag.is-car b { color: var(--violet); }
 .city-tag.is-landmark { padding: 11px 15px 12px; }
 .city-tag.is-landmark b { font-size: 15px; }
-.city-tag.is-toast { translate: -50% 0; background: var(--violet); color: #fff; padding: 8px 14px; border-radius: 999px; }
+.city-tag.is-toast { translate: -50% 0; --tag-bg: var(--violet); color: #fff; padding: 8px 14px; border-radius: 999px; }
 .city-tag.is-toast::after { display: none; }
 .city-tag.is-off { opacity: 0; }
 .city-tag[hidden] { display: none; }
@@ -1012,7 +1014,7 @@ html.has-cursor:has(.demo-stage:hover) :is(.cursor-dot, .cursor-ring) { opacity:
 }
 
 /* Persistent Drigo fleet labels follow selected moving cars. */
-.city-tag.is-drigo { display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-radius: 10px; border: 1px solid #ffffffb3; background: #4d21ff; color: #fff; box-shadow: 0 8px 20px -6px #06021099; }
+.city-tag.is-drigo { display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-radius: 10px; border: 1px solid #ffffffb3; --tag-bg: #4d21ff; color: #fff; box-shadow: 0 8px 20px -6px #06021099; }
 .city-tag.is-drigo[hidden] { display: none; }
 .city-tag.is-drigo b { font: 700 13px/1 var(--body); letter-spacing: -.04em; color: #fff; }
 .city-tag.is-drigo small { font: 500 9px/1 var(--body); color: #e8e0ff; }
@@ -1119,7 +1121,7 @@ input[name="company"]::-webkit-contacts-auto-fill-button { visibility: hidden; d
 .city-tag.is-drigo img { width:40px; height:17px; }
 
 /* Compact, readable car cards over the dark city. */
-.city-tag.is-drigo { align-items:flex-start; gap:7px; padding:10px 13px 11px; border-radius:13px; background:#fff; border:1px solid #ddd7f0; color:#171120; text-align:left; box-shadow:0 8px 24px #08051c40; }
+.city-tag.is-drigo { align-items:flex-start; gap:7px; padding:10px 13px 11px; border-radius:13px; --tag-bg:#fff; border:1px solid #ddd7f0; color:#171120; text-align:left; box-shadow:0 8px 24px #08051c40; }
 .city-tag.is-drigo::after { border-top-color:#fff; }
 .city-tag.is-drigo img { box-sizing:content-box; width:38px; height:16px; padding:4px 8px; background:#5424ff; border-radius:7px; }
 .city-tag.is-drigo small { color:#716b80; font-size:10px; font-weight:500; line-height:1.4; }
@@ -1127,13 +1129,13 @@ input[name="company"]::-webkit-contacts-auto-fill-button { visibility: hidden; d
 
 .city-tag.is-drigo::before { display:block; position:absolute; left:50%; top:100%; width:1px; height:var(--pin-leader,0px); border-radius:0; background:#c7b9ffb3; pointer-events:none; }
 /* The rest of the marked Drigo fleet: a small logo marker riding above each car. */
-.city-tag.is-drigo-chip { display:block; padding:4px 6px; border-radius:7px; background:#5424ff; border:1px solid #ffffffb3; box-shadow:0 6px 14px -6px #060210cc; }
-.city-tag.is-drigo-chip::after { bottom:-4px; width:7px; height:7px; margin-left:-3.5px; }
+.city-tag.is-drigo-chip { display:block; padding:4px 6px; border-radius:7px; --tag-bg:#5424ff; border:1px solid #ffffffb3; box-shadow:0 6px 14px -6px #060210cc; }
+.city-tag.is-drigo-chip::after { bottom:-4px; width:7px; height:7px; margin-left:-3.5px; transition:background-color .2s; }
 .city-tag.is-drigo-chip img { display:block; width:26px; height:11px; }
 .city-tag.is-drigo-chip[hidden] { display:none; }
 .city-tag.is-drigo-chip { pointer-events:auto; cursor:pointer; transition:opacity .25s, background-color .2s, border-color .2s; }
 /* Colour only: scaling would also scale the marker's position transform and make it jump. */
-.city-tag.is-drigo-chip:hover, .city-tag.is-drigo-chip.is-open { background:#7a52ff; border-color:#fff; }
+.city-tag.is-drigo-chip:hover, .city-tag.is-drigo-chip.is-open { --tag-bg:#7a52ff; border-color:#fff; }
 .city-tag.is-drigo-chip::before { content:''; position:absolute; inset:-12px; }
 .city-tag.is-drigo-chip.is-off { pointer-events:none; }
 /* The card a tapped marker opens; phones show it too (they hide the floating price cards). */

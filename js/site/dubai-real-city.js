@@ -9,6 +9,13 @@ export async function buildDubaiCity(context) {
   const random = n => { const value = Math.sin(n * 127.1 + 311.7) * 43758.5453123; return value - Math.floor(value); };
   const HEIGHT_SCALE = 3.5 / geo.unitMetres; // 1 scene unit = 250 m; towers exaggerated ×3.5 like before
   const core = { minX: -13, maxX: 22, minZ: -50, maxZ: 64 };
+  // The build hands the main thread back every ~16 ms, so the page stays responsive while it runs.
+  let sliceStart=performance.now();
+  const breathe=async()=>{
+    if(performance.now()-sliceStart<=16)return;
+    await (globalThis.scheduler?.yield?scheduler.yield():new Promise(resolve=>setTimeout(resolve,0)));
+    sliceStart=performance.now();
+  };
   // The first view frames the Downtown–Jumeirah stretch; the tray reaches the rest.
   const frameBox = { minX: -12, maxX: 16, minZ: -30, maxZ: 40 };
   const detail = { minX: -18, maxX: 36, minZ: -72, maxZ: 84 };
@@ -60,6 +67,7 @@ export async function buildDubaiCity(context) {
   for (const ring of [...geo.land, ...(geo.landExtension || [])]) if (ring.length > 2) mesh(footprint(ring, .02, 0), mat.land, 0, -.02, 0, false).renderOrder = -2;
   for (const ring of geo.sea) if (ring.length > 3) mesh(footprint(ring, .02, 0), mat.water, 0, -.032, 0, false).renderOrder = -3;
   for (const ring of geo.water) mesh(footprint(ring, .02, 0), mat.water, 0, -.016, 0, false).renderOrder = -1;
+  await breathe();
   // A fine pale shoreline, skipping the polygon-closure segments along the data boundary.
   const onBoundary = ([x, z]) => Math.abs(x + z) > 112 || Math.abs(x - z) > 130;
   const coastPositions = [];
@@ -92,6 +100,7 @@ export async function buildDubaiCity(context) {
     road(path, entry.cls === 0 ? .62 : .4, resolution);
     if (entry.cls === 0) ribbon(path, .07, mat.median, .012, resolution);
   });
+  await breathe();
   // Every road segment, bucketed into a coarse grid, so footprints can be tested against the real road edges.
   const segmentGrid = new Map(), SEG_CELL = 2;
   const bucket = (x, z) => `${Math.floor(x / SEG_CELL)}:${Math.floor(z / SEG_CELL)}`;
@@ -272,13 +281,16 @@ export async function buildDubaiCity(context) {
     buildingCount++;
   }
 
+  await breathe();
   // ---- Landmarks at their real coordinates, then real tower clusters, then the block fabric.
   const place = name => geo.places[name];
   const landmarkModel = buildReferenceLandmarks(context, { burj: place('burjKhalifa'), sail: place('burjAlArab'), sailYaw: .1, wheel: place('ainDubai'), palm: false });
   const landmarkSites = [[...place('burjKhalifa'), 3.4], [...place('burjAlArab'), 2.6], [...place('ainDubai'), 5]];
   const nearLandmark = (x, z) => landmarkSites.some(([lx, lz, r]) => Math.hypot(x - lx, z - lz) < r);
   const towerRecords = [], towerSkips = { landmark: 0, water: 0, road: 0, spacing: 0 };
+  await breathe();
   for (const [tx, tz, metres, count] of geo.towers) {
+    await breathe();
     if (nearLandmark(tx, tz)) { towerSkips.landmark++; continue; }
     if (!isLand(tx, tz)) { towerSkips.water++; continue; }
     const seed = Math.round(tx * 91 + tz * 17);
@@ -316,9 +328,8 @@ export async function buildDubaiCity(context) {
   const palmRings = geo.land.map((ring, i) => ({ ring, i, c: ring.reduce(([sx, sz], [x, z]) => [sx + x / ring.length, sz + z / ring.length], [0, 0]) }))
     .filter(r => Math.hypot(r.c[0] - palmCentreReal[0], r.c[1] - palmCentreReal[1]) < 12 && r.ring.length >= 8);
   const onPalm = (x, z) => Math.hypot(x - palmCentreReal[0], z - palmCentreReal[1]) < 13 && palmRings.some(({ ring, i }) => { const b = ringBounds[i]; return x >= b.minX && x <= b.maxX && z >= b.minZ && z <= b.maxZ && pointInRing(x, z, ring); });
-  let sliceStart=performance.now();
   for (const [key, type] of urbanType) {
-    if(performance.now()-sliceStart>16){await new Promise(resolve=>setTimeout(resolve,0));sliceStart=performance.now();}
+    await breathe();
     const [gx, gz] = key.split(':').map(Number);
     const seed = gx * 131 + gz * 17, r = random(seed);
     let x = gx + geo.gridOrigin + .5 + (random(seed + 1) - .5) * .18, z = gz + geo.gridOrigin + .5 + (random(seed + 2) - .5) * .18;

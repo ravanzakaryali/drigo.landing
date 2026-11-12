@@ -3,7 +3,7 @@ import { buildTrafficJourneys } from './traffic-network.js';
 import { createRooftopScene } from './rooftop-scene.js?v=20261019-no-plants';
 import { createRooftopDuo } from './rooftop-duo.js';
 import { createCityPeople } from './city-people.js';
-import { buildDubaiCity } from './dubai-real-city.js?v=20261019-culling';
+import { buildDubaiCity } from './dubai-real-city.js?v=20261104-smooth';
 
 /** A live night city on real Dubai geography (OpenStreetMap), lit like a digital twin. */
 export async function initCity(host, options = {}) {
@@ -168,6 +168,14 @@ export async function initCity(host, options = {}) {
   const tree=()=>{}, palm=()=>{};
   const context={THREE,world,g,m,standard,mat,mesh,footprint,curve,road,ribbon,box,instance,cylinder,sphere,palm,tree,windowTime,lightNight};
   const fabric=await buildDubaiCity(context);
+  // The rest of the build hands the main thread back every ~16 ms, so the page keeps scrolling and
+  // answering taps while the city is put together (it froze for 0.2–0.4 s at a time on opening).
+  let sliceStart=performance.now();
+  const breathe=async()=>{
+    if(performance.now()-sliceStart<=16)return;
+    await (globalThis.scheduler?.yield?scheduler.yield():new Promise(resolve=>setTimeout(resolve,0)));
+    sliceStart=performance.now();
+  };
   const landmarkModel=fabric.landmarks;
   const districtList=fabric.districts;
   const pinWorld=districtList.map(d=>new THREE.Vector3(...d.position));
@@ -195,6 +203,7 @@ export async function initCity(host, options = {}) {
       instance(lightPool,roadGlow,[x+t.z*.18*side,p.y+.025,z-t.x*.18*side],[.7,1,.95],[0,Math.atan2(t.x,t.z),0],false);
     }
   }
+  await breathe();
   // Long-exposure traffic streams: warm headlight streaks flow one way and red
   // tail streaks the other, merged into one ribbon that runs on the scene clock.
   const trailPositions=[],trailUvs=[],trailIndices=[];
@@ -266,6 +275,7 @@ export async function initCity(host, options = {}) {
     const node=new THREE.InstancedMesh(geometry,batch.material,batch.matrices.length);
     batch.matrices.forEach((matrix,i)=>node.setMatrixAt(i,matrix));node.castShadow=batch.shadow;node.receiveShadow=true;node.computeBoundingSphere();world.add(node);
   }
+  await breathe();
   // Static architectural fragments share draw calls by material; the live wheel
   // remains a separate group so its actual geometry continues to rotate.
   const groups=new Map();
@@ -281,8 +291,12 @@ export async function initCity(host, options = {}) {
       for(let i=0;i<num;i++){const order=mirrored?i-i%3+(i%3===1?2:i%3===2?1:0):i;const source=index?index.getX(order):order;vp.fromBufferAttribute(pos,source).applyMatrix4(node.matrix);vn.fromBufferAttribute(nor,source).applyMatrix3(nm).normalize();vp.toArray(positions,cursor);vn.toArray(normals,cursor);cursor+=3;}world.remove(node);}
     const geo=g(new THREE.BufferGeometry());geo.setAttribute('position',new THREE.BufferAttribute(positions,3));geo.setAttribute('normal',new THREE.BufferAttribute(normals,3));geo.computeBoundingSphere();const node=new THREE.Mesh(geo,nodes[0].material);node.castShadow=nodes[0].castShadow;node.receiveShadow=nodes[0].receiveShadow;world.add(node);
   }
+  await breathe();
   // Vehicles share geometry and are independently animated along real curves.
-  const carCount = fabric.trafficLines.reduce((sum,line)=>sum+line.carQuota,0);
+  // Each street carries half of its quota: the full quota read as crowded, and every car is
+  // simulated each frame whether or not it is on screen.
+  const quotaOf = line => line.carQuota ? Math.max(1, Math.round(line.carQuota * .5)) : 0;
+  const carCount = fabric.trafficLines.reduce((sum,line)=>sum+quotaOf(line),0);
   function roundedCarBody(width, length, depth, radius) {
     const s = new THREE.Shape(), x = -width / 2, z = -length / 2;
     s.moveTo(x + radius, z);
@@ -429,10 +443,9 @@ export async function initCity(host, options = {}) {
     }
     return { line, pts, cum, head, bend, length, n, stops: [] };
   }
-  let routeSliceStart=performance.now();
   for(const line of fabric.trafficLines){
     if(line.points.length>1)loops.push(makeTrafficLoop(line));
-    if(performance.now()-routeSliceStart>16){await new Promise(resolve=>setTimeout(resolve,0));routeSliceStart=performance.now();}
+    await breathe();
   }
   const indexAt = (loop, s) => { let lo = 0, hi = loop.n - 1; while (lo < hi) { const mid = (lo + hi + 1) >> 1; if (loop.cum[mid] <= s) lo = mid; else hi = mid - 1; } return lo; };
 
@@ -514,17 +527,19 @@ export async function initCity(host, options = {}) {
     [...signalLamps, ...signalGlows].forEach(node => node.instanceMatrix.needsUpdate = true);
   }
 
+  await breathe();
   // Cars are shared out by loop length so the long arteries carry the traffic.
   const totalLoopLength = loops.reduce((sum, loop) => sum + loop.length, 0) || 1;
   const cars = [];
   loops.forEach((loop, li) => {
-    const count = Math.min(loop.line.carQuota,Math.max(1,Math.floor(loop.length/.8)));
+    const count = Math.min(quotaOf(loop.line),Math.max(1,Math.floor(loop.length/.8)));
     for (let i = 0; i < count && cars.length < carCount; i++) cars.push({ loop, s: (i + seededRandom(li * 13 + i) * .5) / count * loop.length, v: 1.2, vmax: 1.9 + seededRandom(i * 3 + li) * .7, brake: 0, scale: .42 });
   });
 
   const spacious=loops.filter(loop=>loop.length>30);let overflow=0;
   while(cars.length<carCount&&spacious.length){const loop=spacious[overflow%spacious.length];cars.push({loop,s:seededRandom(overflow*19+7)*loop.length,v:0,vmax:1,brake:0,scale:.22});overflow++;}
-  const journeys=buildTrafficJourneys(fabric.trafficLines).map(makeTrafficLoop);
+  const journeys=[];
+  for(const route of buildTrafficJourneys(fabric.trafficLines)){journeys.push(makeTrafficLoop(route));await breathe();}
   // Keep the local traffic on every street; branded cars travel connected city circuits.
   for(const loop of loops){const local=cars.filter(car=>car.loop===loop);const phase=seededRandom(loops.indexOf(loop)+51);local.forEach((car,i)=>{car.s=((i+.3)/local.length+phase)%1*loop.length;});}
   const homeCounts=new Map();
@@ -575,6 +590,7 @@ export async function initCity(host, options = {}) {
       if(!route.stops.some(stop=>stop.sig===sig&&Math.min(Math.abs(stop.s-stopS),route.length-Math.abs(stop.s-stopS))<1.5))route.stops.push({s:stopS,sig,which:a<b?'a':'b'});k+=5;
     }
   }
+  await breathe();
   // Small, depth-tested Drigo markers travel with nearby cars, never through buildings.
   const rooftopCarBadges=[];
   const badgeTextures=[];
@@ -607,18 +623,22 @@ export async function initCity(host, options = {}) {
     paintBadges();drigoLogoTexture.image?.addEventListener('load',paintBadges,{once:true});
   }
   let trafficClock = null;
+  // Every car is stepped every frame, so the lookups stay cheap: grid cells use numeric keys (string
+  // keys meant some 25,000 string builds a frame) and the maps are reused rather than rebuilt.
+  const occupancy=new Map(), byLoop=new Map();
+  const cellKey=(x,z)=>(x+4096)*8192+(z+4096);
   function stepTraffic(time) {
     const dt = trafficClock === null ? 0 : Math.min(.1, Math.max(0, time - trafficClock)); trafficClock = time;
     if (!dt) return;
     // Shared lane occupancy prevents different journeys from driving through each other.
-    const occupancy=new Map();
+    occupancy.clear();
     for(const car of cars){
       const loop=car.loop,k=indexAt(loop,car.s),p=loop.pts[k],q=loop.pts[(k+1)%loop.n],f=(car.s-loop.cum[k])/Math.max(.00001,loop.cum[k+1]-loop.cum[k]);
-      car.trafficX=p.x+(q.x-p.x)*f;car.trafficZ=p.z+(q.z-p.z)*f;car.trafficHeading=loop.head[k];
-      const key=Math.floor(car.trafficX/2)+','+Math.floor(car.trafficZ/2);
-      if(!occupancy.has(key))occupancy.set(key,[]);occupancy.get(key).push(car);
+      car.trafficIndex=k;car.trafficX=p.x+(q.x-p.x)*f;car.trafficZ=p.z+(q.z-p.z)*f;car.trafficHeading=loop.head[k];
+      const key=cellKey(Math.floor(car.trafficX/2),Math.floor(car.trafficZ/2));
+      const cell=occupancy.get(key);if(cell)cell.push(car);else occupancy.set(key,[car]);
     }
-    const byLoop = new Map();
+    byLoop.clear();
     for (const car of cars) (byLoop.get(car.loop) || byLoop.set(car.loop, []).get(car.loop)).push(car);
     for (const [loop, list] of byLoop) {
       list.sort((a, b) => a.s - b.s);
@@ -626,7 +646,7 @@ export async function initCity(host, options = {}) {
         let leader = null;
         for (let n = 1; n < list.length; n++) { const other = list[(k + n) % list.length]; if (!other.hold || other.pull < .6) { leader = other; break; } }
         const gap = leader ? ((leader.s - car.s) % loop.length + loop.length) % loop.length : Infinity;
-        const i = indexAt(loop, car.s);
+        const i = car.trafficIndex;
         // Slow into bends and U-turns, keep a safe distance, stop at red and amber lights.
         let target = car.vmax / (1 + loop.bend[i] * 2.4);
         // Vehicle-sized clearance plus time headway; anticipate a slower leader.
@@ -634,7 +654,7 @@ export async function initCity(host, options = {}) {
         target=Math.min(target,car.vmax*Math.max(0,(gap-clearance)/headway));
         if(leader&&gap<headway+clearance)target=Math.min(target,Math.max(0,leader.v+(gap-clearance)*.45));
         const dx=Math.sin(car.trafficHeading),dz=Math.cos(car.trafficHeading),cx=Math.floor(car.trafficX/2),cz=Math.floor(car.trafficZ/2);
-        for(let x=cx-1;x<=cx+1;x++)for(let z=cz-1;z<=cz+1;z++)for(const other of occupancy.get(x+','+z)||[]){
+        for(let x=cx-1;x<=cx+1;x++)for(let z=cz-1;z<=cz+1;z++)for(const other of occupancy.get(cellKey(x,z))||[]){
           if(other===car||other.loop===loop||Math.cos(other.trafficHeading-car.trafficHeading)<.8)continue;
           const ox=other.trafficX-car.trafficX,oz=other.trafficZ-car.trafficZ,ahead=ox*dx+oz*dz,lateral=Math.abs(ox*dz-oz*dx);
           if(ahead>.01&&ahead<2&&lateral<.065)target=Math.min(target,car.vmax*Math.max(0,(ahead-clearance)/headway));
@@ -740,12 +760,14 @@ export async function initCity(host, options = {}) {
   }
 
 
+  await breathe();
   // ---- People: proportioned pedestrians in everyday and local dress who walk, jog, sit on
   // benches, chat and stroll with their kids; busiest round the Marina rooftop (city-people.js).
   const crowd=createCityPeople({THREE,world,g,m,fabric,signals,loops,lightNight});
   const peopleCount=crowd.count;
   function updatePeople(time){crowd.update(time);}
 
+  await breathe();
   // ---- Boats: yachts and abras loop through open water, each trailing a pale wake.
   const boatLoops=[];
   {
@@ -1141,7 +1163,7 @@ export async function initCity(host, options = {}) {
     const pull = car.pull || 0; out.x -= Math.cos(h) * pull * .2; out.z += Math.sin(h) * pull * .2; out.y = .12; return out;
   };
   // Mark a visible share of the illustrative Drigo fleet, following real traffic paths: never fewer
-  // than 10 cars (app.js asks for 1.5 times what the app shows), with one price card per published model.
+  // than 6 cars (app.js asks for 0.75 times what the app shows), with one price card per published model.
   const drigoCars = cars.filter(car => car.isDrigo);
   const fleetPins = fleetNames.slice(0, 6).map(name => {
     const el = makeTag('is-drigo');
@@ -1170,7 +1192,7 @@ export async function initCity(host, options = {}) {
     pickedPin.el.hidden = false; status(`${car.drigoName}. ${fleetPrices.get(car.drigoName) || ''}`.trim()); refreshView();
   }
   function closePicked() { if (pickedPin.car) pickedPin.car.paused = false; pickedPin.car = null; pickedPin.el.hidden = true; }
-  const fleetChips = Array.from({ length: Math.max(10, Math.round(Number(options.fleetSize) || 0)) }, (_, k) => {
+  const fleetChips = Array.from({ length: Math.max(6, Math.round(Number(options.fleetSize) || 0)) }, (_, k) => {
     const el = makeTag('is-drigo-chip');
     el.innerHTML = fleetPins[0].el.querySelector('img').outerHTML;
     // A map control, so a tap opens the card instead of starting a drag.
@@ -1424,9 +1446,13 @@ export async function initCity(host, options = {}) {
     // Reserve each card's real screen rectangle; lift converging pins with a leader. Kept calm: a card
     // or marker stays with its car while it can and fades out for a moment rather than jump to another.
     const pinRects=[],carded=new Set();let openRect=null;
+    // Every size is read here, before this frame writes to the page: a read after a write makes the
+    // browser re-style the page on the spot, once per read.
+    const chipHeight=fleetChips[0].el.offsetHeight||22,pickedSize=[pickedPin.el.offsetWidth,pickedPin.el.offsetHeight];
+    const markerSizes=new Map(fleetPins.map(marker=>[marker,[marker.el.offsetWidth,marker.el.offsetHeight]]));
     // The opened card sits above its car's marker, so the pointer stays on the marker.
     if(pickedPin.car){
-      const p=fleetAt(pickedPin.car),w=pickedPin.el.offsetWidth,h=pickedPin.el.offsetHeight,lift=18+(fleetChips[0].el.offsetHeight||22);
+      const p=fleetAt(pickedPin.car),[w,h]=pickedSize,lift=18+chipHeight;
       if(!p.visible||p.x<0||p.x>width||p.y<0||p.y>height||(pickedPin.hover&&!fleetChips.some(chip=>chip.car===pickedPin.car)))closePicked();
       else{
         // Kept inside the map near its edges, and hung below the car under the header or the hero copy.
@@ -1444,7 +1470,7 @@ export async function initCity(host, options = {}) {
     for(const marker of fleetPins){
       // While a car's card is open the price cards step aside; they return on the same cars.
       if(pickedPin.car){marker.el.classList.add('is-off');continue;}
-      const w=marker.el.offsetWidth,h=marker.el.offsetHeight;
+      const [w,h]=markerSizes.get(marker);
       const fit=([chip,p])=>{
         for(const lift of [...new Set([chip.car===marker.car&&marker.lift||20,20,20+h+16,20+(h+16)*2,20+(h+16)*3])]){
           const box={left:p.x-w/2-8,right:p.x+w/2+8,top:p.y-lift-h-8,bottom:p.y-lift+8};
@@ -1472,8 +1498,10 @@ export async function initCity(host, options = {}) {
       marker.el.classList.toggle('is-off',!layout||clock-(marker.shownAt??-9)<.05);
       if(!layout)continue;
       pinRects.push(layout.box);carded.add(layout.car);marker.car=layout.car;marker.lift=layout.lift;
-      marker.el.dataset.carId=String(cars.indexOf(marker.car));
-      marker.el.style.setProperty('--pin-leader',`${Math.max(0,layout.lift-20)}px`);marker.el.style.transform=`translate(${layout.p.x}px,${layout.p.y-layout.lift}px)`;
+      const carId=String(cars.indexOf(marker.car)),leader=`${Math.max(0,layout.lift-20)}px`;
+      if(marker.el.dataset.carId!==carId)marker.el.dataset.carId=carId;
+      if(marker.leader!==leader){marker.leader=leader;marker.el.style.setProperty('--pin-leader',leader);}
+      marker.el.style.transform=`translate(${layout.p.x}px,${layout.p.y-layout.lift}px)`;
     }
     // A card marks its own car. A marker under a price card fades and, if the card has not passed by
     // after a few seconds, moves to another car; under the open card it only fades until it closes.
@@ -1484,8 +1512,8 @@ export async function initCity(host, options = {}) {
       const underCard=!!p&&!carded.has(chip.car)&&chip.car!==pickedPin.car&&pinRects.some(hit);
       const underOpen=!!p&&!!openRect&&chip.car!==pickedPin.car&&hit(openRect);
       if(underCard){if(clock-(chip.coveredAt??=clock)>4)releaseChip(chip);}else chip.coveredAt=null;
-      if(!chip.car){chip.el.classList.add('is-off');chip.el.classList.remove('is-open');chip.el.hidden=clock-(chip.releasedAt??-9)>.3;continue;}
-      chip.el.hidden=false;
+      if(!chip.car){chip.el.classList.add('is-off');chip.el.classList.remove('is-open');const gone=clock-(chip.releasedAt??-9)>.3;if(chip.el.hidden!==gone)chip.el.hidden=gone;continue;}
+      if(chip.el.hidden)chip.el.hidden=false;
       chip.el.classList.toggle('is-off',carded.has(chip.car)||underCard||underOpen||clock-(chip.shownAt??-9)<.05);chip.el.classList.toggle('is-open',chip.car===pickedPin.car);
       chip.el.style.transform=`translate(${p.x}px,${p.y-8}px)`;
     }
@@ -1519,9 +1547,11 @@ export async function initCity(host, options = {}) {
   fabric.setIntro(1);
   updateCars(elapsed); updatePulses(elapsed);
   async function prepareFirstFrame() {
-    // Compile only what the opening camera actually renders, rather than every
-    // district and rooftop material in the entire city before the first paint.
     if(disposed)return;
+    // Where the browser compiles shaders in the background, wait for that: otherwise the first
+    // frame compiles them on the main thread (a 0.15–0.2 s freeze on opening). Elsewhere the first
+    // frame compiles only what the opening camera renders, not every material in the city.
+    if(renderer.extensions.has('KHR_parallel_shader_compile')){await renderer.compileAsync(scene,camera);if(disposed)return;}
     initialized=true;
     resize();
     requestAnimationFrame(()=>{

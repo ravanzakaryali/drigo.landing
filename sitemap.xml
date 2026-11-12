@@ -5,10 +5,11 @@
 
   <url>
     <loc>https://drigo.com/</loc>
-    <lastmod>2026-10-17</lastmod>
+    <lastmod>2026-11-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="en-AE" href="https://drigo.com/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://drigo.com/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://drigo.com/"/>
     <image:image>
       <image:loc>https://drigo.com/assets/images/og-image.png</image:loc>
@@ -18,10 +19,30 @@
   </url>
 
   <url>
+    <loc>https://drigo.com/car-rental-dubai</loc>
+    <lastmod>2026-11-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
     <loc>https://drigo.com/privacy</loc>
-    <lastmod>2026-10-17</lastmod>
+    <lastmod>2026-11-11</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
+    <xhtml:link rel="alternate" hreflang="en-AE" href="https://drigo.com/privacy"/>
+    <xhtml:link rel="alternate" hreflang="ar-AE" href="https://drigo.com/privacy-ar"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://drigo.com/privacy"/>
+  </url>
+
+  <url>
+    <loc>https://drigo.com/privacy-ar</loc>
+    <lastmod>2026-11-11</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+    <xhtml:link rel="alternate" hreflang="en-AE" href="https://drigo.com/privacy"/>
+    <xhtml:link rel="alternate" hreflang="ar-AE" href="https://drigo.com/privacy-ar"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://drigo.com/privacy"/>
   </url>
 
 </urlset>
