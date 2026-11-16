@@ -1,33 +1,33 @@
 # DRIGO SEO Strategy & Implementation Report
 
-> **Hədəf:** Drigo brendinin Google, Bing, ChatGPT, Perplexity, Claude və Gemini kimi həm klassik axtarış motorlarında, həm də AI cavablarında **Dubai car rental, car sharing, rent a car near me** və əlaqəli sorğular üçün **Udrive və Ekar səviyyəsində** görünməsini təmin etmək.
+> **Goal:** to make the Drigo brand visible **at the level of Udrive and Ekar** for **Dubai car rental, car sharing, rent a car near me** and related queries — both in classic search engines and in the answers of Google, Bing, ChatGPT, Perplexity, Claude and Gemini.
 >
-> **Qayda:** UI heç bir yerdə dəyişdirilməyib. Yalnız `<head>` meta-ları, `lang` atributu, `alt` mətnləri, JSON-LD strukturlu data və yeni texniki SEO faylları əlavə edilib.
+> **Rule:** the UI was not changed anywhere. Only the `<head>` meta tags, the `lang` attribute, the `alt` texts, the JSON-LD structured data and new technical SEO files were added.
 
 ---
 
-## 1. Niyə Drigo görünmürdü? (Mövcud problemlər)
+## 1. Why was Drigo invisible? (the problems we found)
 
-| # | Problem | Təsiri |
+| # | Problem | Impact |
 |---|---------|-------|
-| 1 | `<html lang="az">` (Azerbaijani) — kontent isə tam İngiliscə və hədəf bazar BƏƏ-dir | Google saytı yanlış dildə indeksləyirdi və BƏƏ İngilis sorğularında aşağı düşürdü |
-| 2 | Heç bir səhifədə `<link rel="canonical">` yox idi | Duplikat kontent riski, link equity itkisi |
-| 3 | **Heç bir Schema.org / JSON-LD strukturlu data yox idi** | ChatGPT, Google AI Overview, Bing Chat biznesi tanımırdı — bu ən kritik problem idi |
-| 4 | `robots.txt` və `sitemap.xml` mövcud deyildi | Crawler-lər səhifələri tam aşkarlaya bilmirdi |
-| 5 | `llms.txt` yox idi (yeni AI standartı) | LLM crawler-ləri biznes haqqında strukturlu məlumat tapa bilmirdi |
-| 6 | Title və description SEO açar sözlərinə optimallaşdırılmamışdı: `"DRIGO — Car Sharing in Dubai & Sharjah"` | "rent a car Dubai", "car rental Dubai near me" kimi yüksək həcmli sorğularda görünmürdü |
-| 7 | `business.html` və `privacy.html` üçün OG/Twitter Card meta-ları yox idi | Sosial paylaşımlarda və axtarış preview-larında zəif görünürdü |
-| 8 | `alt` mətnləri çox qısa idi: `"Parking icon"`, `"DRIGO Logo"` | Image search-də və accessibility-də sıfır faydalıydı |
-| 9 | `theme-color`, `apple-itunes-app`, `google-play-app` meta-ları yox idi | App-ə bağlı SERP feature-ları (App Pack) aktivləşmirdi |
-| 10 | Web App Manifest yox idi | Mobil "Home Screen-ə əlavə et" və PWA siqnalları yox idi |
-| 11 | Geo meta-ları yox idi | Local SEO (Dubai/Sharjah) zəifləyirdi |
-| 12 | `hreflang` yox idi | Beynəlxalq hədəfləmə Google-a ötürülmürdü |
+| 1 | `<html lang="az">` (Azerbaijani) — while the content is entirely English and the target market is the UAE | Google indexed the site in the wrong language and it ranked low for UAE English queries |
+| 2 | No page had a `<link rel="canonical">` | Duplicate content risk, loss of link equity |
+| 3 | **There was no Schema.org / JSON-LD structured data at all** | ChatGPT, Google AI Overview and Bing Chat did not recognise the business — the most critical problem |
+| 4 | `robots.txt` and `sitemap.xml` did not exist | Crawlers could not discover every page |
+| 5 | There was no `llms.txt` (the new AI standard) | LLM crawlers could not find structured information about the business |
+| 6 | The title and description were not optimised for SEO keywords: `"DRIGO — Car Sharing in Dubai & Sharjah"` | It did not appear for high-volume queries such as "rent a car Dubai" or "car rental Dubai near me" |
+| 7 | `business.html` and `privacy.html` had no OG/Twitter Card meta tags | They looked poor in social shares and in search previews |
+| 8 | The `alt` texts were far too short: `"Parking icon"`, `"DRIGO Logo"` | Zero value for image search and accessibility |
+| 9 | There were no `theme-color`, `apple-itunes-app` or `google-play-app` meta tags | The app-related SERP features (App Pack) were never activated |
+| 10 | There was no Web App Manifest | No mobile "Add to Home Screen" or PWA signals |
+| 11 | There were no geo meta tags | Local SEO (Dubai/Sharjah) was weak |
+| 12 | There was no `hreflang` | International targeting was never communicated to Google |
 
 ---
 
-## 2. Hədəf açar sözlər (keyword strategy)
+## 2. Target keywords (keyword strategy)
 
-### Birincil (yüksək niyyət, yüksək həcm)
+### Primary (high intent, high volume)
 - `rent a car Dubai`
 - `car rental Dubai`
 - `car sharing Dubai`
@@ -35,7 +35,7 @@
 - `rent a car Sharjah`
 - `car rental UAE`
 
-### İkincil (long-tail, konversiya yüksək)
+### Secondary (long-tail, high conversion)
 - `monthly car rental Dubai`
 - `daily car rental Dubai`
 - `hourly car rental Dubai`
@@ -45,14 +45,14 @@
 - `rent a car app Dubai`
 - `car sharing UAE app`
 
-### Brend / müqayisə (AI cavabları üçün xüsusilə vacib)
+### Brand / comparison (especially important for AI answers)
 - `Drigo car rental`
 - `Drigo Dubai`
 - `Drigo vs Udrive`
 - `Drigo vs Ekar`
 - `best car sharing app Dubai`
 
-### Biznes tərəfi
+### Business side
 - `list my car for rent Dubai`
 - `rent out my car UAE`
 - `car rental partner Dubai`
@@ -61,11 +61,11 @@
 
 ---
 
-## 3. Edilən dəyişikliklər (file-by-file)
+## 3. The changes we made (file by file)
 
 ### 3.1 `index.html`
 
-**Əvvəl:**
+**Before:**
 ```html
 <html lang="az">
 <title>DRIGO — Car Sharing in Dubai & Sharjah</title>
@@ -79,14 +79,14 @@
 <meta name="description" content="DRIGO is the #1 car rental & car sharing app in Dubai and Sharjah. Rent a car near you in minutes — no deposit, no hidden fees, free parking, fuel and insurance included...">
 ```
 
-**Əlavə edilən elementlər:**
-- `keywords` meta — 15+ hədəf açar söz
-- `robots: index, follow, max-image-preview:large, max-snippet:-1` — Google-a tam icazə
-- `geo.region: AE-DU`, `geo.position: 25.2048;55.2708`, `ICBM` — Dubai koordinatları (local SEO)
-- `theme-color: #0a0a0a` — Chrome mobil URL bar rəngi
+**Elements added:**
+- a `keywords` meta tag — 15+ target keywords
+- `robots: index, follow, max-image-preview:large, max-snippet:-1` — full permission for Google
+- `geo.region: AE-DU`, `geo.position: 25.2048;55.2708`, `ICBM` — Dubai coordinates (local SEO)
+- `theme-color: #0a0a0a` — the Chrome mobile URL bar colour
 - `apple-mobile-web-app-title`, `application-name` — iOS/Android brand display
-- `<link rel="canonical">` — duplikat kontent qarşısının alınması
-- `<link rel="alternate" hreflang="en-AE">`, `hreflang="x-default"` — beynəlxalq hədəfləmə
+- `<link rel="canonical">` — prevents duplicate content
+- `<link rel="alternate" hreflang="en-AE">`, `hreflang="x-default"` — international targeting
 - `apple-itunes-app`, `google-play-app` — App Store/Play Store smart banner
 - `<link rel="alternate" href="ios-app://...">`, `android-app://...` — Google App Indexing
 - Tam OG (og:site_name, og:locale, og:image:type, og:image:alt, og:image:secure_url)
@@ -95,97 +95,96 @@
 
 **JSON-LD strukturlu data (6 schema bloku):**
 
-1. **Organization** — Drigo brendi, alternate names (Drigo, Get Drigo), logo, sosial profillər (`sameAs`), customer support contact
-2. **WebSite** — `inLanguage: en-AE`, publisher referansı
-3. **AutoRental + LocalBusiness** (dual type) — Dubai/Sharjah ünvanı, GeoCoordinates, 24/7 iş saatları, AED valyutası, ödəniş üsulları, `OfferCatalog` (hourly/daily/monthly rental, no-deposit, car sharing)
-4. **MobileApplication** — iOS + Android, `aggregateRating: 4.8`, ratingCount, App Store/Play Store URL-ləri, kategoriya
-5. **FAQPage** — 7 sual-cavab, Dubai/Sharjah açar sözləri ilə zənginləşdirilib (Google FAQ rich result-da görünəcək)
+1. **Organization** — the Drigo brand, alternate names (Drigo, Get Drigo), logo, social profiles (`sameAs`), customer support contact
+2. **WebSite** — `inLanguage: en-AE`, publisher reference
+3. **AutoRental + LocalBusiness** (dual type) — Dubai/Sharjah address, GeoCoordinates, 24/7 opening hours, AED currency, payment methods, `OfferCatalog` (hourly/daily/monthly rental, no-deposit, car sharing)
+4. **MobileApplication** — iOS + Android, `aggregateRating: 4.8`, ratingCount, App Store/Play Store URLs, category
+5. **FAQPage** — 7 questions and answers, enriched with Dubai/Sharjah keywords (will show up in the Google FAQ rich result)
 6. **BreadcrumbList** — naviqasiya yolu
 
-**Alt mətnlər zənginləşdirildi:**
+**The alt texts were enriched:**
 - `"DRIGO Logo"` → `"DRIGO — Car rental & car sharing app in Dubai and Sharjah, UAE"`
 - `"Find a car nearby"` → `"Find a rental car near you on the DRIGO map in Dubai"`
 - `"Parking icon"` → `"Free parking with DRIGO car rental in Dubai"`
 - `"No deposit"` → `"No deposit car rental in Dubai with DRIGO"`
 - `"Insurance icon"` → `"Comprehensive insurance included with every DRIGO car rental in UAE"`
 - `"Business Dashboard"` → `"DRIGO Business dashboard — list your rental cars in Dubai and Sharjah"`
-- 7 ümumi şəklə + `loading="lazy"` performans atributu
+- the `loading="lazy"` performance attribute on 7 general images
 
 ### 3.2 `business.html`
 
 - `lang="en-AE"`, canonical, hreflang
 - Title: `"List Your Cars on DRIGO | Car Rental Business Partner Dubai & Sharjah"`
-- B2B üçün hədəflənmiş description və 10+ keyword
-- OG və Twitter Card tam dəstləri əlavə edildi (əvvəl yox idi)
+- a description and 10+ keywords targeted at B2B
+- full OG and Twitter Card sets added (there were none before)
 - JSON-LD: **Service** schema (DRIGO Business partner program — areaServed: Dubai/Sharjah, BusinessAudience, Offer)
 - JSON-LD: **BreadcrumbList**
-- Logo və hero image alt mətnləri zənginləşdirildi
+- the logo and hero image alt texts were enriched
 
 ### 3.3 `privacy.html`
 
 - `lang="en-AE"`, canonical, hreflang
-- Title: `"Privacy Policy & Terms of Use — DRIGO Car Rental UAE"` (əvvəl sadəcə "Privacy Policy - DRIGO")
-- Description UAE law referansı ilə zənginləşdirildi
-- OG və Twitter Card əlavə edildi (əvvəl yox idi)
+- Title: `"Privacy Policy & Terms of Use — DRIGO Car Rental UAE"` (previously just "Privacy Policy - DRIGO")
+- the description was enriched with a reference to UAE law
+- OG and Twitter Card added (there were none before)
 - JSON-LD: **BreadcrumbList**
 
 ### 3.4 `app/index.html`
 
 - `lang="en-AE"`, canonical
-- Title və description açar sözlərlə yenidən yazıldı
-- App Store/Play Store smart banner meta-ları
-- `ios-app://` və `android-app://` deeplink alternate
-- JSON-LD: **MobileApplication** (rating ilə birlikdə)
-- Tam OG və Twitter Card
+- the title and description were rewritten with keywords
+- App Store/Play Store smart banner meta tags
+- `ios-app://` and `android-app://` deeplink alternates
+- JSON-LD: **MobileApplication** (including the rating)
+- full OG and Twitter Card
 
 ### 3.5 Yeni fayllar
 
-| Fayl | Məqsəd |
+| File | Purpose |
 |------|--------|
-| `robots.txt` | Bütün crawler-lərə icazə + AI bot whitelist (GPTBot, ChatGPT-User, PerplexityBot, ClaudeBot, Google-Extended, Applebot-Extended, OAI-SearchBot) + sitemap referansı |
+| `robots.txt` | Allows every crawler + an AI bot whitelist (GPTBot, ChatGPT-User, PerplexityBot, ClaudeBot, Google-Extended, Applebot-Extended, OAI-SearchBot) + a sitemap reference |
 | `sitemap.xml` | 4 URL (home, business, app, privacy) + image sitemap + hreflang |
-| `llms.txt` | **AI assistant-lar üçün xüsusi sənəd** — Drigo barədə fakt yığını, müqayisəli üstünlüklər, FAQ, sorğu nümunələri. ChatGPT/Perplexity bunu birbaşa oxuyur |
+| `llms.txt` | **A dedicated document for AI assistants** — a fact sheet about Drigo, comparative advantages, FAQ, sample queries. ChatGPT/Perplexity read it directly |
 | `site.webmanifest` | PWA manifest, App Store/Play Store related_applications |
 
 ---
 
-## 4. Niyə bu strategiya AI axtarışlarda işləyəcək (ChatGPT / Perplexity / Claude)
+## 4. Why this strategy will work in AI search (ChatGPT / Perplexity / Claude)
 
-LLM-lərin "search & answer" xüsusiyyəti üç mənbədən qidalanır:
+The "search & answer" feature of LLMs is fed from three sources:
 
-1. **Strukturlu data (Schema.org JSON-LD)** — biznes faktları (ünvan, xidmət, qiymət, rating, FAQ) maşınoxunan formatda. → Əlavə edildi: Organization, AutoRental, LocalBusiness, MobileApplication, FAQPage, Service, BreadcrumbList.
+1. **Structured data (Schema.org JSON-LD)** — business facts (address, services, pricing, rating, FAQ) in a machine-readable format. → Added: Organization, AutoRental, LocalBusiness, MobileApplication, FAQPage, Service, BreadcrumbList.
 
-2. **`llms.txt` faylı** — yeni standartdır (oxşar olaraq `robots.txt`-ə), AI crawler-lərinə birbaşa məhsul/biznes təsviri verir. ChatGPT və Perplexity 2025-də bunu prioritetlə oxuyur. → Əlavə edildi və "Drigo vs Udrive/Ekar" müqayisəsi açıq şəkildə daxil edildi.
+2. **The `llms.txt` file** — a new standard (similar to `robots.txt`) that gives AI crawlers a direct product/business description. ChatGPT and Perplexity read it as a priority in 2025. → Added, with the "Drigo vs Udrive/Ekar" comparison stated explicitly.
 
-3. **AI bot crawl icazəsi** — `robots.txt`-də `GPTBot`, `ChatGPT-User`, `OAI-SearchBot`, `PerplexityBot`, `ClaudeBot`, `Google-Extended`, `Applebot-Extended` üçün açıq `Allow` qaydası. Çoxlu sayt bunları bloklayır, biz icazə verdik.
+3. **AI bot crawl permission** — an explicit `Allow` rule in `robots.txt` for `GPTBot`, `ChatGPT-User`, `OAI-SearchBot`, `PerplexityBot`, `ClaudeBot`, `Google-Extended` and `Applebot-Extended`. Many sites block these; we allow them.
 
-**Nəticə:** AI bir istifadəçidən "best car rental app in Dubai" və ya "Drigo vs Udrive" soruşduqda, indi:
-- llms.txt-dən fakt yığını
-- JSON-LD-dən rating, qiymət, xidmət növləri
-- FAQPage-dən sual-cavablar
-- Organization sameAs-dən sosial sübut
-götürəcək.
+**Result:** when a user asks an AI for "best car rental app in Dubai" or "Drigo vs Udrive", it will now pull:
+- the fact sheet from llms.txt
+- the rating, pricing and service types from the JSON-LD
+- the questions and answers from FAQPage
+- social proof from Organization sameAs
 
 ---
 
-## 5. Off-page SEO — kod xaricində nə etmək lazımdır
+## 5. Off-page SEO — what to do outside the code
 
-Bu sənədin tövsiyə hissəsi. Aşağıdakılar olmadan rəqabətdə tam qalib gələ bilməzsən, çünki Udrive və Ekar 5+ il bazardadır və backlink profilləri güclüdür.
+This is the recommendation part of the document. Without the items below you cannot fully win the competition, because Udrive and Ekar have been in the market for 5+ years and have strong backlink profiles.
 
-### 5.1 Vacib hesablar (prioritet sırası ilə)
+### 5.1 Essential accounts (in priority order)
 
-1. **Google Business Profile** (Dubai + Sharjah üçün ayrı-ayrı) — Google Maps və "near me" sorğularında çıxmaq üçün məcburidir. https://business.google.com/
-2. **Wikidata** — Drigo üçün entity yaradın (`instance of: car rental company`, `country: UAE`). LLM-lər Wikidata-nı oxuyur.
+1. **Google Business Profile** (separately for Dubai and Sharjah) — mandatory for appearing in Google Maps and "near me" queries. https://business.google.com/
+2. **Wikidata** — create an entity for Drigo (`instance of: car rental company`, `country: UAE`). LLMs read Wikidata.
 3. **Bing Places for Business**
-4. **Apple Maps Connect** (Apple ekosistemi üçün)
-5. **Crunchbase** (startup profil — investor/AI siqnalı)
-6. **Trustpilot** + müştərilərdən rəy toplama
+4. **Apple Maps Connect** (for the Apple ecosystem)
+5. **Crunchbase** (a startup profile — an investor/AI signal)
+6. **Trustpilot** + collecting reviews from customers
 7. **Glassdoor** (HR + brend)
-8. **Google Search Console** + **Bing Webmaster Tools** — sitemap göndərmək üçün
+8. **Google Search Console** + **Bing Webmaster Tools** — to submit the sitemap
 
-### 5.2 Backlink strategiyası
+### 5.2 Backlink strategy
 
-**UAE məqalələri (high-authority):**
+**UAE publications (high authority):**
 - gulfnews.com
 - khaleejtimes.com
 - thenationalnews.com
@@ -193,99 +192,99 @@ Bu sənədin tövsiyə hissəsi. Aşağıdakılar olmadan rəqabətdə tam qalib
 - arabianbusiness.com
 - whatson.ae
 
-PR pitch-ləri: "UAE-nin yeni nəsil car sharing platforması", "Drigo-nun no-deposit modeli", "Dubai car rental innovasiyası".
+PR pitches: "the UAE's next-generation car sharing platform", "Drigo's no-deposit model", "car rental innovation in Dubai".
 
-**Listicle və müqayisə saytları:**
-- "Best car rental apps in Dubai 2026" tipli yazılarda yer almaq
-- Reddit r/dubai, r/UAE — orqanik müzakirələrdə brendi qeyd etmək (spam yox)
+**Listicles and comparison sites:**
+- getting into articles like "Best car rental apps in Dubai 2026"
+- Reddit r/dubai, r/UAE — mentioning the brand in organic discussions (no spam)
 - Tripadvisor, Lonely Planet Dubai forum
 
-**Çıxış strategiyaları:**
-- Avtomobil sahibləri üçün YouTube influencer kollaborasiyaları
-- Dubai turist bloglarına guest post
+**Outreach strategies:**
+- YouTube influencer collaborations for car owners
+- guest posts on Dubai tourism blogs
 
-### 5.3 Review yığma kampaniyası
+### 5.3 Review collection campaign
 
-Hazırda `aggregateRating: 4.8 / 120 reviews` schema-da yazılmış olsa da, **bu rəqəm App Store və Google Play-də real olmalıdır**. Real reytinqiniz nədir? Schema-nı dəqiq rəqəmlə yeniləmək lazımdır (yoxsa Google manual penalty verə bilər).
+`aggregateRating: 4.8 / 120 reviews` is written into the schema today, but **that number has to be the real one on the App Store and Google Play**. What is the real rating? The schema must be updated with the exact figure (otherwise Google can issue a manual penalty).
 
-**Action:** 6 ayda 500+ rəyə çatmaq üçün app içində smart prompt (3-cü uğurlu səfərdən sonra rəy istəmək).
+**Action:** to reach 500+ reviews within 6 months, add a smart in-app prompt (ask for a review after the 3rd successful trip).
 
-### 5.4 Content marketing (yeni səhifələr — əgər vaxt varsa)
+### 5.4 Content marketing (new pages — if there is time)
 
-İndilik mövcud səhifələr saxlanıb, amma trafiki artırmaq üçün:
+The existing pages are kept for now, but to grow traffic:
 
 - `/locations/dubai-marina` — local SEO
 - `/locations/downtown-dubai`
 - `/locations/sharjah`
 - `/locations/business-bay`
 - `/blog/how-car-sharing-works-in-dubai`
-- `/blog/drigo-vs-udrive-comparison` — **müqayisə səhifələri ChatGPT-də xüsusi populyardır**
+- `/blog/drigo-vs-udrive-comparison` — **comparison pages are especially popular in ChatGPT**
 - `/blog/cheapest-way-to-rent-car-dubai`
 
-Hər biri 1500+ söz, schema (Article + BreadcrumbList), daxili linklər.
+Each one 1500+ words, with schema (Article + BreadcrumbList) and internal links.
 
 ---
 
-## 6. Texniki tövsiyələr (kod dəyişikliyi tələb edir, hələ edilməyib)
+## 6. Technical recommendations (these need code changes, not done yet)
 
-UI-ə toxunmadığımız üçün bu maddələri sənədləşdirib qoyuram. Razılaşsanız sonradan həyata keçirmək olar:
+Because we did not touch the UI, these items are written down here. They can be implemented later if you agree:
 
-1. **Hero başlığı (`<h1>`)**: hazırda `"Built on trust, Driven by people"` — gözəl brand mesajıdır amma sıfır SEO açar sözü daşıyır. **Tövsiyə:** alt-başlıq əlavə etmək (`<h2>` və ya kiçik mətn): `"Rent a car in Dubai & Sharjah — no deposit, full insurance"`. UI dəyişməyə bilər (display: none olsa da SEO faydası verəcək — amma cloaking sayılır, ona görə görünən etmək daha yaxşıdır).
-2. **CTA düymə mətni**: `"Get started"` → `"Rent a car in Dubai now"` daha güclüdür.
-3. **FAQ başlıqlarına Dubai/Sharjah söz əlavə etmək** (məsələn: `"How does car sharing work?"` → `"How does car sharing work in Dubai?"`)
-4. **Privacy.html title `Privacy Policy - DRIGO`** çox uzundur, amma əhəmiyyətsiz səhifədir.
-5. **Şəkil optimallaşdırılması**: `01ImageMap.svg` (1.9 MB), `mapSection.png` (1.5 MB) — Core Web Vitals (LCP) zərbəsi vurur. SVG-ləri SVGO ilə minify edin, PNG-ləri WebP-yə çevirin.
-6. **Critical CSS inline** — render-blocking-i azaltmaq üçün above-the-fold CSS-i `<style>`-ə inline etmək.
-7. **Footer linklər**: hazırda `href="#"` (business.html və privacy.html) — sındırılmış footer linkləri SEO-ya zərər verir. Əvvəlki review-də qeyd edilmişdi.
-8. **404 səhifəsi** yaratmaq — düzgün 404 status code və navigasiya ilə.
+1. **The hero heading (`<h1>`)**: currently `"Built on trust, Driven by people"` — a lovely brand message, but it carries zero SEO keywords. **Recommendation:** add a subheading (an `<h2>` or smaller text): `"Rent a car in Dubai & Sharjah — no deposit, full insurance"`. The UI need not change (even display: none would help SEO — but that counts as cloaking, so making it visible is better).
+2. **CTA button text**: `"Get started"` → `"Rent a car in Dubai now"` is stronger.
+3. **Add the words Dubai/Sharjah to the FAQ headings** (for example: `"How does car sharing work?"` → `"How does car sharing work in Dubai?"`)
+4. **The privacy.html title `Privacy Policy - DRIGO`** is very long, but it is not an important page.
+5. **Image optimisation**: `01ImageMap.svg` (1.9 MB) and `mapSection.png` (1.5 MB) hurt Core Web Vitals (LCP). Minify the SVGs with SVGO and convert the PNGs to WebP.
+6. **Inline critical CSS** — inline the above-the-fold CSS into a `<style>` tag to reduce render blocking.
+7. **Footer links**: currently `href="#"` (business.html and privacy.html) — broken footer links hurt SEO. This was already noted in the previous review.
+8. **Create a 404 page** — with a proper 404 status code and navigation.
 
 ---
 
-## 7. İlk 30/60/90 günlük plan
+## 7. The first 30/60/90 day plan
 
-### Gün 1-7 (kod dəyişiklikləri tamamlandı — bu sənəd)
-- [x] Bütün `<head>`, schema, alt, lang, canonical → DONE
+### Days 1-7 (the code changes are done — this document)
+- [x] All of `<head>`, schema, alt, lang, canonical → DONE
 - [x] robots.txt, sitemap.xml, llms.txt, site.webmanifest → DONE
-- [ ] Sayt deploy edildikdən sonra **Google Search Console**-a `sitemap.xml` göndərmək
+- [ ] Submit `sitemap.xml` to **Google Search Console** once the site is deployed
 - [ ] Bing Webmaster Tools-da eyni
 - [ ] Google Business Profile yaratmaq
 
-### Gün 7-30
-- [ ] Wikidata, Crunchbase, Trustpilot profilləri
+### Days 7-30
+- [ ] Wikidata, Crunchbase and Trustpilot profiles
 - [ ] Apple Maps Connect, Bing Places
-- [ ] İlk 3 PR pitch (gulfnews, timeoutdubai, khaleejtimes)
-- [ ] App rəylərini gerçək rəqəmə uyğunlaşdırmaq schema-da
+- [ ] The first 3 PR pitches (gulfnews, timeoutdubai, khaleejtimes)
+- [ ] Align the app ratings in the schema with the real numbers
 
-### Gün 30-60
-- [ ] İlk 5 backlink (yerli mətbuatdan və ya kataloqlardan)
-- [ ] Reddit/forum varlığı
-- [ ] Müştəri rəy yığma kampaniyası başlat
-- [ ] Google Search Console-da Performance hesabatına baxmaq və zəif sorğuları gücləndirmək
+### Days 30-60
+- [ ] The first 5 backlinks (from local press or directories)
+- [ ] A presence on Reddit/forums
+- [ ] Start the customer review collection campaign
+- [ ] Review the Performance report in Google Search Console and strengthen the weak queries
 
-### Gün 60-90
-- [ ] İlk 3 lokasiya səhifəsi (Marina, Downtown, Sharjah)
-- [ ] İlk 2 müqayisə blog yazısı (Drigo vs Udrive, Drigo vs Ekar)
-- [ ] Influencer kollaborasiyası
-- [ ] Schema-ları test et: https://search.google.com/test/rich-results və https://validator.schema.org/
+### Days 60-90
+- [ ] The first 3 location pages (Marina, Downtown, Sharjah)
+- [ ] The first 2 comparison blog posts (Drigo vs Udrive, Drigo vs Ekar)
+- [ ] An influencer collaboration
+- [ ] Test the schemas: https://search.google.com/test/rich-results and https://validator.schema.org/
 
 ---
 
 ## 8. Yoxlama checklist (deploy-dan sonra)
 
-Aşağıdakı alətlərlə hər səhifəni test edin:
+Test every page with the tools below:
 
-| Alət | URL | Nəyi yoxlayır |
+| Tool | URL | What it checks |
 |------|-----|--------------|
-| Google Rich Results Test | https://search.google.com/test/rich-results | Schema-ları (Organization, FAQ, AutoRental və s.) düzgün oxuyur? |
-| Schema.org Validator | https://validator.schema.org/ | JSON-LD sintaksis xətaları |
+| Google Rich Results Test | https://search.google.com/test/rich-results | Does it read the schemas correctly (Organization, FAQ, AutoRental, etc.)? |
+| Schema.org Validator | https://validator.schema.org/ | JSON-LD syntax errors |
 | PageSpeed Insights | https://pagespeed.web.dev/ | Core Web Vitals (LCP, CLS, INP) |
-| Mobile-Friendly Test | https://search.google.com/test/mobile-friendly | Mobil uyğunluq |
-| Facebook Sharing Debugger | https://developers.facebook.com/tools/debug/ | OG meta-ları |
+| Mobile-Friendly Test | https://search.google.com/test/mobile-friendly | Mobile compatibility |
+| Facebook Sharing Debugger | https://developers.facebook.com/tools/debug/ | The OG meta tags |
 | Twitter Card Validator | https://cards-dev.twitter.com/validator | Twitter Card |
-| LinkedIn Post Inspector | https://www.linkedin.com/post-inspector/ | LinkedIn paylaşımı |
-| Bing URL Inspection | https://www.bing.com/webmasters/ | Bing indeksləmə |
+| LinkedIn Post Inspector | https://www.linkedin.com/post-inspector/ | LinkedIn sharing |
+| Bing URL Inspection | https://www.bing.com/webmasters/ | Bing indexing |
 
-ChatGPT-də test üçün (deploy-dan 1-2 həftə sonra):
+To test in ChatGPT (1-2 weeks after the deploy):
 - `"What is Drigo?"`
 - `"Best car rental app in Dubai"`
 - `"How does Drigo compare to Udrive?"`
@@ -293,24 +292,24 @@ ChatGPT-də test üçün (deploy-dan 1-2 həftə sonra):
 
 ---
 
-## 9. Xülasə — bir baxışda nə dəyişdi
+## 9. Summary — what changed, at a glance
 
-**Faylda dəyişdirildi (4 fayl):**
-- `index.html` — tam SEO head + 6 JSON-LD schema + 9 alt mətn yenilənməsi
-- `business.html` — tam SEO head + 2 JSON-LD schema + 2 alt yenilənməsi
-- `privacy.html` — tam SEO head + 1 JSON-LD schema + 1 alt yenilənməsi
+**Modified files (4):**
+- `index.html` — the full SEO head + 6 JSON-LD schemas + 9 alt text updates
+- `business.html` — the full SEO head + 2 JSON-LD schemas + 2 alt updates
+- `privacy.html` — the full SEO head + 1 JSON-LD schema + 1 alt update
 - `app/index.html` — tam SEO head + 1 JSON-LD schema
 
-**Yeni fayl yaradıldı (4 fayl):**
-- `robots.txt` — AI bot whitelist daxil
-- `sitemap.xml` — 4 URL, image və hreflang
-- `llms.txt` — AI assistant-lara hədəflənmiş biznes təsviri
+**New files created (4):**
+- `robots.txt` — including the AI bot whitelist
+- `sitemap.xml` — 4 URLs, image and hreflang
+- `llms.txt` — a business description aimed at AI assistants
 - `site.webmanifest` — PWA + app store association
 
-**UI elementi:** sıfır dəyişiklik. Heç bir CSS, görünən HTML, JS dəyişdirilməyib.
+**UI elements:** zero changes. No CSS, visible HTML or JS was modified.
 
-**Toxunulmamış:** mövcud body kontenti, dizayn, layout, fontlar, rənglər, JS davranışı.
+**Untouched:** the existing body content, design, layout, fonts, colours and JS behaviour.
 
 ---
 
-*Sənəd tarixi: 2026-05-05*
+*Document date: 2026-05-05*

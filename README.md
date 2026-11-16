@@ -1,48 +1,47 @@
 # DRIGO Landing Page
 
-HTML, CSS və JavaScript ilə yaradılmış müasir landing page layihəsi.
+A modern landing page project built with HTML, CSS and JavaScript.
 
-## 📁 Layihə Strukturu
+## 📁 Project structure
 
 ```
 DRIGO.Landing/
-├── index.html          # Əsas HTML faylı
+├── index.html          # Main HTML file
 ├── css/
-│   └── styles.css      # Əsas CSS faylı
+│   └── styles.css      # Main CSS file
 ├── js/
-│   └── script.js       # Əsas JavaScript faylı
+│   └── script.js       # Main JavaScript file
 ├── assets/
-│   ├── images/         # Şəkil faylları
-│   ├── fonts/          # Font faylları
-│   └── icons/          # İkon faylları
-└── README.md           # Layihə sənədləşməsi
+│   ├── images/         # Image files
+│   ├── fonts/          # Font files
+│   └── icons/          # Icon files
+└── README.md           # Project documentation
 ```
 
-## 🚀 İstifadə
+## 🚀 Usage
 
-1. Layihəni açın
-2. `index.html` faylını brauzerdə açın
-3. Dəyişikliklər üçün CSS və JavaScript fayllarını redaktə edin
+1. Open the project
+2. Open `index.html` in a browser
+3. Edit the CSS and JavaScript files to make changes
 
-## ✨ Xüsusiyyətlər
+## ✨ Features
 
-- ✅ Responsive dizayn
-- ✅ Smooth scroll navigasiya
-- ✅ Form validasiyası
-- ✅ Scroll animasiyaları
+- ✅ Responsive design
+- ✅ Smooth scroll navigation
+- ✅ Form validation
+- ✅ Scroll animations
 - ✅ Modern UI/UX
-- ✅ San Francisco font sistemi
+- ✅ San Francisco font system
 
-## 🛠️ Texnologiyalar
+## 🛠️ Technologies
 
 - HTML5
 - CSS3 (Custom Properties, Flexbox, Grid)
 - Vanilla JavaScript
 
-## 📝 Qeydlər
+## 📝 Notes
 
-- Bütün fayllar UTF-8 kodlaşdırması ilə yazılmışdır
-- CSS-də CSS Variables istifadə olunub
-- JavaScript-də modern ES6+ sintaksis istifadə olunub
-- Responsive dizayn mobile-first yanaşma ilə hazırlanıb
-
+- Every file is written in UTF-8
+- CSS Variables are used in the CSS
+- Modern ES6+ syntax is used in the JavaScript
+- The responsive design follows a mobile-first approach
