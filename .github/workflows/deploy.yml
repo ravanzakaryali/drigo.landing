@@ -1,0 +1,49 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+    # Documentation-only pushes must not redeploy the site.
+    # Safe as a blanket rule here: no markdown file in this repo is a runtime asset
+    # (llms.txt is .txt and still deploys).
+    paths-ignore:
+      - '**.md'
+  # Manual deploy button. Also the escape hatch when a docs-only push, or a push
+  # made with [skip ci], does need to go out.
+  workflow_dispatch:
+
+# Never run two deploys against the same checkout at once.
+concurrency:
+  group: deploy-landing
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            set -e
+            cd ${{ secrets.PROJECT_PATH }}
+
+            echo "📍 Before:"
+            git log -1 --oneline
+
+            # The server's origin is git@github-landing:..., an alias in /root/.ssh/config
+            # that uses the landing deploy key (~/.ssh/github_landing).
+            git fetch origin main 2>&1
+            git reset --hard origin/main 2>&1
+
+            echo "📍 After:"
+            git log -1 --oneline
+
+            # Static site: nginx serves this folder directly, nothing to build or restart.
+            echo "✅ Deploy completed successfully"
